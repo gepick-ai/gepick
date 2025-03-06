@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "lib"
+  },
+  "references": [
+    {
+      "path": "../plugin-api"
+    },
+    {
+      "path": "../messaging"
+    }
+  ],
+  "include": [
+    "src"
+  ]
+}

@@ -1,0 +1,47 @@
+name: 缺陷报告
+description: 提交一个错误报告
+title: '[缺陷报告]: '
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你花时间填写这份错误报告！在提交之前，请确保你已经搜索过现有的问题，以免重复提交。
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 发生了什么？
+      description: 或者告诉我们，你期望会发生什么？
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 我们如何复现这个bug？
+      description: 如果你能再次复现这个错误，请分享涉及的步骤。
+    validations:
+      required: false
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: 你在哪些浏览器上看到了这个问题？
+      multiple: true
+      options:
+        - Firefox
+        - Chrome
+        - Safari
+        - Microsoft Edge
+  - type: textarea
+    id: logs
+    attributes:
+      label: 相关的日志输出
+      description: 请复制并粘贴任何相关的日志输出。这将自动格式化为代码，所以不需要反引号。
+      render: shell
+  - type: input
+    id: contact
+    attributes:
+      label: 联系方式
+      description: 如果我们需要更多信息，我们如何与你联系？
+      placeholder: 请输入你的邮箱或者其他联系方式
+    validations:
+      required: false

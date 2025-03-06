@@ -1,0 +1,34 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "allowJs": true,
+    "noImplicitAny": false,
+    "outDir": "dist"
+  },
+  "references": [
+    // ========packages============
+    {
+      "path": "../../packages/shared"
+    },
+    {
+      "path": "../../packages/auth"
+    },
+    {
+      "path": "../../packages/copilot"
+    },
+    {
+      "path": "../../packages/user"
+    },
+    {
+      "path": "../../packages/messaging"
+    },
+    {
+      "path": "../../packages/logger"
+    },
+    {
+      "path": "../../packages/plugin-system"
+    }
+  ],
+  "include": ["src"]
+}

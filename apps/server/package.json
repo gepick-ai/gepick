@@ -1,0 +1,42 @@
+{
+  "name": "@gepick/server",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./*": "./src/*"
+  },
+  "scripts": {
+    "dev": "gepick compile && nodemon --import ./scripts/register.js --es-module-specifier-resolution=node ./dist/index.js",
+    "build": "gepick compile",
+    "watch": "gepick compile --watch"
+  },
+  "dependencies": {
+    "@gepick/auth": "workspace:*",
+    "@gepick/copilot": "workspace:*",
+    "@gepick/logger": "workspace:*",
+    "@gepick/messaging": "workspace:*",
+    "@gepick/plugin-system": "workspace:*",
+    "@gepick/shared": "workspace:*",
+    "@gepick/user": "workspace:*",
+    "@typegoose/typegoose": "^12.9.1",
+    "body-parser": "^1.20.3",
+    "bottender": "patch:bottender@npm%3A1.5.5#~/.yarn/patches/bottender-npm-1.5.5-96b3763fc1.patch",
+    "chalk": "^5.3.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "linebot": "^1.6.1",
+    "lunar-javascript": "^1.6.12",
+    "moment": "^2.30.1",
+    "mongoose": "^8.3.2",
+    "node-cron": "^3.0.3",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@gepick/cli": "workspace:*",
+    "@types/body-parser": "^1.19.5",
+    "@types/express": "^5.0.0",
+    "nodemon": "^3.1.7"
+  }
+}

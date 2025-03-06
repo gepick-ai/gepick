@@ -1,0 +1,78 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "jsx": "preserve",
+    "lib": [
+      "es2020",
+      "dom"
+    ],
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "baseUrl": ".",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "paths": {
+      // ============apps==============
+      "@gepick/client/*": [
+        "./apps/client/src/*"
+      ],
+      "@gepick/server/*": [
+        "./apps/server/src/*"
+      ],
+      "@gepick/plugin-a/*": [
+        "./apps/plugin-a/src/*"
+      ],
+      // ============packages============
+      "@gepick/auth/*": [
+        "./packages/auth/src/*"
+      ],
+      "@gepick/shared/*": [
+        "./packages/shared/src/*"
+      ],
+      "@gepick/copilot/*": [
+        "./packages/copilot/src/*"
+      ],
+      "@gepick/messaging/*": [
+        "./packages/messaging/src/*"
+      ],
+      "@gepick/plugin-api/*": [
+        "./packages/plugin-api/src/*"
+      ],
+      "@gepick/plugin-system/*": [
+        "./packages/plugin-system/src/*"
+      ],
+      "@gepick/plugin-registry/*": [
+        "./packages/plugin-registry/src/*"
+      ],
+      // ============tools==============
+      "@gepick/cli/*": [
+        "./tools/cli/src/*"
+      ]
+    },
+    "resolveJsonModule": true,
+    "allowArbitraryExtensions": true,
+    "allowJs": false,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "declaration": true,
+    "importHelpers": true,
+    "noEmitOnError": true,
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "tmp",
+    ".nx"
+  ],
+  "compileOnSave": false
+}

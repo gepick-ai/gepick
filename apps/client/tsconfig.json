@@ -1,0 +1,32 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "references": [
+    {
+      "path": "../../packages/shared"
+    },
+    {
+      "path": "../../packages/auth"
+    },
+    {
+      "path": "../../packages/user"
+    },
+    {
+      "path": "../../packages/copilot"
+    },
+    {
+      "path": "../../packages/messaging"
+    },
+    {
+      "path": "../../packages/logger"
+    },
+    {
+      "path": "../../packages/plugin-system"
+    }
+  ],
+  "include": ["src"]
+}

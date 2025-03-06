@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  client:
+    image: ghcr.io/gepick-friends/gepick-client:release
+    container_name: gepick_client
+    restart: unless-stopped
+    volumes:
+      - ~/.gepick/nginx/conf.d:/etc/nginx/conf.d
+      - ~/.gepick/nginx/log:/var/log/nginx
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - server
+
+  server:
+    image: ghcr.io/gepick-friends/gepick-server:release
+    container_name: gepick_server
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=mongodb://mongodb:27017/gepick
+
+  mongodb:
+    image: mongo
+    container_name: gepick_mongodb
+    volumes:
+      - ~/.gepick/mongo:/data/db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+

@@ -1,0 +1,14 @@
+{
+  "name": "@gepick/plugin-a",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": {
+      "import": "./src/index.js"
+    }
+  },
+  "dependencies": {
+    "@gepick/plugin-api": "workspace:*"
+  }
+}

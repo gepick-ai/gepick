@@ -1,0 +1,33 @@
+{
+  "name": "@gepick/logger",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./browser": {
+      "types": "./lib/browser/index.d.ts",
+      "import": "./lib/browser/index.js"
+    },
+    "./node": {
+      "types": "./lib/node/index.d.ts",
+      "import": "./lib/node/index.js"
+    },
+    "./common": {
+      "types": "./lib/common/index.d.ts",
+      "import": "./lib/common/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "gepick compile --watch",
+    "build": "gepick compile"
+  },
+  "peerDependencies": {
+    "express": "^4.21.1"
+  },
+  "dependencies": {
+    "@gepick/messaging": "workspace:*"
+  },
+  "devDependencies": {
+    "@gepick/cli": "workspace:*"
+  }
+}

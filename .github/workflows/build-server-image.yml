@@ -1,0 +1,514 @@
+name: build-server-image
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: 'write'
+  id-token: 'write'
+  packages: 'write'
+
+jobs:
+  build-cli:
+    name: 构建cli产物
+    runs-on: ubuntu-latest
+    steps:
+      - name: 代码检出
+        uses: actions/checkout@v3
+
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.15.0
+
+      - name: 缓存node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+            ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: 安装依赖
+        run: yarn install --frozen-lockfile && yarn build:cli
+
+      - name: 构建cli产物
+        run: yarn build:cli
+
+      - name: 上传cli构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli
+          path: ./tools/cli/lib
+          if-no-files-found: error
+
+  build-server:
+    name: 构建server产物
+    runs-on: ubuntu-latest
+    steps:
+      - name: 代码检出
+        uses: actions/checkout@v3
+
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.15.0
+
+      - name: 缓存node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+            ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: 安装依赖
+        run: yarn install --frozen-lockfile && yarn build:cli
+
+      - name: 构建server产物
+        run: yarn build:server
+
+      - name: 上传server构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: server
+          path: ./apps/server/dist
+          if-no-files-found: error
+
+  build-auth:
+    name: 构建auth产物
+    runs-on: ubuntu-latest
+    steps:
+      - name: 代码检出
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.15.0
+
+      - name: 缓存node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+            ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: 安装依赖
+        run: yarn install --frozen-lockfile && yarn build:cli
+
+      - name: 构建auth产物
+        run: yarn build:auth
+
+      - name: 上传auth构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: auth
+          path: ./packages/auth/lib
+          if-no-files-found: error
+
+  build-copilot:
+    name: 构建copilot产物
+    runs-on: ubuntu-latest
+    steps:
+      - name: 代码检出
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.15.0
+
+      - name: 缓存node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+            ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: 安装依赖
+        run: yarn install --frozen-lockfile && yarn build:cli
+
+      - name: 构建copilot产物
+        run: yarn build:copilot
+
+      - name: 上传copilot构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: copilot
+          path: ./packages/copilot/lib
+          if-no-files-found: error
+
+  build-omikuji:
+    name: 构建omikuji产物
+    runs-on: ubuntu-latest
+    steps:
+      - name: 代码检出
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.15.0
+
+      - name: 缓存node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+            ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: 安装依赖
+        run: yarn install --frozen-lockfile && yarn build:cli
+
+      - name: 构建omikuji产物
+        run: yarn build:omikuji
+
+      - name: 上传omikuji构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: omikuji
+          path: ./packages/omikuji/lib
+          if-no-files-found: error
+
+  build-paypay:
+    name: 构建paypay产物
+    runs-on: ubuntu-latest
+    steps:
+      - name: 代码检出
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.15.0
+
+      - name: 缓存node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+            ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: 安装依赖
+        run: yarn install --frozen-lockfile && yarn build:cli
+
+      - name: 构建paypay产物
+        run: yarn build:paypay
+        env:
+          PAYMENT_REDIRECT_URL: ${{ secrets.PAYMENT_REDIRECT_URL }}
+
+      - name: 上传paypay构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: paypay
+          path: ./packages/paypay/lib
+          if-no-files-found: error
+
+  build-pricing:
+    name: 构建pricing产物
+    runs-on: ubuntu-latest
+    steps:
+      - name: 代码检出
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.15.0
+
+      - name: 缓存node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+            ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: 安装依赖
+        run: yarn install --frozen-lockfile && yarn build:cli
+
+      - name: 构建pricing产物
+        run:  yarn build:pricing
+
+      - name: 上传pricing构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: pricing
+          path: ./packages/pricing/lib
+          if-no-files-found: error
+
+  build-shared:
+    name: 构建shared产物
+    runs-on: ubuntu-latest
+    steps:
+      - name: 代码检出
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.15.0
+
+      - name: 缓存node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+            ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: 安装依赖
+        run: yarn install --frozen-lockfile && yarn build:cli
+
+      - name: 构建shared产物
+        run: yarn build:shared
+
+      - name: 上传shared-tool构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared
+          path: ./packages/shared/lib
+          if-no-files-found: error
+
+  build-wallpaper:
+    name: 构建wallpaper产物
+    runs-on: ubuntu-latest
+    steps:
+      - name: 代码检出
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.15.0
+
+      - name: 缓存node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+            ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: 安装依赖
+        run: yarn install --frozen-lockfile && yarn build:cli
+
+      - name: 构建wallpaper产物
+        run: yarn build:wallpaper
+
+      - name: 上传wallpaper构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: wallpaper
+          path: ./packages/wallpaper/lib
+          if-no-files-found: error
+
+  build-astro:
+    name: 构建astro产物
+    runs-on: ubuntu-latest
+    steps:
+      - name: 代码检出
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.15.0
+
+      - name: 缓存node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+            ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: 安装依赖
+        run: yarn install --frozen-lockfile && yarn build:cli
+
+      - name: 构建astro产物
+        run: yarn build:astro
+
+      - name: 上传wallpaper构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: astro
+          path: ./packages/astro/lib
+          if-no-files-found: error
+
+  build-user:
+    name: 构建user产物
+    runs-on: ubuntu-latest
+    steps:
+      - name: 代码检出
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.15.0
+
+      - name: 缓存node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+            ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: 安装依赖
+        run: yarn install --frozen-lockfile && yarn build:cli
+
+      - name: 构建user产物
+        run: yarn build:user
+
+      - name: 上传user构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: user
+          path: ./packages/user/lib
+          if-no-files-found: error
+
+  build-server-image:
+    name: 构建server镜像
+    runs-on: ubuntu-latest
+    needs:
+      - build-cli
+      - build-server
+      - build-auth
+      - build-copilot
+      - build-omikuji
+      - build-paypay
+      - build-pricing
+      - build-shared
+      - build-wallpaper
+      - build-astro
+      - build-user
+
+    steps:
+      - name: 代码检出
+        uses: actions/checkout@v4
+
+      - name: 下载cli构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: cli
+          path: ./tools/cli/lib
+
+      - name: 下载server构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: server
+          path: ./apps/server/dist
+
+      - name: 下载auth构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: auth
+          path: ./packages/auth/lib
+
+      - name: 下载copilot构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: copilot
+          path: ./packages/copilot/lib
+
+      - name: 下载omikuji构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: omikuji
+          path: ./packages/omikuji/lib
+
+      - name: 下载paypay构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: paypay
+          path: ./packages/paypay/lib
+
+      - name: 下载pricing构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: pricing
+          path: ./packages/pricing/lib
+
+      - name: 下载shared构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: shared
+          path: ./packages/shared/lib
+
+      - name: 下载wallpaper构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: wallpaper
+          path: ./packages/wallpaper/lib
+
+      - name: 下载astro构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: astro
+          path: ./packages/astro/lib
+
+      - name: 下载user构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: user
+          path: ./packages/user/lib
+
+
+
+      - name: 设置Git Hash
+        run: echo "GIT_SHORT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: 登录到GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          logout: false
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+    # =====分别设置QEMU和Docker Buildx，以支持多架构构建=====
+      - name: 设置QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: 设置Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 构建server镜像
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          pull: true
+          platforms: linux/amd64,linux/arm64
+          provenance: true
+          file: .github/deployment/server/Dockerfile
+          tags: ghcr.io/gepick-friends/gepick-server:release

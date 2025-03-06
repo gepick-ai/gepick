@@ -1,0 +1,37 @@
+{
+  "name": "@gepick/messaging",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./browser": {
+      "types": "./lib/browser/index.d.ts",
+      "import": "./lib/browser/index.js"
+    },
+    "./node": {
+      "types": "./lib/node/index.d.ts",
+      "import": "./lib/node/index.js"
+    },
+    "./common": {
+      "types": "./lib/common/index.d.ts",
+      "import": "./lib/common/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "gepick compile --watch",
+    "build": "gepick compile"
+  },
+  "peerDependencies": {
+    "express": "^4.21.1"
+  },
+  "dependencies": {
+    "reconnecting-websocket": "^4.4.0",
+    "vscode-uri": "^1.0.1",
+    "vscode-ws-jsonrpc": "^3.4.0",
+    "ws": "^3.0.0"
+  },
+  "devDependencies": {
+    "@gepick/cli": "workspace:*",
+    "@types/ws": "^3.0.2"
+  }
+}

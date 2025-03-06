@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo
+    container_name: gepick_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ~/.gepick/mongo:/data/db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+
+volumes:
+  gepick-db-data:
+    name: gepick-db-data

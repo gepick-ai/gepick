@@ -1,0 +1,89 @@
+{
+  "name": "@gepick/root",
+  "type": "module",
+  "private": true,
+  "packageManager": "yarn@4.3.1",
+  "workspaces": [
+    ".",
+    "apps/*",
+    "packages/*",
+    "tools/*"
+  ],
+  "engines": {
+    "node": "22.11.0",
+    "yarn": "4.3.1"
+  },
+  "scripts": {
+    "clean": "gepick clean",
+    "setup:env": "gepick setup-env",
+    "start:gepick-service": "yarn clean && yarn compile && yarn setup:env && yarn dev:server",
+    "start:gepick-client": "yarn dev:client",
+    "compile": "gepick build --target server",
+    "build:server": "gepick build --target server",
+    "build:client": "gepick build --target client",
+    "build:auth": "gepick build --target auth",
+    "build:user": "gepick build --target user",
+    "build:copilot": "gepick build --target copilot",
+    "build:shared": "gepick build --target shared",
+    "dev:server": "gepick dev --target server",
+    "dev:client": "gepick dev --target client",
+    "dev:auth": "gepick dev --target auth",
+    "dev:user": "gepick dev --target user",
+    "dev:copilot": "gepick dev --target copilot",
+    "dev:shared": "gepick dev --target shared",
+    "build:cli": "yarn workspace @gepick/cli build",
+    "dev:cli": "yarn workspace @gepick/cli dev",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "fs-extra": "^11.2.0",
+    "workspace": "^0.0.1-preview.1"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^2.20.0",
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
+    "@eslint/js": "^9.3.0",
+    "@gepick/cli": "workspace:*",
+    "@types/dotenv-parse-variables": "^2.0.3",
+    "@types/eslint__js": "^8.42.3",
+    "@types/minimist": "^1.2.5",
+    "@types/node": "^20.11.25",
+    "@types/semver": "^7.5.8",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5",
+    "dotenv-cli": "^7.3.0",
+    "dotenv-parse-variables": "^2.0.0",
+    "enquirer": "^2.4.1",
+    "esbuild-plugin-define": "^0.4.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-tailwindcss": "^3.17.0",
+    "eslint-plugin-vue": "^9.26.0",
+    "execa": "5.0.0",
+    "husky": "^9.0.11",
+    "lerna": "^8.1.9",
+    "lint-staged": "^15.2.5",
+    "minimist": "^1.2.8",
+    "rimraf": "^6.0.1",
+    "semver": "^7.6.0",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.0.2",
+    "tsx": "^4.7.2",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^7.11.0",
+    "vite": "^4.4.5",
+    "vite-plugin-checker": "^0.6.2",
+    "vite-plugin-dts": "^3.9.1",
+    "vite-tsconfig-paths": "^4.2.3"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix"
+    ]
+  }
+}

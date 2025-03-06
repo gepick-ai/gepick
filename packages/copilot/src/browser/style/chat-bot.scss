@@ -1,0 +1,190 @@
+.chat-assistant {
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  z-index: 0;
+
+  .message-area {
+    width: 932px;
+    height: 100%;
+    overflow: auto;
+
+    .message-area-content {
+      width: 900px;
+      padding: 21px 36px 50px;
+      border-radius: 16px;
+    }
+
+    .message-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow: auto;
+
+      .user-message {
+        display: flex;
+        align-content: center;
+        justify-content: end;
+        flex-direction: row-reverse;
+        column-gap: 10px;
+
+        .avatar {
+          flex-shrink: 0;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+        }
+
+        .default-avatar{
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color:azure;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        font-weight: 700;
+        color:rgb(62, 112, 203);
+      }
+
+        .user-message-content {
+          background: #ff5582;
+          font-size: 14px;
+          color: #ffffff;
+        }
+      }
+
+      .assistant-message {
+        display: flex;
+        align-content: center;
+        justify-content: start;
+        flex-direction: row;
+        column-gap: 10px;
+
+        .ant-spin-dot-item {
+          background-color: #fff;
+        }
+
+        svg {
+          color: #fff;
+        }
+
+        .avatar {
+          flex-shrink: 0;
+          width: 32px;
+          height: 32px;
+          line-height: 32px;
+          text-align: center;
+          background: linear-gradient(145deg, #ff97b2 0%, #b162ff 50%, #8102e9 100%);
+          border-radius: 50%;
+          font-weight: 600;
+          font-size: 11px;
+          color: #eedaff;
+        }
+
+        .assistant-content {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+
+          &.content-loading {
+            justify-content: center;
+            align-items: center;
+            padding-top: 4px;
+            :deep(.ant-spin) {
+              height: 100%;
+            }
+          }
+
+          .assistant-message-content {
+            height: auto;
+            overflow: hidden;
+          }
+
+          .assistant-attachments {
+            margin-left: 20px;
+            display: flex;
+            gap: 7px;
+          }
+        }
+      }
+    }
+  }
+
+  .prompt-area {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex-shrink: 0;
+    height: 72px;
+
+    .prompt-area-content {
+      margin-left: 84px;
+      width: 684px;
+
+      .user-input {
+        height: 32px;
+        display: flex;
+        align-items: end;
+        gap: 10px;
+        background: #eedaff;
+        box-shadow: 0px -15px 19px 0px rgba(255, 255, 255, 0.25);
+        border-radius: 16px;
+        border: 1px solid #9b2ffd;
+
+        .ant-input {
+          flex: 1 !important;
+          border: none;
+          outline: none;
+          box-shadow: none;
+          background-color: transparent;
+          caret-color: #9b2ffd;
+          padding-left: 37px;
+          height: 100% !important;
+
+          &::placeholder {
+            font-size: 14px;
+            color: #dc91f7;
+          }
+        }
+
+        .prompt-send-btn {
+          width: 63px;
+          height: 100%;
+          border-radius: 0 13px 13px 0; /* 右上和右下角为 16px，左上和左下角为 0 */
+          background: #9b2ffd;
+          border: none;
+          cursor: pointer;
+          text-align: center;
+
+
+        }
+      }
+    }
+  }
+
+  .message-content {
+    padding: 6px 19px;
+    max-width: 518px;
+    width: fit-content;
+    border-radius: 4px;
+
+    .md-editor-preview {
+      font-size: 14px !important;
+      color: rgba(0, 0, 0, 0.85) !important;
+    }
+    .md-editor-preview-wrapper {
+      padding: 0;
+    }
+  }
+
+  .default-area {
+    position: absolute;
+    width: 900px;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
+    z-index: -1;
+  }
+}

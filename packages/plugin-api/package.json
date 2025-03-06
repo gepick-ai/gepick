@@ -1,0 +1,14 @@
+{
+  "name": "@gepick/plugin-api",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "types": "./src/index.d.ts",
+  "scripts": {
+    "dev": "gepick compile --watch",
+    "build": "gepick compile"
+  },
+  "devDependencies": {
+    "@gepick/cli": "workspace:*"
+  }
+}

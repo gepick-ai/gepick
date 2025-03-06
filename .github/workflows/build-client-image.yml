@@ -1,0 +1,80 @@
+name: build-client-image
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: 'write'
+  id-token: 'write'
+  packages: 'write'
+
+jobs:
+  build-client:
+    name: 构建client产物
+    runs-on: ubuntu-latest
+    steps:
+      - name: 代码检出
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.15.0
+
+      - name: 构建client产物
+        run: yarn && yarn build:cli &&  yarn build:client
+        env:
+          MESSAGING_URL: ${{ secrets.MESSAGING_URL }}
+          COPILOT_CHAT_URL: ${{ secrets.COPILOT_CHAT_URL }}
+
+
+      - name: 上传client构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: client
+          path: ./apps/client/dist
+          if-no-files-found: error
+
+  build-client-image:
+    name: 构建client镜像
+    runs-on: ubuntu-latest
+    needs:
+      - build-client
+    steps:
+      - name: 代码检出
+        uses: actions/checkout@v4
+
+      - name: 下载client构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: client
+          path: ./apps/client/dist
+
+      - name: 设置Git Hash
+        run: echo "GIT_SHORT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: 登录到GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          logout: false
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+    # =====分别设置QEMU和Docker Buildx，以支持多架构构建=====
+      - name: 设置QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: 设置Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 构建客户端镜像
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          pull: true
+          platforms: linux/amd64,linux/arm64
+          provenance: true
+          file: .github/deployment/client/Dockerfile
+          tags: ghcr.io/gepick-friends/gepick-client:release
