@@ -30,8 +30,10 @@
     "ant-design-vue": "^4.2.5",
     "axios": "^1.6.7",
     "get-stream": "^9.0.1",
+    "inversify": "^6.0.2",
     "lodash-es": "^4.17.21",
     "reconnecting-websocket": "^4.4.0",
+    "reflect-metadata": "^0.1.13",
     "vscode-jsonrpc": "^8.2.1",
     "vscode-uri": "^1.0.1",
     "ws": "^3.0.0"

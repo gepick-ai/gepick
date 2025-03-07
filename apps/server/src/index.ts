@@ -16,6 +16,8 @@ import { pluginDeploymentContribution, pluginServerConnectionHandler } from "@ge
 import { OAUTH_CALLBACK_API, OAUTH_PREFILIGHT_API, SEND_EMAIL_CAPTCHA_API, VERIFY_EMAIL_CAPTCHA_API } from "@gepick/auth/common"
 import { useCopilotRouter } from '@gepick/copilot/node';
 
+import "./demo"
+
 export class GepickServer {
   private bottenderServer: BottenderServer = bottender({
     dev: process.env.NODE_ENV !== "production",

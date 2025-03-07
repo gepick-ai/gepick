@@ -5,3 +5,4 @@ export * from './iterator'
 export * from "./request/messaging-service"
 export * from "./dto"
 export * from "./messaging"
+export * from "./instantiation"
