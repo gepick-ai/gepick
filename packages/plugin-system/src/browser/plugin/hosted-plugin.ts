@@ -1,4 +1,4 @@
-import { webSocketConnectionProvider } from '@gepick/messaging/browser';
+import { webSocketConnectionProvider } from '@gepick/core/browser';
 import { IRPCProtocol, RPCProtocol } from '../../common/rpc-protocol';
 import { IPluginMetadata, IPluginServer } from '../../common/plugin-protocol';
 import { EXT, IPlugin } from '../../common/plugin-api';

@@ -14,10 +14,9 @@
   "dependencies": {
     "@gepick/auth": "workspace:*",
     "@gepick/copilot": "workspace:*",
+    "@gepick/core": "workspace:*",
     "@gepick/logger": "workspace:*",
-    "@gepick/messaging": "workspace:*",
     "@gepick/plugin-system": "workspace:*",
-    "@gepick/shared": "workspace:*",
     "@gepick/user": "workspace:*",
     "@typegoose/typegoose": "^12.9.1",
     "body-parser": "^1.20.3",

@@ -7,7 +7,7 @@
   },
   "references": [
     {
-      "path": "../messaging"
+      "path": "../core"
     }
   ],
   "include": [

@@ -2251,7 +2251,7 @@ __metadata:
   resolution: "@gepick/auth@workspace:packages/auth"
   dependencies:
     "@gepick/cli": "workspace:*"
-    "@gepick/shared": "workspace:*"
+    "@gepick/core": "workspace:*"
     "@gepick/user": "workspace:*"
     "@types/jsonwebtoken": "npm:^9"
     "@types/nodemailer": "npm:^6.4.17"
@@ -2292,10 +2292,9 @@ __metadata:
     "@better-scroll/core": "npm:^2.5.1"
     "@gepick/auth": "workspace:*"
     "@gepick/copilot": "workspace:*"
+    "@gepick/core": "workspace:*"
     "@gepick/logger": "workspace:*"
-    "@gepick/messaging": "workspace:*"
     "@gepick/plugin-system": "workspace:*"
-    "@gepick/shared": "workspace:*"
     "@gepick/user": "workspace:*"
     "@types/lodash-es": "npm:^4.17.12"
     "@vitejs/plugin-vue": "npm:^5.1.4"
@@ -2328,7 +2327,7 @@ __metadata:
   resolution: "@gepick/copilot@workspace:packages/copilot"
   dependencies:
     "@gepick/cli": "workspace:*"
-    "@gepick/shared": "workspace:*"
+    "@gepick/core": "workspace:*"
     "@gepick/user": "workspace:*"
     "@microsoft/fetch-event-source": "npm:^2.0.1"
     "@types/copyfiles": "npm:^2"
@@ -2343,27 +2342,34 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@gepick/logger@workspace:*, @gepick/logger@workspace:packages/logger":
+"@gepick/core@workspace:*, @gepick/core@workspace:packages/core":
   version: 0.0.0-use.local
-  resolution: "@gepick/logger@workspace:packages/logger"
+  resolution: "@gepick/core@workspace:packages/core"
   dependencies:
+    "@aws-sdk/client-s3": "npm:^3.709.0"
     "@gepick/cli": "workspace:*"
-    "@gepick/messaging": "workspace:*"
+    "@node-rs/crc32": "npm:^1.10.6"
+    "@types/lodash-es": "npm:^4.17.12"
+    "@types/ws": "npm:^3.0.2"
+    ant-design-vue: "npm:^4.2.5"
+    axios: "npm:^1.6.7"
+    get-stream: "npm:^9.0.1"
+    lodash-es: "npm:^4.17.21"
+    reconnecting-websocket: "npm:^4.4.0"
+    vscode-jsonrpc: "npm:^8.2.1"
+    vscode-uri: "npm:^1.0.1"
+    ws: "npm:^3.0.0"
   peerDependencies:
     express: ^4.21.1
   languageName: unknown
   linkType: soft
 
-"@gepick/messaging@workspace:*, @gepick/messaging@workspace:packages/messaging":
+"@gepick/logger@workspace:*, @gepick/logger@workspace:packages/logger":
   version: 0.0.0-use.local
-  resolution: "@gepick/messaging@workspace:packages/messaging"
+  resolution: "@gepick/logger@workspace:packages/logger"
   dependencies:
     "@gepick/cli": "workspace:*"
-    "@types/ws": "npm:^3.0.2"
-    reconnecting-websocket: "npm:^4.4.0"
-    vscode-uri: "npm:^1.0.1"
-    vscode-ws-jsonrpc: "npm:^3.4.0"
-    ws: "npm:^3.0.0"
+    "@gepick/core": "workspace:*"
   peerDependencies:
     express: ^4.21.1
   languageName: unknown
@@ -2391,7 +2397,7 @@ __metadata:
   resolution: "@gepick/plugin-system@workspace:packages/plugin-system"
   dependencies:
     "@gepick/cli": "workspace:*"
-    "@gepick/messaging": "workspace:*"
+    "@gepick/core": "workspace:*"
     "@gepick/plugin-api": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -2447,10 +2453,9 @@ __metadata:
     "@gepick/auth": "workspace:*"
     "@gepick/cli": "workspace:*"
     "@gepick/copilot": "workspace:*"
+    "@gepick/core": "workspace:*"
     "@gepick/logger": "workspace:*"
-    "@gepick/messaging": "workspace:*"
     "@gepick/plugin-system": "workspace:*"
-    "@gepick/shared": "workspace:*"
     "@gepick/user": "workspace:*"
     "@typegoose/typegoose": "npm:^12.9.1"
     "@types/body-parser": "npm:^1.19.5"
@@ -2471,29 +2476,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@gepick/shared@workspace:*, @gepick/shared@workspace:packages/shared":
-  version: 0.0.0-use.local
-  resolution: "@gepick/shared@workspace:packages/shared"
-  dependencies:
-    "@aws-sdk/client-s3": "npm:^3.709.0"
-    "@gepick/cli": "workspace:*"
-    "@node-rs/crc32": "npm:^1.10.6"
-    "@types/lodash-es": "npm:^4.17.12"
-    ant-design-vue: "npm:^4.2.5"
-    axios: "npm:^1.6.7"
-    get-stream: "npm:^9.0.1"
-    lodash-es: "npm:^4.17.21"
-  peerDependencies:
-    express: ^4.21.1
-  languageName: unknown
-  linkType: soft
-
 "@gepick/user@workspace:*, @gepick/user@workspace:packages/user":
   version: 0.0.0-use.local
   resolution: "@gepick/user@workspace:packages/user"
   dependencies:
     "@gepick/cli": "workspace:*"
-    "@gepick/shared": "workspace:*"
+    "@gepick/core": "workspace:*"
     "@types/lodash-es": "npm:^4.17.12"
     lodash-es: "npm:^4.17.21"
     uuid: "npm:^11.0.3"
@@ -18943,7 +18931,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vscode-jsonrpc@npm:~8.2.1":
+"vscode-jsonrpc@npm:^8.2.1":
   version: 8.2.1
   resolution: "vscode-jsonrpc@npm:8.2.1"
   checksum: 10/5a30c837abc7a1e45aeca69bc95e9679f43808b56b01830c3b1616d7088782babe8d6ae03276640ff2ba704ddf18305cc68926629bfb0fd8bafff195decb3aad
@@ -19007,15 +18995,6 @@ __metadata:
   version: 3.1.0
   resolution: "vscode-uri@npm:3.1.0"
   checksum: 10/80c2a2421f44b64008ef1f91dfa52a2d68105cbb4dcea197dbf5b00c65ccaccf218b615e93ec587f26fc3ba04796898f3631a9406e3b04cda970c3ca8eadf646
-  languageName: node
-  linkType: hard
-
-"vscode-ws-jsonrpc@npm:^3.4.0":
-  version: 3.4.0
-  resolution: "vscode-ws-jsonrpc@npm:3.4.0"
-  dependencies:
-    vscode-jsonrpc: "npm:~8.2.1"
-  checksum: 10/9a59cbcd8f1e769fab618331c4b44d2d860bf1cbd0482c1245659492463c471954a9d5930797e1f8c789838fc703b07b1fdd5dec6daee231960eace51c3a8e9f
   languageName: node
   linkType: hard
 

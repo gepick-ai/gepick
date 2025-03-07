@@ -7,7 +7,7 @@
   },
   "references": [
     {
-      "path": "../../packages/shared"
+      "path": "../../packages/core"
     },
     {
       "path": "../../packages/auth"
@@ -17,9 +17,6 @@
     },
     {
       "path": "../../packages/copilot"
-    },
-    {
-      "path": "../../packages/messaging"
     },
     {
       "path": "../../packages/logger"

@@ -1,8 +1,8 @@
-import { JsonRpcConnectionHandler } from '@gepick/messaging/common';
+import { Disposable, JsonRpcConnectionHandler } from '@gepick/core/common';
 import { IPluginClient, IPluginDeployerEntry, IPluginMetadata, IPluginServer } from '@gepick/plugin-system/common';
 import { HostedPlugin, PluginReader } from '@gepick/plugin-system/node';
 
-export class PluginServer implements IPluginServer {
+export class PluginServer extends Disposable implements IPluginServer {
   private readonly pluginReader: PluginReader = new PluginReader()
   private readonly hostedPlugin: HostedPlugin = new HostedPlugin()
   private pluginsMetadata: IPluginMetadata[] = []
@@ -66,7 +66,7 @@ export class PluginServer implements IPluginServer {
   terminateHostedPluginInstance: () => Promise<void>;
   isHostedTheiaRunning: () => Promise<boolean>;
   getHostedPluginInstanceURI: () => Promise<string>;
-  dispose: () => void;
+  override dispose: () => void;
 }
 
 export const pluginServer = new PluginServer();

@@ -1,4 +1,4 @@
-import { messagingService } from "@gepick/shared/browser"
+import { messagingService } from "@gepick/core/browser"
 import { GET_COPILOT_HISTORY_API, GetCopilotHistoryResponseDto } from "@gepick/copilot/common"
 
 /**

@@ -9,7 +9,7 @@
   "references": [
     // ========packages============
     {
-      "path": "../../packages/shared"
+      "path": "../../packages/core"
     },
     {
       "path": "../../packages/auth"
@@ -19,9 +19,6 @@
     },
     {
       "path": "../../packages/user"
-    },
-    {
-      "path": "../../packages/messaging"
     },
     {
       "path": "../../packages/logger"

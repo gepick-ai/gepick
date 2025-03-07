@@ -25,7 +25,7 @@
     "express": "^4.21.1"
   },
   "dependencies": {
-    "@gepick/messaging": "workspace:*"
+    "@gepick/core": "workspace:*"
   },
   "devDependencies": {
     "@gepick/cli": "workspace:*"

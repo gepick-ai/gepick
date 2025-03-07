@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { setupSse } from "@gepick/shared/node"
+import { setupSse } from "@gepick/core/node"
 import { COPILOT_CHAT_API, ChatMessage, Conversation, GET_COPILOT_HISTORY_API, GetCopilotHistoryResponseDto } from "@gepick/copilot/common"
 import { copilotService } from "@gepick/copilot/node"
 

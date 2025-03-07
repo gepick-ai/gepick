@@ -1,5 +1,5 @@
-import { ContentType } from '@gepick/shared/common'
-import { nodeMessagingService } from "@gepick/shared/node"
+import { ContentType } from '@gepick/core/common'
+import { nodeMessagingService } from "@gepick/core/node"
 
 const GOOGLE_OAUTH_CLIENT_ID = process.env.GOOGLE_OAUTH_CLIENT_ID ?? "348471034017-pn5hs4mn83ul07bmmfsnmg5evf3ro3q8.apps.googleusercontent.com"
 const GOOGLE_OAUTH_CLIENT_SECRET = process.env.GOOGLE_OAUTH_CLIENT_SECRET ?? "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"

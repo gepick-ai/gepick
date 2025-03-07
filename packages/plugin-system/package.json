@@ -22,7 +22,7 @@
     "build": "gepick compile"
   },
   "dependencies": {
-    "@gepick/messaging": "workspace:*",
+    "@gepick/core": "workspace:*",
     "@gepick/plugin-api": "workspace:*"
   },
   "devDependencies": {

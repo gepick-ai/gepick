@@ -1,4 +1,4 @@
-import { messagingService } from "@gepick/shared/browser"
+import { messagingService } from "@gepick/core/browser"
 import { OAUTH_CALLBACK_API, OAUTH_PREFILIGHT_API, OAuthCallbackRequestDto, OAuthPreflightRequestDto, OAuthPreflightResponseDto, OauthCallbackResponseDto, SEND_EMAIL_CAPTCHA_API, SendEmailCaptchaRequestDto, VERIFY_EMAIL_CAPTCHA_API, VerifyEmailCaptchaRequestDto, VerifyEmailCaptchaResponseDto } from "@gepick/auth/common"
 
 /**

@@ -26,14 +26,11 @@
       "@gepick/auth/*": [
         "./packages/auth/src/*"
       ],
-      "@gepick/shared/*": [
-        "./packages/shared/src/*"
+      "@gepick/core/*": [
+        "./packages/core/src/*"
       ],
       "@gepick/copilot/*": [
         "./packages/copilot/src/*"
-      ],
-      "@gepick/messaging/*": [
-        "./packages/messaging/src/*"
       ],
       "@gepick/plugin-api/*": [
         "./packages/plugin-api/src/*"

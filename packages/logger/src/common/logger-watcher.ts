@@ -1,4 +1,4 @@
-import { Emitter, Event } from '@gepick/messaging/common';
+import { Emitter, Event } from '@gepick/core/common';
 import { ILogLevelChangedEvent, ILoggerClient } from '@gepick/logger/common';
 
 class LoggerWatcher {

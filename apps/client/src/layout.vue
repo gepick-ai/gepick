@@ -3,7 +3,7 @@ import { Button, Layout, LayoutContent, LayoutHeader } from "ant-design-vue"
 import Tabs from "@gepick/client/components/tabs/index.vue"
 import Auth from "@gepick/client/components/auth/index.vue"
 
-import { webSocketConnectionProvider } from "@gepick/messaging/browser";
+import { webSocketConnectionProvider } from "@gepick/core/browser";
 import { ILoggerServer, loggerPath, loggerWatcher } from '@gepick/logger/common';
 import { IPluginServer } from '@gepick/plugin-system/common';
 import { commandRegistry, pluginContribution } from '@gepick/plugin-system/browser';

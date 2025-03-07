@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-import { JsonRpcConnectionHandler } from '@gepick/messaging/common';
+import { Disposable, JsonRpcConnectionHandler } from '@gepick/core/common';
 import { ILoggerClient, ILoggerServer, loggerPath } from "@gepick/logger/common";
 
-class ConsoleLogger implements ILoggerServer {
+class ConsoleLogger extends Disposable implements ILoggerServer {
   /* Logger client to send notifications to.  */
   private client: ILoggerClient | undefined = undefined;
 
@@ -10,7 +10,7 @@ class ConsoleLogger implements ILoggerServer {
     console.log(message);
   }
 
-  public readonly warn = (message: string): void  =>{
+  public readonly warn = (message: string): void => {
     console.log(`warning: ${message}`);
   }
 
@@ -34,7 +34,7 @@ class ConsoleLogger implements ILoggerServer {
 
   async getLogLevel(id: number): Promise<number> {
     console.log(`Get log level for ID: ${id}`);
-    return 0; // Default log level
+    return 0;
   }
 
   async child(obj: object): Promise<number> {
@@ -42,11 +42,10 @@ class ConsoleLogger implements ILoggerServer {
     return 1; // Default child logger ID
   }
 
-  dispose(): void {
+  override dispose(): void {
     console.log('Dispose logger');
   }
 }
-
 
 export const loggerConnectionHandler = new JsonRpcConnectionHandler<ILoggerClient>(loggerPath, (client) => {
   const loggerServer = new ConsoleLogger();

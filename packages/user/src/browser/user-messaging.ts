@@ -1,4 +1,4 @@
-import { messagingService } from "@gepick/shared/browser"
+import { messagingService } from "@gepick/core/browser"
 import { GET_USER_API, GetUserResponseDto } from "@gepick/user/common"
 
 export async function getUser() {

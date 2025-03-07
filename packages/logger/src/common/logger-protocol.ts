@@ -1,4 +1,4 @@
-import { JsonRpcServer } from '@gepick/messaging/common';
+import { JsonRpcServer } from '@gepick/core/common';
 
 export const ILoggerServer = Symbol('ILoggerServer');
 

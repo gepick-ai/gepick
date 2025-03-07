@@ -109,7 +109,7 @@ rpc.set(EXT.PLUGIN_MANAGER, new PluginManagerExt({
   async loadPlugin(_contextPath: string, plugin: any): Promise<void> {
     try {
       // debug
-      plugin.pluginPath = "/Users/work/Projects/demo/.gepick/plugin-a/src/index.js"
+      plugin.pluginPath = "/Users/work/Projects/gepick-plugin-system/.gepick/plugin-a/src/index.js"
 
       const pluginModule = await import(plugin.pluginPath);
       const pluginMain = pluginModule.default || pluginModule

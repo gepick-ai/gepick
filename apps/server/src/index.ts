@@ -11,9 +11,8 @@ import mongoose from 'mongoose';
 
 import { createJwtGuard, useAuthRouter, useOauthRouter } from "@gepick/auth/node"
 import { useUserRouter } from "@gepick/user/node"
-import { MessagingContribution } from "@gepick/messaging/node"
+import { MessagingContribution } from "@gepick/core/node"
 import { pluginDeploymentContribution, pluginServerConnectionHandler } from "@gepick/plugin-system/node"
-
 import { OAUTH_CALLBACK_API, OAUTH_PREFILIGHT_API, SEND_EMAIL_CAPTCHA_API, VERIFY_EMAIL_CAPTCHA_API } from "@gepick/auth/common"
 import { useCopilotRouter } from '@gepick/copilot/node';
 
