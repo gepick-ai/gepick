@@ -1,3 +1,4 @@
+/* eslint-disable ts/no-unsafe-function-type */
 import "reflect-metadata"
 import { ContainerModule, decorate, injectable, interfaces } from "inversify";
 import { ServiceConstructor } from './instantiation';
@@ -30,7 +31,6 @@ export function Module(metadata: IModuleMetadata) {
   const propsKeys = Object.keys(metadata);
   validateModuleKeys(propsKeys);
 
-  // eslint-disable-next-line ts/no-unsafe-function-type
   return (target: Function) => {
     for (const property in metadata) {
       if (Object.hasOwnProperty.call(metadata, property)) {
@@ -48,26 +48,32 @@ export abstract class ServiceModule extends ContainerModule {
   constructor() {
     super((bind) => {
       const services = this.getServices()
+
       services.forEach(service => this.registerService(bind, service));
     })
   }
 
   static getServices(): symbol[] {
     const services = this.prototype.getServices()
-    return services.map(service => service.serviceId)
-  }
-
-  protected registerService<T extends ServiceConstructor>(bind: interfaces.Bind, serviceConstructor: T): void {
-    bind(serviceConstructor.serviceId).to(this.createService(serviceConstructor));
-  }
-
-  protected createService<Ctor extends new (...args: any[]) => any>(serviceConstructor: Ctor) {
-    decorate(injectable(), serviceConstructor)
-
-    return serviceConstructor
+    return services.map(service => service.getServiceId())
   }
 
   protected getServices(): IModuleMetadata['services'] {
     return Reflect.getMetadata(MODULE_METADATA.SERVICES, this.constructor.prototype)
+  }
+
+  protected registerService<T extends ServiceConstructor>(bind: interfaces.Bind, serviceConstructor: T): void {
+    const serviceId = serviceConstructor.getServiceId()
+    const contributionId = serviceConstructor.getContributionId()
+
+    decorate(injectable(), serviceConstructor)
+    bind(serviceId).to(serviceConstructor);
+
+    if (contributionId) {
+      if (typeof contributionId !== 'symbol') {
+        throw new TypeError(`Service ${serviceConstructor.name} must have a static symbol type contribution property.`)
+      }
+      bind(contributionId).toService(serviceConstructor.getServiceId())
+    }
   }
 }

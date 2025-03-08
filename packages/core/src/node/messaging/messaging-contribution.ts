@@ -1,8 +1,8 @@
 import * as http from 'node:http';
-import { ConnectionHandler } from "@gepick/core/common";
-import { createServerWebSocketConnection } from "@gepick/core/node";
+import { ConnectionHandler, InjectableService } from "@gepick/core/common";
+import { IApplicationContribution, createServerWebSocketConnection } from "@gepick/core/node";
 
-export class MessagingContribution {
+export class MessagingContribution extends InjectableService implements IApplicationContribution {
   readonly handlers: ConnectionHandler[] = []
 
   onStart(server: http.Server): void {
@@ -90,4 +90,9 @@ export class MessagingContribution {
   addHandler(handler: ConnectionHandler): void {
     this.handlers.push(handler);
   }
+}
+
+export const IMessagingContribution = MessagingContribution.createServiceDecorator()
+export interface IMessagingContribution {
+  addHandler: (handler: ConnectionHandler) => void
 }

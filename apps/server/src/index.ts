@@ -16,7 +16,8 @@ import { pluginDeploymentContribution, pluginServerConnectionHandler } from "@ge
 import { OAUTH_CALLBACK_API, OAUTH_PREFILIGHT_API, SEND_EMAIL_CAPTCHA_API, VERIFY_EMAIL_CAPTCHA_API } from "@gepick/auth/common"
 import { useCopilotRouter } from '@gepick/copilot/node';
 
-import "./demo"
+// import { promise as moduleLoadReady } from "./app"
+import "./instantiation-example"
 
 export class GepickServer {
   private bottenderServer: BottenderServer = bottender({
@@ -52,11 +53,11 @@ export class GepickServer {
       const host = address.address === '::' ? 'localhost' : address.address;
       const port = address.port;
 
-      pluginDeploymentContribution.initialize();
+      // pluginDeploymentContribution.initialize();
 
-      const messagingContribution = new MessagingContribution();
-      messagingContribution.addHandler(pluginServerConnectionHandler);
-      messagingContribution.onStart(this.httpServer);
+      // const messagingContribution = new MessagingContribution();
+      // messagingContribution.addHandler(pluginServerConnectionHandler);
+      // messagingContribution.onStart(this.httpServer);
       resolve({ host, port })
     });
 
@@ -181,13 +182,14 @@ export class GepickServer {
 
 async function main() {
   try {
-    const server = new GepickServer();
-
-    server.start()
-      .then(({ host, port }: any) => {
-        // eslint-disable-next-line no-console
-        console.log(chalk.green.bold(`✔ Gepick Server is running at http://${host}:${port}`));
-      });
+    Promise.resolve().then(() => {
+      const server = new GepickServer();
+      server.start()
+        .then(({ host, port }: any) => {
+          // eslint-disable-next-line no-console
+          console.log(chalk.green.bold(`✔ Gepick Server is running at http://${host}:${port}`));
+        });
+    })
   }
   catch (err) {
     console.error((err as Error).stack);
