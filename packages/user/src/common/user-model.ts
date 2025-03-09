@@ -5,9 +5,5 @@ export class User {
     public avatarUrl: string,
     public chatLimit: number,
     public chatUsed: number,
-    public omikujiLimit: number,
-    public omikujiUsed: number,
-    public wallpaperLimit: number,
-    public wallpaperUsed: number,
   ) { }
 }

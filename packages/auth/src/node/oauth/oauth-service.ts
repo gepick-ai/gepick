@@ -1,16 +1,23 @@
-import { OAuthAccount, OauthTokens } from '@gepick/auth/node'
 import { OAuthProvider } from "@gepick/auth/common"
-import { userService } from "@gepick/user/node"
+import { IUserService } from "@gepick/user/node"
+import { InjectableService } from '@gepick/core/common'
+import { OAuthAccount, OauthTokens } from './provider-types';
 
-export class OauthService {
+export class OAuthService extends InjectableService {
+  constructor(
+    @IUserService private userService: IUserService,
+  ) {
+    super();
+  }
+
   async signInFromOauth(provider: OAuthProvider, externalAccount: OAuthAccount, tokens: OauthTokens) {
-    let user = await userService.findUserByProvider({
+    let user = await this.userService.findUserByProvider({
       provider,
       providerAccountId: externalAccount.id,
     })
 
     if (user) {
-      await userService.updateUser({
+      await this.userService.updateUser({
         id: user.id,
         ...tokens,
       })
@@ -18,7 +25,7 @@ export class OauthService {
       return user;
     }
 
-    user = await userService.createUser({
+    user = await this.userService.createUser({
       provider,
       providerAccountId: externalAccount.id,
       name: externalAccount.name,
@@ -29,4 +36,5 @@ export class OauthService {
   }
 }
 
-export const oauthService = new OauthService()
+export const IOAuthService = OAuthService.getServiceDecorator()
+export type IOAuthService = OAuthService

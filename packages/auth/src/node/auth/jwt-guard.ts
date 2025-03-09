@@ -1,4 +1,7 @@
-import { RequestHandler } from 'express';
+import { OAUTH_CALLBACK_API, OAUTH_PREFILIGHT_API, SEND_EMAIL_CAPTCHA_API, VERIFY_EMAIL_CAPTCHA_API } from '@gepick/auth/common';
+import { Contribution, InjectableService } from '@gepick/core/common';
+import { ApplicationContribution, IApplicationContribution } from '@gepick/core/node';
+import { Application, RequestHandler, Router } from 'express';
 import { expressjwt } from 'express-jwt';
 
 /**
@@ -15,4 +18,37 @@ export function createJwtGuard(whitelist: string[], apiPrefix?: string): Request
   }).unless({
     path: whitelist.map(wl => apiPrefix + wl),
   });
+}
+
+@Contribution(ApplicationContribution)
+export class JwtGuard extends InjectableService implements IApplicationContribution {
+  onApplicationInit(router: Router, app: Application): void {
+    const API_PREFIX = '/api';
+
+    app.use(API_PREFIX, (req, res, next) => {
+      const handleErrorNext = (err: any) => {
+        if (err) {
+          if (
+            err.name === 'UnauthorizedError'
+            && err.inner.name === 'TokenExpiredError'
+          ) {
+            res.json({
+              code: 401,
+              message: "jwt expired",
+            })
+            return
+          }
+        }
+        next(err);
+      };
+      const middleware = createJwtGuard([
+        OAUTH_PREFILIGHT_API,
+        OAUTH_CALLBACK_API,
+        SEND_EMAIL_CAPTCHA_API,
+        VERIFY_EMAIL_CAPTCHA_API,
+      ], API_PREFIX)
+
+      middleware(req, res, handleErrorNext);
+    }, router)
+  }
 }

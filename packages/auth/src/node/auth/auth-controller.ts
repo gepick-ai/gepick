@@ -2,7 +2,11 @@
 
 import { Request, Router } from "express"
 import { SEND_EMAIL_CAPTCHA_API, SendEmailCaptchaRequestDto, VERIFY_EMAIL_CAPTCHA_API, VerifyEmailCaptchaRequestDto } from "@gepick/auth/common"
-import { authService, jwtService, mailService } from "@gepick/auth/node"
+import { Contribution, InjectableService } from '@gepick/core/common';
+import { ApplicationContribution, IApplicationContribution } from '@gepick/core/node';
+import { IAuthService } from './auth-service';
+import { IJwtService } from './jwt-service';
+import { IMailService } from './mail-service';
 
 /**
  * 1.获取用户发送的email
@@ -19,52 +23,63 @@ import { authService, jwtService, mailService } from "@gepick/auth/node"
 
 const captchaMap = new Map<string, string>();
 
-export function useAuthRouter(router: Router): void {
-  interface ISendEmailCaptchaRequest extends Request<any, any, SendEmailCaptchaRequestDto> { }
+@Contribution(ApplicationContribution)
+export class AuthController extends InjectableService implements IApplicationContribution {
+  constructor(
+    @IAuthService private readonly authService: IAuthService,
+    @IJwtService private readonly jwtService: IJwtService,
+    @IMailService private readonly mailService: IMailService,
+  ) {
+    super()
+  }
 
-  router.post(SEND_EMAIL_CAPTCHA_API, async (req: ISendEmailCaptchaRequest, res) => {
-    const { email } = req.body;
-    const captcha = String(Math.floor(Math.random() * 1000000)).padEnd(6, '0');
+  onApplicationConfigure(app: Router): void {
+    interface ISendEmailCaptchaRequest extends Request<any, any, SendEmailCaptchaRequestDto> { }
 
-    captchaMap.set(email, captcha);
+    app.post(SEND_EMAIL_CAPTCHA_API, async (req: ISendEmailCaptchaRequest, res) => {
+      const { email } = req.body;
+      const captcha = String(Math.floor(Math.random() * 1000000)).padEnd(6, '0');
 
-    // 发送邮件
-    await mailService.sendMail({
-      to: email,
-      subject: "Gepick登录验证",
-      text: `
+      captchaMap.set(email, captcha);
+
+      // 发送邮件
+      await this.mailService.sendMail({
+        to: email,
+        subject: "Gepick登录验证",
+        text: `
       您正在请求通过电子邮件登录Gepick,
       您的登录验证码为：\n ${captcha}。 \n请勿将此验证码转发或提供给任何人。
       `,
+      })
+
+      res.end()
     })
 
-    res.end()
-  })
+    interface IVerifyEmailCaptchaRequest extends Request<any, any, VerifyEmailCaptchaRequestDto> { }
 
-  interface IVerifyEmailCaptchaRequest extends Request<any, any, VerifyEmailCaptchaRequestDto> { }
+    app.post(VERIFY_EMAIL_CAPTCHA_API, async (req: IVerifyEmailCaptchaRequest, res) => {
+      try {
+        const { email, captcha } = req.body;
+        const storedCaptcha = captchaMap.get(email);
 
-  router.post(VERIFY_EMAIL_CAPTCHA_API, async (req: IVerifyEmailCaptchaRequest, res) => {
-    try {
-      const { email, captcha } = req.body;
-      const storedCaptcha = captchaMap.get(email);
+        if (storedCaptcha !== captcha) {
+          res.json(false);
+          return;
+        }
 
-      if (storedCaptcha !== captcha) {
-        res.json(false);
-        return;
+        captchaMap.delete(email);
+
+        const user = await this.authService.signInFromEmail(email)
+        const token = this.jwtService.sign({ id: user.id, name: user.name });
+
+        res.send({
+          token,
+          redirectUri: "/",
+        });
       }
-
-      captchaMap.delete(email);
-
-      const user = await authService.signInFromEmail(email)
-      const token = jwtService.sign({ id: user.id, name: user.name });
-
-      res.send({
-        token,
-        redirectUri: "/",
-      });
-    }
-    catch (err) {
-      console.error(err);
-    }
-  })
+      catch (err) {
+        console.error(err);
+      }
+    })
+  }
 }

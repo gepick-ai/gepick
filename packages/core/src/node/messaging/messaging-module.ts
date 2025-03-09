@@ -1,9 +1,9 @@
 import { Module, ServiceModule } from "@gepick/core/common";
-import { MessagingContribution } from './messaging-contribution';
+import { MessagingService } from './messaging-service';
 
 @Module({
   services: [
-    MessagingContribution,
+    MessagingService,
   ],
 })
 export class MessagingModule extends ServiceModule {}

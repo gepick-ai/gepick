@@ -21,24 +21,6 @@ class UserClass extends User {
 
   @prop()
   public email?: string;
-
-  @prop({ required: true, default: () => 500 })
-  public override chatLimit: number;
-
-  @prop({ required: true, default: () => 0 })
-  public override chatUsed: number;
-
-  @prop({ required: true, default: () => 500 })
-  public override omikujiLimit: number;
-
-  @prop({ required: true, default: () => 0 })
-  public override omikujiUsed: number;
-
-  @prop({ required: true, default: () => 500 })
-  public override wallpaperLimit: number;
-
-  @prop({ required: true, default: () => 0 })
-  public override wallpaperUsed: number;
 }
 
 export const UserModel = getModelForClass(UserClass);

@@ -23,7 +23,7 @@ export class ServiceB extends InjectableService implements IServiceB, IApplicati
   }
 }
 
-export const IServiceB = ServiceB.createServiceDecorator();
+export const IServiceB = ServiceB.getServiceDecorator();
 export interface IServiceB {
   a: () => void
   b: () => void

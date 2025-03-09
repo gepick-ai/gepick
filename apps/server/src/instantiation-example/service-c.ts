@@ -1,11 +1,11 @@
-import { InjectableService, optional } from '@gepick/core/common';
+import { InjectableService, Optional } from '@gepick/core/common';
 import { IServiceB } from './service-b';
 import { IApplicationContribution, IApplicationContributions } from './service-c-contribution';
 
-export class ServiceC extends InjectableService implements IServiceC{
+export class ServiceC extends InjectableService implements IServiceC {
   constructor(
     @IServiceB private readonly serviceB: IServiceB,
-    @optional() @IApplicationContributions private readonly applicationContributions: IApplicationContribution[],
+    @Optional() @IApplicationContributions private readonly applicationContributions: IApplicationContribution[],
   ) {
     super()
   }
@@ -21,7 +21,7 @@ export class ServiceC extends InjectableService implements IServiceC{
   }
 }
 
-export const IServiceC = ServiceC.createServiceDecorator();
+export const IServiceC = ServiceC.getServiceDecorator();
 export interface IServiceC {
   b: () => void
 }

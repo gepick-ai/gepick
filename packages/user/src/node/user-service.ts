@@ -1,7 +1,8 @@
+import { InjectableService } from '@gepick/core/common';
 import { UserModel } from "@gepick/user/node"
 import { isNil, omitBy } from 'lodash-es';
 
-export class UserService {
+export class UserService extends InjectableService {
   /**
    * 创建用户
    */
@@ -79,7 +80,7 @@ export class UserService {
   }
 }
 
-export class QuotaService {
+export class QuotaService extends InjectableService {
   async getChatQuota(userId: string) {
     const user = await UserModel.findById(userId).exec();
 
@@ -98,45 +99,10 @@ export class QuotaService {
 
     await UserModel.updateOne({ _id: userId }, conditions).exec();
   }
-
-  async getOmikujiQuota(userId: string) {
-    const user = await UserModel.findById(userId).exec();
-
-    if (!user) {
-      throw new Error("user not found");
-    }
-
-    return {
-      omikujiLimit: user.omikujiLimit,
-      omikujiUsed: user.omikujiUsed,
-    }
-  }
-
-  async updateOmikujiQuota(userId: string, input: { omikujiLimit?: number, omikujiUsed?: number }) {
-    const conditions = omitBy(input, isNil);
-
-    await UserModel.updateOne({ _id: userId }, conditions).exec();
-  }
-
-  async getWallpaperQuota(userId: string) {
-    const user = await UserModel.findById(userId).exec();
-
-    if (!user) {
-      throw new Error("user not found");
-    }
-
-    return {
-      wallpaperLimit: user.wallpaperLimit,
-      wallpaperUsed: user.wallpaperUsed,
-    }
-  }
-
-  async updateWallpaperQuota(userId: string, input: { wallpaperLimit?: number, wallpaperUsed?: number }) {
-    const conditions = omitBy(input, isNil);
-
-    await UserModel.updateOne({ _id: userId }, conditions).exec();
-  }
 }
 
-export const userService = new UserService();
-export const quotaService = new QuotaService();
+export const IUserService = UserService.getServiceDecorator()
+export const IQuotaService = QuotaService.getServiceDecorator()
+
+export type IUserService = UserService
+export type IQuotaService = QuotaService

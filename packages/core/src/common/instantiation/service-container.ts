@@ -11,4 +11,5 @@ export class ServiceContainer extends Container {
   protected loadModules(ModuleConstructor: ServiceModuleConstructor[]) {
     ModuleConstructor.forEach(MC => this.load(new MC()));
   }
+
 }

@@ -53,7 +53,7 @@ export abstract class ServiceModule extends ContainerModule {
     })
   }
 
-  static getServices(): symbol[] {
+  static getServices() {
     const services = this.prototype.getServices()
     return services.map(service => service.getServiceId())
   }
@@ -73,7 +73,7 @@ export abstract class ServiceModule extends ContainerModule {
       if (typeof contributionId !== 'symbol') {
         throw new TypeError(`Service ${serviceConstructor.name} must have a static symbol type contribution property.`)
       }
-      bind(contributionId).toService(serviceConstructor.getServiceId())
+      bind(contributionId).toService(serviceId)
     }
   }
 }

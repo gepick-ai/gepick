@@ -36,8 +36,10 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@gepick/core": "workspace:^",
+    "@types/cors": "^2.8.17",
     "fs-extra": "^11.2.0",
-    "workspace": "^0.0.1-preview.1"
+    "workspace": "^0.0.1-preview.2"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.20.0",

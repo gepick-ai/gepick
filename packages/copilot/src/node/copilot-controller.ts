@@ -1,27 +1,37 @@
 import { Router } from 'express';
-import { setupSse } from "@gepick/core/node"
+import { ApplicationContribution, IApplicationContribution, setupSse } from "@gepick/core/node"
 import { COPILOT_CHAT_API, ChatMessage, Conversation, GET_COPILOT_HISTORY_API, GetCopilotHistoryResponseDto } from "@gepick/copilot/common"
-import { copilotService } from "@gepick/copilot/node"
+import { Contribution, InjectableService } from '@gepick/core/common';
+import { ICopilotService } from './copilot-service';
 
-export function useCopilotRouter(router: Router) {
-  router.post(COPILOT_CHAT_API, async (req, res) => {
-    setupSse(res)
-    // TODO(@jaylenchen): 补充req的类型
-    const { id: userId } = (req as any).user
-    const { query } = req.body
+@Contribution(ApplicationContribution)
+export class CopilotController extends InjectableService implements IApplicationContribution {
+  constructor(
+    @ICopilotService private readonly copilotService: ICopilotService,
+  ) {
+    super()
+  }
 
-    const histories = await copilotService.getConversationHistories(userId);
-    const chatHistory = histories.map(h => h.messages.map(m => ({ role: m.role, content: m.content }))).flat().slice(-30)
+  onApplicationConfigure(app: Router): void {
+    app.post(COPILOT_CHAT_API, async (req, res) => {
+      setupSse(res)
+      // TODO(@jaylenchen): 补充req的类型
+      const { id: userId } = (req as any).user
+      const { query } = req.body
 
-    copilotService.copilotHandler(userId, query, chatHistory, res)
-  })
+      const histories = await this.copilotService.getConversationHistories(userId);
+      const chatHistory = histories.map(h => h.messages.map(m => ({ role: m.role, content: m.content }))).flat().slice(-30)
 
-  router.get(GET_COPILOT_HISTORY_API, async (req, res) => {
-    // TODO(@jaylenchen): 补充req的类型
-    const { id: userId } = (req as any).user;
+      this.copilotService.copilotHandler(userId, query, chatHistory, res)
+    })
 
-    const histories = await copilotService.getConversationHistories(userId);
+    app.get(GET_COPILOT_HISTORY_API, async (req, res) => {
+      // TODO(@jaylenchen): 补充req的类型
+      const { id: userId } = (req as any).user;
 
-    res.send(new GetCopilotHistoryResponseDto(histories.map(history => new Conversation(history.conversationId, history.messages.map(m => new ChatMessage(m.role, m.content, m.attachments)), history.createdAt))))
-  })
+      const histories = await this.copilotService.getConversationHistories(userId);
+
+      res.send(new GetCopilotHistoryResponseDto(histories.map(history => new Conversation(history.conversationId, history.messages.map(m => new ChatMessage(m.role, m.content, m.attachments)), history.createdAt))))
+    })
+  }
 }

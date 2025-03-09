@@ -20,7 +20,6 @@
     "@gepick/user": "workspace:*",
     "@typegoose/typegoose": "^12.9.1",
     "body-parser": "^1.20.3",
-    "bottender": "patch:bottender@npm%3A1.5.5#~/.yarn/patches/bottender-npm-1.5.5-96b3763fc1.patch",
     "chalk": "^5.3.0",
     "cors": "^2.8.5",
     "express": "^4.21.1",

@@ -9,10 +9,6 @@ export const userStore = defineStore('user', {
     avatarUrl: '',
     chatLimit: 0,
     chatUsed: 0,
-    omikujiLimit: 0,
-    omikujiUsed: 0,
-    wallpaperLimit: 0,
-    wallpaperUsed: 0,
   }),
   actions: {
     setUserInfo(user: User) {
@@ -21,10 +17,6 @@ export const userStore = defineStore('user', {
       this.avatarUrl = user.avatarUrl
       this.chatLimit = user.chatLimit
       this.chatUsed = user.chatUsed
-      this.omikujiLimit = user.omikujiLimit
-      this.omikujiUsed = user.omikujiUsed
-      this.wallpaperLimit = user.wallpaperLimit
-      this.wallpaperUsed = user.wallpaperUsed
     },
     async refreshUserInfo() {
       const { user } = await getUser();

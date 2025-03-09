@@ -1,4 +1,4 @@
-import { ContentType } from '@gepick/core/common'
+import { ContentType, InjectableService } from '@gepick/core/common'
 import { nodeMessagingService } from "@gepick/core/node"
 
 const GOOGLE_OAUTH_CLIENT_ID = process.env.GOOGLE_OAUTH_CLIENT_ID ?? "348471034017-pn5hs4mn83ul07bmmfsnmg5evf3ro3q8.apps.googleusercontent.com"
@@ -12,7 +12,7 @@ export interface GoogleUserInfo {
   name: string
 }
 
-class GoogleOAuthProvider {
+export class GoogleOAuthProvider extends InjectableService {
   getAuthUri() {
     const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     const scope = 'openid email profile';
@@ -31,14 +31,6 @@ class GoogleOAuthProvider {
       scope: string
       token_type: string
     }
-
-    console.log("params", {
-      code,
-      client_id: GOOGLE_OAUTH_CLIENT_ID,
-      client_secret: GOOGLE_OAUTH_CLIENT_SECRET,
-      redirect_uri: GOOGLE_OAUTH_REDIRECT_URI,
-      grant_type: "authorization_code",
-    })
 
     const [error, response] = await nodeMessagingService.post<GoogleOauthResponse>('https://oauth2.googleapis.com/token', {
       code,
@@ -89,4 +81,5 @@ class GoogleOAuthProvider {
   }
 }
 
-export const googleOauthProvider = new GoogleOAuthProvider();
+export const IGoogleOAuthProvider = GoogleOAuthProvider.getServiceDecorator();
+export type IGoogleOAuthProvider = GoogleOAuthProvider;

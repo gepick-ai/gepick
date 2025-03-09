@@ -1,22 +1,30 @@
 import { pipeline } from 'node:stream/promises';
 import { Writable } from 'node:stream';
 import { Response } from 'express';
-import { quotaService } from '@gepick/user/node';
+import { IQuotaService } from '@gepick/user/node';
 import { Conversation } from '@gepick/copilot/common';
-import { ChatMessageClass, ConversationModel, createChatSession } from '@gepick/copilot/node';
+import { InjectableService } from '@gepick/core/common';
+import { ChatMessageClass, ConversationModel } from './copilot-model';
+import { createChatSession } from './coze';
 
 export interface ICopilotServiceContribution {
   copilotHandler: (query: string, chatHistory: string[]) => void
 }
 
-class CopilotService {
+export class CopilotService extends InjectableService {
+  constructor(
+    @IQuotaService private readonly quotaService: IQuotaService,
+  ) {
+    super()
+  }
+
   async copilotHandler(userId: string, query: string, chatHistory: { role: string, content: string }[], res: Response) {
     /**
      * 参数1: userId
      * 参数2: query
      * 参数3: chatHistory
      */
-    const quota = await quotaService.getChatQuota(userId);
+    const quota = await this.quotaService.getChatQuota(userId);
 
     if (quota.chatUsed >= quota.chatLimit) {
       res.status(500).send("クォータ使用上限");
@@ -44,7 +52,7 @@ class CopilotService {
       }
 
       const response = await createChatSession(userId, query, chatHistory);
-      await quotaService.updateChatQuota(userId, { chatUsed: quota.chatUsed + 1 });
+      await this.quotaService.updateChatQuota(userId, { chatUsed: quota.chatUsed + 1 });
 
       if (response && response.body) {
         let buffer = '';
@@ -172,4 +180,5 @@ class CopilotService {
   }
 }
 
-export const copilotService = new CopilotService();
+export const ICopilotService = CopilotService.getServiceDecorator()
+export type ICopilotService = CopilotService
