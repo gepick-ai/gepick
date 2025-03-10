@@ -1,14 +1,25 @@
-import { InjectableService } from '@gepick/core/common';
-import { IPluginResolver } from '@gepick/plugin-system/common';
-import { GithubPluginResolver, pluginServer } from '@gepick/plugin-system/node';
+import { Contribution, InjectableService } from '@gepick/core/common';
+import { ApplicationContribution, IApplicationContribution } from '@gepick/core/node';
+import { IPluginResolver, IPluginServer } from '@gepick/plugin-system/common';
+import { GithubPluginResolver } from '@gepick/plugin-system/node';
 
-export class PluginDeploymentService extends InjectableService {
+@Contribution(ApplicationContribution)
+export class PluginDeploymentService extends InjectableService implements IApplicationContribution {
   private pluginResolvers: IPluginResolver[] = [
     new GithubPluginResolver(),
   ];
 
   private pluginEntries: string[] = ["plugin-a"];
-  private pluginServer = pluginServer;
+
+  constructor(
+    @IPluginServer private readonly pluginServer: IPluginServer,
+  ) {
+    super()
+  }
+
+  onApplicationInit() {
+    this.startDeployment()
+  }
 
   startDeployment() {
     // this.resolvePlugins(['plugin-a']);

@@ -3,15 +3,22 @@ import { ServiceModuleConstructor } from './service-module';
 import { createServiceDecorator } from './instantiation';
 
 export class ServiceContainer extends Container {
-  constructor(protected readonly ModuleConstructors: ServiceModuleConstructor[]) {
+  constructor(protected readonly ModuleConstructors?: ServiceModuleConstructor[]) {
     super({ defaultScope: "Singleton", skipBaseClassChecks: true });
 
     this.injectThis()
-    this.loadModules(ModuleConstructors);
+
+    if (ModuleConstructors) {
+      this.loadModules(ModuleConstructors);
+    }
   }
 
-  protected loadModules(ModuleConstructor: ServiceModuleConstructor[]) {
-    ModuleConstructor.forEach(MC => this.load(new MC(this)));
+  loadModule(ModuleConstructor: ServiceModuleConstructor) {
+    this.load(new ModuleConstructor(this))
+  }
+
+  loadModules(ModuleConstructors: ServiceModuleConstructor[]) {
+    ModuleConstructors.forEach(MC => this.loadModule(MC));
   }
 
   protected injectThis = () => {

@@ -1,4 +1,4 @@
-import { RpcServer } from '@gepick/core/common';
+import { RpcServer, createServiceDecorator } from '@gepick/core/common';
 
 export const IPluginClient = Symbol('PluginClient');
 export interface IPluginClient {
@@ -130,7 +130,7 @@ export interface IPluginDeployerEntry {
   hasError: () => boolean
 }
 
-export const IPluginServer = Symbol('PluginServer');
+export const IPluginServer = createServiceDecorator("PluginServer")
 export interface IPluginServer extends RpcServer<IPluginClient> {
   getHostedPlugin: () => Promise<IPluginMetadata | undefined>
 
@@ -147,6 +147,8 @@ export interface IPluginServer extends RpcServer<IPluginClient> {
   terminateHostedPluginInstance: () => Promise<void>
   isHostedTheiaRunning: () => Promise<boolean>
   getHostedPluginInstanceURI: () => Promise<string>
+
+  deployPlugins: (entries: string[]) => void
 }
 
 export function getPluginId(plugin: IPluginPackage | IPluginModel): string {

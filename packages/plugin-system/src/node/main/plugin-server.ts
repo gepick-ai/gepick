@@ -1,11 +1,10 @@
 import { Contribution, IServiceContainer, InjectableService, RpcConnectionHandler } from '@gepick/core/common';
 import { ConnectionHandlerContribution, IConnectionHandlerContribution } from '@gepick/core/node';
-import { IPluginClient, IPluginDeployerEntry, IPluginMetadata, IPluginServer as IPluginServerService } from '@gepick/plugin-system/common';
-import { HostedPlugin, PluginReader } from '@gepick/plugin-system/node';
+import { IPluginClient, IPluginDeployerEntry, IPluginMetadata, IPluginServer } from '@gepick/plugin-system/common';
 import { IPluginReader } from "./plugin-reader"
 import { IHostedPlugin } from "./hosted-plugin"
 
-export class PluginServer extends InjectableService implements IPluginServerService {
+export class PluginServer extends InjectableService implements IPluginServer {
   private pluginsMetadata: IPluginMetadata[] = []
 
   constructor(
@@ -77,8 +76,6 @@ export class PluginServer extends InjectableService implements IPluginServerServ
   override dispose: () => void;
 }
 
-export const IPluginServer = PluginServer.getServiceDecorator()
-
 @Contribution(ConnectionHandlerContribution)
 export class PluginServerConnectionHandler extends InjectableService implements IConnectionHandlerContribution {
   constructor(
@@ -89,7 +86,7 @@ export class PluginServerConnectionHandler extends InjectableService implements 
 
   onConnectionHandlerConfigure() {
     return new RpcConnectionHandler("/services/plugin", (client) => {
-      const pluginServer = this.container.get<IPluginServerService>(IPluginServer)
+      const pluginServer = this.container.get<IPluginServer>(PluginServer.getServiceId())
       pluginServer.setClient(client as any);
 
       return pluginServer;

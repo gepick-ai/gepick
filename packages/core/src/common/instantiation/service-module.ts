@@ -2,7 +2,7 @@
 import "reflect-metadata"
 import { Container, ContainerModule, decorate, injectable, interfaces } from "inversify";
 import { ServiceConstructor } from './instantiation';
-import { ContributionProvider, IContributionProvider } from './service-contribution';
+import { ContributionProvider } from './service-contribution';
 
 export type ServiceModuleConstructor = (new (container: Container) => ServiceModule)
 

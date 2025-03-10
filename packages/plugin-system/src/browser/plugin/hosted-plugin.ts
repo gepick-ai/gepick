@@ -2,7 +2,7 @@ import { webSocketConnectionProvider } from '@gepick/core/browser';
 import { IRPCProtocol, RPCProtocol } from '../../common/rpc-protocol';
 import { IPluginMetadata, IPluginServer } from '../../common/plugin-protocol';
 import { EXT, IPlugin } from '../../common/plugin-api';
-import { setUpPluginApi } from './main-context';
+import { setUpPluginApi } from './plugin-api-main/main-context';
 import { HostedPluginWatcher } from './hosted-plugin-watcher';
 
 export class HostedPlugin {
