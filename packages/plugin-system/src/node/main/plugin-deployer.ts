@@ -1,10 +1,10 @@
 import { Contribution, InjectableService } from '@gepick/core/common';
 import { ApplicationContribution, IApplicationContribution } from '@gepick/core/node';
 import { IPluginResolver, IPluginServer } from '@gepick/plugin-system/common';
-import { GithubPluginResolver } from '@gepick/plugin-system/node';
+import { GithubPluginResolver } from './plugin-resolvers/github-plugin-resolver';
 
 @Contribution(ApplicationContribution)
-export class PluginDeploymentService extends InjectableService implements IApplicationContribution {
+export class PluginDeployer extends InjectableService implements IApplicationContribution {
   private pluginResolvers: IPluginResolver[] = [
     new GithubPluginResolver(),
   ];

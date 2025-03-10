@@ -1,2 +1,1 @@
-export * from "./main"
-export * from "./plugin-host"
+export * from "./main/plugin-main-module"

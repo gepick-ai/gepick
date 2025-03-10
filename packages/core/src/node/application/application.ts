@@ -51,12 +51,6 @@ export class Application extends InjectableService {
       const host = address.address === '::' ? 'localhost' : address.address;
       const port = address.port;
 
-      // pluginDeploymentContribution.initialize();
-
-      // const messagingContribution = new MessagingContribution();
-      // messagingContribution.addHandler(pluginServerConnectionHandler);
-      // messagingContribution.onStart(this.httpServer);
-
       // eslint-disable-next-line no-console
       console.log(chalk.green.bold(`✔ Gepick Server is running at http://${host}:${port}`));
 

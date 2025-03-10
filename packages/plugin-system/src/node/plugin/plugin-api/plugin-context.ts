@@ -1,6 +1,6 @@
 import gepick from "@gepick/plugin-api";
 import { Disposable, EXT } from '@gepick/plugin-system/common';
-import { CommandRegistryExt } from '@gepick/plugin-system/node';
+import { CommandRegistryExt } from './command-registry-ext';
 
 export function createPluginAPI(rpc: any): typeof gepick {
   const commandRegistryExt = new CommandRegistryExt(rpc)

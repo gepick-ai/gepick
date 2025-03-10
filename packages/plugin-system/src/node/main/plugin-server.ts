@@ -2,14 +2,14 @@ import { Contribution, IServiceContainer, InjectableService, RpcConnectionHandle
 import { ConnectionHandlerContribution, IConnectionHandlerContribution } from '@gepick/core/node';
 import { IPluginClient, IPluginDeployerEntry, IPluginMetadata, IPluginServer } from '@gepick/plugin-system/common';
 import { IPluginReader } from "./plugin-reader"
-import { IHostedPlugin } from "./hosted-plugin"
+import { IPluginHostManager } from "./plugin-host-manager"
 
 export class PluginServer extends InjectableService implements IPluginServer {
   private pluginsMetadata: IPluginMetadata[] = []
 
   constructor(
     @IPluginReader private readonly pluginReader: IPluginReader,
-    @IHostedPlugin private readonly hostedPlugin: IHostedPlugin,
+    @IPluginHostManager private readonly pluginHostManager: IPluginHostManager,
   ) {
     super();
   }
@@ -18,24 +18,24 @@ export class PluginServer extends InjectableService implements IPluginServer {
     const pluginMetadata = this.pluginReader.getPluginMetadata('')
 
     if (pluginMetadata) {
-      this.hostedPlugin.runPlugin(pluginMetadata.model)
+      this.pluginHostManager.runPlugin(pluginMetadata.model)
     }
 
     return Promise.resolve(pluginMetadata)
   }
 
   setClient(client: IPluginClient | undefined): void {
-    this.hostedPlugin.setClient(client)
+    this.pluginHostManager.setClient(client)
   }
 
   onMessage = (message: string): Promise<void> => {
-    this.hostedPlugin.onMessage(message);
+    this.pluginHostManager.onMessage(message);
     return Promise.resolve();
   }
 
   deployPlugins = (pluginEntries: string[]) => {
     if (pluginEntries.length > 0) {
-      this.hostedPlugin.runPluginServer()
+      this.pluginHostManager.runPluginServer()
     }
 
     // pluginEntries.forEach((entry) => {

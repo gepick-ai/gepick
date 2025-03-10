@@ -4,7 +4,8 @@ import { EXT, Emitter, IPluginClient, IPluginModel, RPCProtocol } from '@gepick/
 import { InjectableService } from '@gepick/core/common';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
-export class HostedPlugin extends InjectableService {
+
+export class PluginHostManager extends InjectableService {
   private cp: cp.ChildProcess | undefined;
   private client: IPluginClient
 
@@ -97,7 +98,7 @@ export class HostedPlugin extends InjectableService {
       forkOptions.execArgv = ['--nolazy', `--inspect${inspectArg.substr(inspectArgPrefix.length)}`];
     }
 
-    const childProcess = cp.fork(path.resolve(__dirname, '../plugin-host/plugin-host-main'), options.args, forkOptions);
+    const childProcess = cp.fork(path.resolve(__dirname, '../plugin/plugin-host-main'), options.args, forkOptions);
 
     return childProcess;
   }
@@ -109,5 +110,5 @@ export class HostedPlugin extends InjectableService {
   }
 }
 
-export const IHostedPlugin = HostedPlugin.getServiceDecorator()
-export type IHostedPlugin = HostedPlugin
+export const IPluginHostManager = PluginHostManager.getServiceDecorator()
+export type IPluginHostManager = PluginHostManager

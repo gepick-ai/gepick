@@ -1,7 +1,7 @@
 /* eslint-disable ts/no-empty-object-type */
 import { createRequire } from 'module';
 import { EXT, Emitter, RPCProtocol } from '@gepick/plugin-system/common';
-import { PluginManagerExt, createPluginAPI } from '@gepick/plugin-system/node';
+import { PluginManagerExt } from './plugin-api/plugin-manager-ext';
 
 // eslint-disable-next-line no-console
 console.log(`PLUGIN_HOST(${process.pid}) starting instance`);
