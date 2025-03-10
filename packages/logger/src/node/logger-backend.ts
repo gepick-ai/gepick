@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { Disposable, JsonRpcConnectionHandler } from '@gepick/core/common';
+import { Disposable, RpcConnectionHandler } from '@gepick/core/common';
 import { ILoggerClient, ILoggerServer, loggerPath } from "@gepick/logger/common";
 
 class ConsoleLogger extends Disposable implements ILoggerServer {
@@ -47,7 +47,7 @@ class ConsoleLogger extends Disposable implements ILoggerServer {
   }
 }
 
-export const loggerConnectionHandler = new JsonRpcConnectionHandler<ILoggerClient>(loggerPath, (client) => {
+export const loggerConnectionHandler = new RpcConnectionHandler<ILoggerClient>(loggerPath, (client) => {
   const loggerServer = new ConsoleLogger();
 
   loggerServer.setClient(client);

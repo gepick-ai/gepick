@@ -1,9 +1,10 @@
 /* eslint-disable ts/no-unsafe-function-type */
 import "reflect-metadata"
-import { ContainerModule, decorate, injectable, interfaces } from "inversify";
+import { Container, ContainerModule, decorate, injectable, interfaces } from "inversify";
 import { ServiceConstructor } from './instantiation';
+import { ContributionProvider, IContributionProvider } from './service-contribution';
 
-export type ServiceModuleConstructor = (new () => ServiceModule)
+export type ServiceModuleConstructor = (new (container: Container) => ServiceModule)
 
 export const MODULE_METADATA = {
   SERVICES: 'services',
@@ -45,11 +46,11 @@ export interface IModuleMetadata {
 }
 
 export abstract class ServiceModule extends ContainerModule {
-  constructor() {
+  constructor(container: Container) {
     super((bind) => {
       const services = this.getServices()
 
-      services.forEach(service => this.registerService(bind, service));
+      services.forEach(service => this.registerService(bind, container, service));
     })
   }
 
@@ -62,7 +63,7 @@ export abstract class ServiceModule extends ContainerModule {
     return Reflect.getMetadata(MODULE_METADATA.SERVICES, this.constructor.prototype)
   }
 
-  protected registerService<T extends ServiceConstructor>(bind: interfaces.Bind, serviceConstructor: T): void {
+  protected registerService<T extends ServiceConstructor>(bind: interfaces.Bind, container: Container, serviceConstructor: T): void {
     const serviceId = serviceConstructor.getServiceId()
     const contributionId = serviceConstructor.getContributionId()
 
@@ -73,6 +74,12 @@ export abstract class ServiceModule extends ContainerModule {
       if (typeof contributionId !== 'symbol') {
         throw new TypeError(`Service ${serviceConstructor.name} must have a static symbol type contribution property.`)
       }
+
+      if (!container.isBound(contributionId)) {
+        bind(ContributionProvider.getProviderId(contributionId)).toDynamicValue(ctx => new ContributionProvider(contributionId, ctx.container))
+          .inSingletonScope()
+      }
+
       bind(contributionId).toService(serviceId)
     }
   }

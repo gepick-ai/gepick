@@ -8,8 +8,4 @@ import { CopilotService } from './copilot-service';
     CopilotService,
   ],
 })
-export class CopilotModule extends ServiceModule {
-  constructor() {
-    super();
-  }
-}
+export class CopilotModule extends ServiceModule {}

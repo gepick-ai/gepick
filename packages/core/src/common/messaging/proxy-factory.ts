@@ -1,7 +1,7 @@
 import { ConnectionHandler, Disposable, Emitter, Event } from "@gepick/core/common";
 import { MessageConnection } from "./vscode-ws-jsonrpc";
 
-export type JsonRpcServer<Client> = Disposable & {
+export type RpcServer<Client> = Disposable & {
   /**
    * If this server is a proxy to a remote server then
    * a client is used as a local object
@@ -10,16 +10,16 @@ export type JsonRpcServer<Client> = Disposable & {
   setClient: (client: Client | undefined) => void
 };
 
-export interface JsonRpcConnectionEventEmitter {
+export interface RpcConnectionEventEmitter {
   readonly onDidOpenConnection: Event<void>
   readonly onDidCloseConnection: Event<void>
 }
-export type JsonRpcProxy<T> = T & JsonRpcConnectionEventEmitter;
+export type RpcProxy<T> = T & RpcConnectionEventEmitter;
 
-export class JsonRpcConnectionHandler<T extends object> implements ConnectionHandler {
+export class RpcConnectionHandler<T extends object> implements ConnectionHandler {
   constructor(
     readonly path: string,
-    readonly targetFactory: (proxy: JsonRpcProxy<T>) => any,
+    readonly targetFactory: (proxy: RpcProxy<T>) => any,
   ) { }
 
   /**
@@ -27,7 +27,7 @@ export class JsonRpcConnectionHandler<T extends object> implements ConnectionHan
    * @param connection
    */
   onConnection(connection: MessageConnection): void {
-    const factory = new JsonRpcProxyFactory<T>(this.path);
+    const factory = new RpcProxyFactory<T>(this.path);
     const proxy = factory.createProxy();
     const target = this.targetFactory(proxy);
 
@@ -82,7 +82,7 @@ export class JsonRpcConnectionHandler<T extends object> implements ConnectionHan
  * 1、发送服务请求：负责创建target通讯代理，让用户能够向target发送服务请求
  * 2、监听及处理服务请求：负责处理服务请求，告知交给target的具体哪个方法处理该请求
  */
-export class JsonRpcProxyFactory<T extends object> implements ProxyHandler<T> {
+export class RpcProxyFactory<T extends object> implements ProxyHandler<T> {
   protected readonly onDidOpenConnectionEmitter = new Emitter<void>();
   protected readonly onDidCloseConnectionEmitter = new Emitter<void>();
 
@@ -174,7 +174,7 @@ export class JsonRpcProxyFactory<T extends object> implements ProxyHandler<T> {
    *
    * If `T` implements `JsonRpcServer` then a client is used as a target object for a remote target object.
    */
-  createProxy(): JsonRpcProxy<T> {
+  createProxy(): RpcProxy<T> {
     const result = new Proxy<T>(this as any, this)
     return result as any
   }

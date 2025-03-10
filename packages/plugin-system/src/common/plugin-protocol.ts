@@ -1,4 +1,4 @@
-import { JsonRpcServer } from '@gepick/core/common';
+import { RpcServer } from '@gepick/core/common';
 
 export const IPluginClient = Symbol('PluginClient');
 export interface IPluginClient {
@@ -131,7 +131,7 @@ export interface IPluginDeployerEntry {
 }
 
 export const IPluginServer = Symbol('PluginServer');
-export interface IPluginServer extends JsonRpcServer<IPluginClient> {
+export interface IPluginServer extends RpcServer<IPluginClient> {
   getHostedPlugin: () => Promise<IPluginMetadata | undefined>
 
   getDeployedMetadata: () => Promise<IPluginMetadata[]>

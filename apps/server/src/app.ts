@@ -11,7 +11,7 @@ export const { promise: moduleLoadReady, resolve, reject } = Promise.withResolve
 try {
   const container = new ServiceContainer([
     ApplicationModule,
-    MessagingModule,
+    // MessagingModule,
     CopilotModule,
     UserModule,
     AuthModule,

@@ -2326,7 +2326,7 @@ __metadata:
     cors: "npm:^2.8.5"
     express: "npm:^4.21.1"
     get-stream: "npm:^9.0.1"
-    inversify: "npm:^6.0.2"
+    inversify: "npm:^6.2.2"
     lodash-es: "npm:^4.17.21"
     mongoose: "npm:^8.3.2"
     reconnecting-websocket: "npm:^4.4.0"
@@ -9984,7 +9984,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"inversify@npm:^6.0.2":
+"inversify@npm:^6.2.2":
   version: 6.2.2
   resolution: "inversify@npm:6.2.2"
   dependencies:

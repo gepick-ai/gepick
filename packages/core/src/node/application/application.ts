@@ -6,16 +6,17 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import chalk from 'chalk';
 import mongoose from 'mongoose';
-import { InjectableService, Optional, PostConstruct } from '@gepick/core/common';
-import { IApplicationContribution, IApplicationContributions } from './application-contribution';
+import { IContributionProvider, InjectableService, PostConstruct } from '@gepick/core/common';
+import { IApplicationContribution, IApplicationContributionProvider } from './application-contribution';
 
 export class Application extends InjectableService {
   private expressApp: ExpressApp = express();
   private expressRouter = express.Router();
-  private httpServer: HttpServer = createServer(this.expressApp);
-  private databaseConnected = Promise.withResolvers()
+  private server: HttpServer = createServer(this.expressApp);
 
-  constructor(@Optional() @IApplicationContributions private contributions: IApplicationContribution[]) {
+  constructor(
+    @IApplicationContributionProvider private readonly contributionProvider: IContributionProvider<IApplicationContribution>,
+  ) {
     super()
 
     this.useBodyParser()
@@ -23,32 +24,30 @@ export class Application extends InjectableService {
     this.useResponseFormatter()
     this.useErrorHandler()
 
-    for (const contribution of this.contributions) {
+    for (const contribution of this.contributionProvider.getContributions()) {
       contribution.onApplicationInit?.(this.expressRouter, this.expressApp)
     }
   }
 
   @PostConstruct()
   configure() {
-    for (const contribution of this.contributions) {
+    for (const contribution of this.contributionProvider.getContributions()) {
       contribution.onApplicationConfigure?.(this.expressRouter)
     }
 
     this.use404Handler()
-    this.connectToDatabase(() => {
-      // eslint-disable-next-line no-console
-      console.log(chalk.green.bold('✔ Connected to Gepick MongoDB'));
-      this.databaseConnected.resolve(void 0)
-    })
   }
 
   async start() {
-    await this.databaseConnected.promise;
+    await this.connectToDatabase(() => {
+      // eslint-disable-next-line no-console
+      console.log(chalk.green.bold('✔ Connected to Gepick MongoDB'))
+    })
 
     const port = 3000;
 
-    this.httpServer.listen(port, () => {
-      const address = this.httpServer.address() as AddressInfo;
+    this.server.listen(port, () => {
+      const address = this.server.address() as AddressInfo;
       const host = address.address === '::' ? 'localhost' : address.address;
       const port = address.port;
 
@@ -60,6 +59,10 @@ export class Application extends InjectableService {
 
       // eslint-disable-next-line no-console
       console.log(chalk.green.bold(`✔ Gepick Server is running at http://${host}:${port}`));
+
+      for (const contribution of this.contributionProvider.getContributions()) {
+        contribution.onApplicationStart?.(this.server)
+      }
     });
   }
 

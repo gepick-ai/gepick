@@ -29,7 +29,7 @@
     "cors": "^2.8.5",
     "express": "^4.21.1",
     "get-stream": "^9.0.1",
-    "inversify": "^6.0.2",
+    "inversify": "^6.2.2",
     "lodash-es": "^4.17.21",
     "mongoose": "^8.3.2",
     "reconnecting-websocket": "^4.4.0",

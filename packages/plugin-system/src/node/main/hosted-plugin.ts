@@ -1,9 +1,10 @@
 import * as cp from "node:child_process";
 import path from 'node:path';
 import { EXT, Emitter, IPluginClient, IPluginModel, RPCProtocol } from '@gepick/plugin-system/common';
+import { InjectableService } from '@gepick/core/common';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
-export class HostedPlugin {
+export class HostedPlugin extends InjectableService {
   private cp: cp.ChildProcess | undefined;
   private client: IPluginClient
 
@@ -107,3 +108,6 @@ export class HostedPlugin {
     }
   }
 }
+
+export const IHostedPlugin = HostedPlugin.getServiceDecorator()
+export type IHostedPlugin = HostedPlugin

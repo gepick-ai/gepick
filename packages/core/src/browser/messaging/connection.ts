@@ -1,5 +1,5 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { ConnectionHandler, ConsoleLogger, JsonRpcProxy, JsonRpcProxyFactory, listen as doListen } from "@gepick/core/common";
+import { ConnectionHandler, ConsoleLogger, RpcProxy, RpcProxyFactory, listen as doListen } from "@gepick/core/common";
 import { Endpoint } from "@gepick/core/browser";
 
 export interface WebSocketOptions {
@@ -19,8 +19,8 @@ export class WebSocketConnectionProvider {
    * An optional target can be provided to handle
    * notifications and requests from a remote side.
    */
-  createProxy<T extends object>(path: string, target?: object, options?: WebSocketOptions): JsonRpcProxy<T> {
-    const factory = new JsonRpcProxyFactory<T>(target);
+  createProxy<T extends object>(path: string, target?: object, options?: WebSocketOptions): RpcProxy<T> {
+    const factory = new RpcProxyFactory<T>(target);
 
     // 创建一个connection handler对象
     // 这个地方跟server端稍稍不同，server端是直接通过JsonRpcConnectionHandler创建一个handler对象,而这里直接构造一个handler对象

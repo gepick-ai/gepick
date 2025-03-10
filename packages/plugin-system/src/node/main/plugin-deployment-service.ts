@@ -1,7 +1,8 @@
+import { InjectableService } from '@gepick/core/common';
 import { IPluginResolver } from '@gepick/plugin-system/common';
 import { GithubPluginResolver, pluginServer } from '@gepick/plugin-system/node';
 
-export class PluginDeploymentService {
+export class PluginDeploymentService extends InjectableService {
   private pluginResolvers: IPluginResolver[] = [
     new GithubPluginResolver(),
   ];

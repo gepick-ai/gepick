@@ -1,10 +1,10 @@
-import { JsonRpcServer } from '@gepick/core/common';
+import { RpcServer } from '@gepick/core/common';
 
 export const ILoggerServer = Symbol('ILoggerServer');
 
 export const loggerPath = '/services/logger';
 
-export interface ILoggerServer extends JsonRpcServer<ILoggerClient> {
+export interface ILoggerServer extends RpcServer<ILoggerClient> {
   setLogLevel: (id: number, logLevel: number) => Promise<void>
   getLogLevel: (id: number) => Promise<number>
   log: (id: number, logLevel: number, message: string, params: any[]) => Promise<void>

@@ -1,11 +1,19 @@
-import { Disposable, JsonRpcConnectionHandler } from '@gepick/core/common';
-import { IPluginClient, IPluginDeployerEntry, IPluginMetadata, IPluginServer } from '@gepick/plugin-system/common';
+import { Contribution, IServiceContainer, InjectableService, RpcConnectionHandler } from '@gepick/core/common';
+import { ConnectionHandlerContribution, IConnectionHandlerContribution } from '@gepick/core/node';
+import { IPluginClient, IPluginDeployerEntry, IPluginMetadata, IPluginServer as IPluginServerService } from '@gepick/plugin-system/common';
 import { HostedPlugin, PluginReader } from '@gepick/plugin-system/node';
+import { IPluginReader } from "./plugin-reader"
+import { IHostedPlugin } from "./hosted-plugin"
 
-export class PluginServer extends Disposable implements IPluginServer {
-  private readonly pluginReader: PluginReader = new PluginReader()
-  private readonly hostedPlugin: HostedPlugin = new HostedPlugin()
+export class PluginServer extends InjectableService implements IPluginServerService {
   private pluginsMetadata: IPluginMetadata[] = []
+
+  constructor(
+    @IPluginReader private readonly pluginReader: IPluginReader,
+    @IHostedPlugin private readonly hostedPlugin: IHostedPlugin,
+  ) {
+    super();
+  }
 
   getHostedPlugin = (): Promise<IPluginMetadata | undefined> => {
     const pluginMetadata = this.pluginReader.getPluginMetadata('')
@@ -69,10 +77,22 @@ export class PluginServer extends Disposable implements IPluginServer {
   override dispose: () => void;
 }
 
-export const pluginServer = new PluginServer();
+export const IPluginServer = PluginServer.getServiceDecorator()
 
-export const pluginServerConnectionHandler = new JsonRpcConnectionHandler("/services/plugin", (client) => {
-  pluginServer.setClient(client as any);
+@Contribution(ConnectionHandlerContribution)
+export class PluginServerConnectionHandler extends InjectableService implements IConnectionHandlerContribution {
+  constructor(
+    @IServiceContainer private readonly container: IServiceContainer,
+  ) {
+    super()
+  }
 
-  return pluginServer;
-})
+  onConnectionHandlerConfigure() {
+    return new RpcConnectionHandler("/services/plugin", (client) => {
+      const pluginServer = this.container.get<IPluginServerService>(IPluginServer)
+      pluginServer.setClient(client as any);
+
+      return pluginServer;
+    })
+  }
+}

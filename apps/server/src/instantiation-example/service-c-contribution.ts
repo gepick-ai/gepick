@@ -1,6 +1,6 @@
-import { createContributionsDecorator } from '@gepick/core/common';
+import { createContributionProviderDecorator } from '@gepick/core/common';
 
-export const [ApplicationContribution,IApplicationContributions] = createContributionsDecorator<IApplicationContribution[]>("ApplicationContribution");
+export const [ApplicationContribution, IApplicationContributionProvider] = createContributionProviderDecorator<IApplicationContribution[]>("ApplicationContribution");
 
 export interface IApplicationContribution {
   onStart: () => void
