@@ -1,8 +1,9 @@
 import { Module, ServiceModule } from '@gepick/core/common';
-import { PluginServer, PluginServerConnectionHandler } from './plugin-server';
+import { PluginServer, PluginServerConnectionHandlerService } from './plugin-server';
 import { PluginReader } from './plugin-reader';
 import { PluginHostManager } from './plugin-host-manager';
 import { PluginDeployer } from './plugin-deployer';
+import { GithubPluginResolver } from './plugin-resolvers/github-plugin-resolver';
 
 @Module({
   services: [
@@ -10,7 +11,8 @@ import { PluginDeployer } from './plugin-deployer';
     PluginServer,
     PluginReader,
     PluginHostManager,
-    PluginServerConnectionHandler,
+    PluginServerConnectionHandlerService,
+    GithubPluginResolver,
   ],
 })
 export class PluginMainModule extends ServiceModule {}

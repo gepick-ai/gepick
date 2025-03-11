@@ -1,4 +1,4 @@
-import { ConnectionHandler, Disposable, Emitter, Event } from "@gepick/core/common";
+import { IConnectionHandler, Disposable, Emitter, Event } from "@gepick/core/common";
 import { MessageConnection } from "./vscode-ws-jsonrpc";
 
 export type RpcServer<Client> = Disposable & {
@@ -16,7 +16,7 @@ export interface RpcConnectionEventEmitter {
 }
 export type RpcProxy<T> = T & RpcConnectionEventEmitter;
 
-export class RpcConnectionHandler<T extends object> implements ConnectionHandler {
+export class RpcConnectionHandler<T extends object> implements IConnectionHandler {
   constructor(
     readonly path: string,
     readonly targetFactory: (proxy: RpcProxy<T>) => any,

@@ -1,5 +1,5 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { ConnectionHandler, ConsoleLogger, RpcProxy, RpcProxyFactory, listen as doListen } from "@gepick/core/common";
+import { IConnectionHandler, ConsoleLogger, RpcProxy, RpcProxyFactory, listen as doListen } from "@gepick/core/common";
 import { Endpoint } from "@gepick/core/browser";
 
 export interface WebSocketOptions {
@@ -75,7 +75,7 @@ export class WebSocketConnectionProvider {
      * 其实就是将相关的方法异步执行起来。
      *
      */
-    const handler: ConnectionHandler = {
+    const handler: IConnectionHandler = {
       path,
       onConnection: c => factory.listen(c),
     }
@@ -102,7 +102,7 @@ export class WebSocketConnectionProvider {
   /**
    * Install a connection handler for the given path.
    */
-  listen(handler: ConnectionHandler, options?: WebSocketOptions): void {
+  listen(handler: IConnectionHandler, options?: WebSocketOptions): void {
     const url = this.createWebSocketUrl(handler.path);
     const webSocket = this.createWebSocket(url, options);
 

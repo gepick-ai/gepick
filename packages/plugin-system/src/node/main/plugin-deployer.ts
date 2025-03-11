@@ -1,18 +1,15 @@
-import { Contribution, InjectableService } from '@gepick/core/common';
+import { Contribution, IContributionProvider, InjectableService } from '@gepick/core/common';
 import { ApplicationContribution, IApplicationContribution } from '@gepick/core/node';
-import { IPluginResolver, IPluginServer } from '@gepick/plugin-system/common';
-import { GithubPluginResolver } from './plugin-resolvers/github-plugin-resolver';
+import { IPluginServer } from '@gepick/plugin-system/common';
+import { IPluginResolverContribution, IPluginResolverProvider } from './plugin-resolvers/plugin-resolver-contribution';
 
 @Contribution(ApplicationContribution)
 export class PluginDeployer extends InjectableService implements IApplicationContribution {
-  private pluginResolvers: IPluginResolver[] = [
-    new GithubPluginResolver(),
-  ];
-
   private pluginEntries: string[] = ["plugin-a"];
 
   constructor(
     @IPluginServer private readonly pluginServer: IPluginServer,
+    @IPluginResolverProvider private readonly pluginResolverProvider: IContributionProvider<IPluginResolverContribution>,
   ) {
     super()
   }
@@ -30,7 +27,8 @@ export class PluginDeployer extends InjectableService implements IApplicationCon
   resolvePlugins(pluginIds: string[]) {
     pluginIds.forEach((id) => {
       try {
-        const pluginResolver = this.pluginResolvers.find(resolver => resolver.accept(id))
+        const resolvers = this.pluginResolverProvider.getContributions()
+        const pluginResolver = resolvers.find(resolver => resolver.accept(id))
 
         if (!pluginResolver) {
           throw new Error(`No resolver found for plugin id: ${id}`);

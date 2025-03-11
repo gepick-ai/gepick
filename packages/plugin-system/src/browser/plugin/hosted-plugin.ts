@@ -1,7 +1,7 @@
 import { webSocketConnectionProvider } from '@gepick/core/browser';
 import { IRPCProtocol, RPCProtocol } from '../../common/rpc-protocol';
 import { IPluginMetadata, IPluginServer } from '../../common/plugin-protocol';
-import { EXT, IPlugin } from '../../common/plugin-api';
+import { EXT } from '../../common/plugin-api';
 import { setUpPluginApi } from './plugin-api-main/main-context';
 import { HostedPluginWatcher } from './hosted-plugin-watcher';
 
@@ -42,11 +42,13 @@ export class HostedPlugin {
     //   lifecycle: pluginLifecycle,
     // }
     // const backendInitPath = pluginLifecycle.backendInitPath;
+
     const backendInitPath = "/Users/work/Projects/demo/.gepick/plugin-a/src/index.js"
+    const pluginEntry = backendInitPath
     if (backendInitPath) {
-      pluginManager.$initialize(backendInitPath, pluginMetadata)
-      pluginManager.$loadPlugin(backendInitPath, {
-        pluginPath: backendInitPath,
+      pluginManager.$initialize(pluginEntry, pluginMetadata)
+      pluginManager.$loadPlugin(pluginEntry, {
+        pluginPath: pluginEntry,
         lifecycle: {
           startMethod: "activate",
         },

@@ -1,22 +1,22 @@
 import * as http from 'node:http';
-import { ConnectionHandler, Contribution, IContributionProvider, InjectableService } from "@gepick/core/common";
+import { Contribution, IConnectionHandler, IContributionProvider, InjectableService } from "@gepick/core/common";
 import { createServerWebSocketConnection } from "@gepick/core/node";
 import { ApplicationContribution, IApplicationContribution } from "../application/application-contribution"
-import { IConnectionHandlerContribution, IConnectionHandlerContributionProvider } from "./connection-handler-contribution"
+import { IConnectionHandlerContribution, IConnectionHandlerProvider } from "./connection-handler-contribution"
 
 @Contribution(ApplicationContribution)
 export class MessagingService extends InjectableService implements IApplicationContribution {
   constructor(
-    @IConnectionHandlerContributionProvider private readonly provider: IContributionProvider<IConnectionHandlerContribution>,
+    @IConnectionHandlerProvider private readonly connectionHandlerProvider: IContributionProvider<IConnectionHandlerContribution>,
   ) {
     super();
   }
 
-  readonly handlers: ConnectionHandler[] = []
+  readonly handlers: IConnectionHandler[] = []
 
   onApplicationStart(server: http.Server) {
-    for (const contribution of this.provider.getContributions()) {
-      const connectionHandler = contribution.onConnectionHandlerConfigure?.()
+    for (const contribution of this.connectionHandlerProvider.getContributions()) {
+      const connectionHandler = contribution.createConnectionHandler?.()
 
       if (connectionHandler) {
         this.addHandler(connectionHandler)
@@ -103,12 +103,12 @@ export class MessagingService extends InjectableService implements IApplicationC
     }
   }
 
-  addHandler(handler: ConnectionHandler): void {
+  addHandler(handler: IConnectionHandler): void {
     this.handlers.push(handler);
   }
 }
 
 export const IMessagingService = MessagingService.getServiceDecorator()
 export interface IMessagingService {
-  addHandler: (handler: ConnectionHandler) => void
+  addHandler: (handler: IConnectionHandler) => void
 }

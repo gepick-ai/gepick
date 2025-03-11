@@ -1,9 +1,9 @@
 import * as http from 'node:http';
-import { ConnectionHandler } from "@gepick/core/common";
+import { IConnectionHandler } from "@gepick/core/common";
 import { createServerWebSocketConnection } from "@gepick/core/node";
 
 export class MessagingContribution {
-  readonly handlers: ConnectionHandler[] = []
+  readonly handlers: IConnectionHandler[] = []
 
   onStart(server: http.Server): void {
     /**
@@ -87,7 +87,7 @@ export class MessagingContribution {
     }
   }
 
-  addHandler(handler: ConnectionHandler): void {
+  addHandler(handler: IConnectionHandler): void {
     this.handlers.push(handler);
   }
 }

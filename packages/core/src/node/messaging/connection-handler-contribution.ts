@@ -1,6 +1,6 @@
-import { ConnectionHandler, createContributionProviderDecorator } from '@gepick/core/common';
+import { IConnectionHandler, createContributionProviderDecorator } from '@gepick/core/common';
 
-export const [ConnectionHandlerContribution, IConnectionHandlerContributionProvider] = createContributionProviderDecorator<IConnectionHandlerContribution>('ConnectionHandlerContribution')
+export const [ConnectionHandlerContribution, IConnectionHandlerProvider] = createContributionProviderDecorator<IConnectionHandlerContribution>('ConnectionHandlerContribution')
 export interface IConnectionHandlerContribution {
-  onConnectionHandlerConfigure?: () => ConnectionHandler
+  createConnectionHandler?: () => IConnectionHandler
 }

@@ -77,14 +77,14 @@ export class PluginServer extends InjectableService implements IPluginServer {
 }
 
 @Contribution(ConnectionHandlerContribution)
-export class PluginServerConnectionHandler extends InjectableService implements IConnectionHandlerContribution {
+export class PluginServerConnectionHandlerService extends InjectableService implements IConnectionHandlerContribution {
   constructor(
     @IServiceContainer private readonly container: IServiceContainer,
   ) {
     super()
   }
 
-  onConnectionHandlerConfigure() {
+  createConnectionHandler() {
     return new RpcConnectionHandler("/services/plugin", (client) => {
       const pluginServer = this.container.get<IPluginServer>(PluginServer.getServiceId())
       pluginServer.setClient(client as any);

@@ -2,6 +2,7 @@
 import { createRequire } from 'module';
 import { EXT, Emitter, RPCProtocol } from '@gepick/plugin-system/common';
 import { PluginManagerExt } from './plugin-api/plugin-manager-ext';
+import { createPluginAPI } from './plugin-api/plugin-context';
 
 // eslint-disable-next-line no-console
 console.log(`PLUGIN_HOST(${process.pid}) starting instance`);
