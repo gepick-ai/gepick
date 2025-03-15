@@ -3,7 +3,7 @@ import { Writable } from 'node:stream';
 import { Response } from 'express';
 import { IQuotaService } from '@gepick/user/node';
 import { Conversation } from '@gepick/copilot/common';
-import { InjectableService } from '@gepick/core/common';
+import { InjectableService, createServiceDecorator } from '@gepick/core/common';
 import { ChatMessageClass, ConversationModel } from './copilot-model';
 import { createChatSession } from './coze';
 
@@ -180,5 +180,5 @@ export class CopilotService extends InjectableService {
   }
 }
 
-export const ICopilotService = CopilotService.createServiceDecorator()
+export const ICopilotService = createServiceDecorator<ICopilotService>("CopilotService")
 export type ICopilotService = CopilotService

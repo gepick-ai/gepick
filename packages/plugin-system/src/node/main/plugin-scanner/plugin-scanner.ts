@@ -1,5 +1,5 @@
 import path from "node:path"
-import { InjectableService } from "@gepick/core/common";
+import { InjectableService, createServiceDecorator } from "@gepick/core/common";
 import { IFileService } from "@gepick/core/node"
 import { IPluginStore, PluginType } from "../type";
 
@@ -68,5 +68,5 @@ export class PluginScanner extends InjectableService {
   }
 }
 
-export const IPluginScanner = PluginScanner.createServiceDecorator()
+export const IPluginScanner = createServiceDecorator<IPluginScanner>("PluginScanner")
 export type IPluginScanner = PluginScanner;

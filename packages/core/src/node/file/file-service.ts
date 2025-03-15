@@ -1,6 +1,6 @@
 import path from "node:path"
 import fs from "fs-extra"
-import { InjectableService } from "@gepick/core/common";
+import { InjectableService, createServiceDecorator } from "@gepick/core/common";
 
 export class FileService extends InjectableService {
   async readJson<T extends object>(path: string) {
@@ -12,5 +12,5 @@ export class FileService extends InjectableService {
   }
 }
 
-export const IFileService = FileService.createServiceDecorator()
+export const IFileService = createServiceDecorator<IFileService>("FileService")
 export type IFileService = FileService

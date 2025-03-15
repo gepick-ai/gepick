@@ -1,6 +1,6 @@
 import * as cp from "node:child_process";
 import path from 'node:path';
-import { Emitter, InjectableService } from '@gepick/core/common';
+import { Emitter, InjectableService, createServiceDecorator } from '@gepick/core/common';
 import { PluginHostContext } from "../../common/plugin-api/api-context";
 import { RPCProtocol } from "../../common/rpc-protocol";
 import { IPluginClient, IPluginModel } from "../../common/plugin-protocol";
@@ -112,5 +112,5 @@ export class PluginHostManager extends InjectableService {
   }
 }
 
-export const IPluginHostManager = PluginHostManager.createServiceDecorator()
+export const IPluginHostManager = createServiceDecorator<IPluginHostManager>("PluginHostManager")
 export type IPluginHostManager = PluginHostManager

@@ -1,6 +1,6 @@
 import { OAuthProvider } from "@gepick/auth/common"
 import { IUserService } from "@gepick/user/node"
-import { InjectableService } from '@gepick/core/common'
+import { InjectableService, createServiceDecorator } from '@gepick/core/common'
 import { OAuthAccount, OauthTokens } from './provider-types';
 
 export class OAuthService extends InjectableService {
@@ -36,5 +36,5 @@ export class OAuthService extends InjectableService {
   }
 }
 
-export const IOAuthService = OAuthService.createServiceDecorator()
+export const IOAuthService = createServiceDecorator<IOAuthService>("OAuthService")
 export type IOAuthService = OAuthService

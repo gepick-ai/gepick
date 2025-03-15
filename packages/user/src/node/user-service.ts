@@ -1,4 +1,4 @@
-import { InjectableService } from '@gepick/core/common';
+import { InjectableService, createServiceDecorator } from '@gepick/core/common';
 import { UserModel } from "@gepick/user/node"
 import { isNil, omitBy } from 'lodash-es';
 
@@ -101,8 +101,8 @@ export class QuotaService extends InjectableService {
   }
 }
 
-export const IUserService = UserService.createServiceDecorator()
-export const IQuotaService = QuotaService.createServiceDecorator()
+export const IUserService = createServiceDecorator<IUserService>("UserService")
+export const IQuotaService = createServiceDecorator<IQuotaService>("QuotaService")
 
 export type IUserService = UserService
 export type IQuotaService = QuotaService

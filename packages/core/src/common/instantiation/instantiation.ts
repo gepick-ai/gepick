@@ -4,18 +4,38 @@ import { ContributionProvider, IContributionProvider } from './service-contribut
 
 // 加一个{ _serviceBrand?: 'ServiceDecorator' }是为了屏蔽掉ServiceDecorator展开的类型，而是在移入指定装饰器的时候将类型显示成ServiceDecorator<IXXService>
 // 加上{ _serviceBrand?: 'ServiceDecorator' }并不会影响显示的具体类型，只是为了让类型显示成ServiceDecorator<IXXService>
-export type ServiceIdentifier<T = unknown> = ReturnType<typeof inject<T>> & { _serviceBrand?: undefined };
+export type ServiceDecorator<T = unknown> = ReturnType<typeof inject<T>> & { _serviceBrand?: undefined };
 export type ContributionID = symbol & { _serviceBrand?: undefined }
 export type ContributionProviderDecorator<T = unknown> = ReturnType<typeof inject<T[]>> & { _serviceBrand?: undefined };
 
-export function createServiceDecorator<T extends InjectableService>(serviceName: string): ServiceIdentifier <T> {
-  return inject(Symbol.for(serviceName)) as ServiceIdentifier<T>
+const SERVICE_IDENTIFIER_KEY = 'serviceIdentifier';
+
+function defineServiceIdentifierForDecorator(decorator: ServiceDecorator<any>, serviceId: symbol) {
+  Reflect.defineProperty(decorator, SERVICE_IDENTIFIER_KEY, {
+    value: serviceId,
+    writable: false,
+    configurable: false,
+    enumerable: false,
+  })
 }
 
-export function createContribution<T extends object>(contributionName: string): [ContributionID, ServiceIdentifier<IContributionProvider<T>>] {
-  const contributionId = Symbol.for(contributionName)
+export function createServiceDecorator<T>(serviceName: string): ServiceDecorator<T> {
+  const serviceId = Symbol.for(serviceName)
+  const decorator = inject(serviceId)
 
-  return [contributionId, inject(ContributionProvider.getProviderId(contributionId)) as ServiceIdentifier<IContributionProvider<T>>]
+  defineServiceIdentifierForDecorator(decorator, serviceId);
+
+  return decorator as ServiceDecorator<T>
+}
+
+export function createContribution<T extends object>(contributionName: string): [ContributionID, ServiceDecorator<IContributionProvider<T>>] {
+  const contributionId = Symbol.for(contributionName)
+  const providerId = ContributionProvider.getProviderId(contributionId)
+  const decorator = inject(providerId) as ServiceDecorator<IContributionProvider<T>>
+
+  defineServiceIdentifierForDecorator(decorator, providerId)
+
+  return [contributionId, decorator]
 }
 
 export const CONTRIBUTION_METADATA_KEY = 'contribution'
@@ -25,8 +45,8 @@ export abstract class InjectableService extends Disposable {
     super()
   }
 
-  static createServiceDecorator<T extends InjectableService>(this: new (...args: any) => T): ServiceIdentifier<T> {
-    return inject(Symbol.for(this.name)) as ServiceIdentifier<T>
+  static createServiceDecorator<T extends InjectableService>(this: new (...args: any) => T): ServiceDecorator<T> {
+    return inject(Symbol.for(this.name)) as ServiceDecorator<T>
   }
 
   static getServiceId(): symbol {

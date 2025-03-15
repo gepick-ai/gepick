@@ -1,5 +1,5 @@
 import * as http from 'node:http';
-import { Contribution, IConnectionHandler, IContributionProvider, InjectableService } from "@gepick/core/common";
+import { Contribution, IConnectionHandler, IContributionProvider, InjectableService, createServiceDecorator } from "@gepick/core/common";
 import { createServerWebSocketConnection } from "@gepick/core/node";
 import { ApplicationContribution, IApplicationContribution } from "../application/application-contribution"
 import { IConnectionHandlerContribution, IConnectionHandlerProvider } from "./connection-handler-contribution"
@@ -108,7 +108,7 @@ export class MessagingService extends InjectableService implements IApplicationC
   }
 }
 
-export const IMessagingService = MessagingService.createServiceDecorator()
+export const IMessagingService = createServiceDecorator<IMessagingService>("MessagingService")
 export interface IMessagingService {
   addHandler: (handler: IConnectionHandler) => void
 }

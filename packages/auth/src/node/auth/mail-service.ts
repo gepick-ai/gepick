@@ -1,6 +1,6 @@
 import { Transporter, createTransport } from "nodemailer"
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
-import { InjectableService } from '@gepick/core/common'
+import { InjectableService, createServiceDecorator } from '@gepick/core/common'
 
 export class MailService extends InjectableService {
   private transporter: Transporter<SMTPTransport.SentMessageInfo>
@@ -49,5 +49,5 @@ export class MailService extends InjectableService {
   }
 }
 
-export const IMailService = MailService.createServiceDecorator()
+export const IMailService = createServiceDecorator<IMailService>("MailService")
 export type IMailService = MailService

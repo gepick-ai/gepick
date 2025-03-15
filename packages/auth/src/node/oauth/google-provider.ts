@@ -1,4 +1,4 @@
-import { ContentType, InjectableService } from '@gepick/core/common'
+import { ContentType, InjectableService, createServiceDecorator } from '@gepick/core/common'
 import { nodeMessagingService } from "@gepick/core/node"
 
 const GOOGLE_OAUTH_CLIENT_ID = process.env.GOOGLE_OAUTH_CLIENT_ID ?? "348471034017-pn5hs4mn83ul07bmmfsnmg5evf3ro3q8.apps.googleusercontent.com"
@@ -81,5 +81,5 @@ export class GoogleOAuthProvider extends InjectableService {
   }
 }
 
-export const IGoogleOAuthProvider = GoogleOAuthProvider.createServiceDecorator();
+export const IGoogleOAuthProvider = createServiceDecorator<IGoogleOAuthProvider>("GoogleOAuthProvider");
 export type IGoogleOAuthProvider = GoogleOAuthProvider;

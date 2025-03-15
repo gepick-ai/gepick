@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken'
-import { InjectableService } from '@gepick/core/common'
+import { InjectableService, createServiceDecorator } from '@gepick/core/common'
 
 interface JwtPayload {
   name: string
@@ -16,5 +16,5 @@ export class JwtService extends InjectableService {
   }
 }
 
-export const IJwtService = JwtService.createServiceDecorator()
+export const IJwtService = createServiceDecorator<IJwtService>("JwtService")
 export type IJwtService = JwtService

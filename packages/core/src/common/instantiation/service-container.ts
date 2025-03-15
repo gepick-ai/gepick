@@ -25,5 +25,5 @@ export class ServiceContainer extends Container {
     this.bind(Symbol.for(ServiceContainer.name)).toConstantValue(this);
   }
 }
-export const IServiceContainer = createServiceDecorator(ServiceContainer.name)
+export const IServiceContainer = createServiceDecorator<IServiceContainer>("ServiceContainer")
 export type IServiceContainer = ServiceContainer

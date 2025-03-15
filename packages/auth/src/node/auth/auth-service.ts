@@ -1,4 +1,4 @@
-import { InjectableService } from '@gepick/core/common';
+import { InjectableService, createServiceDecorator } from '@gepick/core/common';
 import { IUserService } from '@gepick/user/node'
 
 export class AuthService extends InjectableService {
@@ -25,5 +25,5 @@ export class AuthService extends InjectableService {
   }
 }
 
-export const IAuthService = AuthService.createServiceDecorator()
+export const IAuthService = createServiceDecorator<IAuthService>("AuthService")
 export type IAuthService = AuthService

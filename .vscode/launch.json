@@ -4,14 +4,14 @@
       "name": "Debug-Server",
       "request": "launch",
       "runtimeArgs": [
-        "dev:server"
+        "start:gepick-service"
       ],
       "runtimeExecutable": "yarn",
       "skipFiles": [
         "<node_internals>/**"
       ],
       "type": "node",
-      "sourceMaps": true,
+      "sourceMaps": true
     }
   ]
 }
