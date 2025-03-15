@@ -22,6 +22,4 @@ export class ServiceC extends InjectableService implements IServiceC {
 }
 
 export const IServiceC = ServiceC.createServiceDecorator();
-export interface IServiceC {
-  b: () => void
-}
+export type IServiceC = ServiceC

@@ -1,10 +1,8 @@
 import { IDisposable, InjectableService, toDisposable } from "@gepick/core/common";
 import gepick from "@gepick/plugin-api";
-import { ICommandRegistryExt, ICommandRegistryMain } from "../../../common/plugin-api/command-registry";
+import { Handler, ICommandRegistryExt, ICommandRegistryMain } from "../../../common/plugin-api/command-registry";
 import { MainContext } from "../../../common/plugin-api/api-context";
 import { IPluginHostRpcService } from "../plugin-host-rpc";
-
-export type Handler = <T>(...args: any[]) => T | PromiseLike<T>;
 
 /**
  * TODO(@jaylenchen): 补充CommandRegistry主要是registerCommand和registerHandler

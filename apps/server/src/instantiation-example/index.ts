@@ -22,7 +22,7 @@ class CommandModule extends ServiceModule { }
 async function main() {
   const serviceContainer = new ServiceContainer([LoggerModule, CommandModule]);
 
-  const serviceC = serviceContainer.get<IServiceC>(ServiceC.createServiceDecorator());
+  const serviceC = serviceContainer.get<IServiceC>(IServiceC);
   serviceC.b()
 
   // eslint-disable-next-line no-console
