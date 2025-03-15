@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import path from "node:path"
-import { IPluginMetadata, IPluginPackage } from '@gepick/plugin-system/common';
 import { InjectableService } from '@gepick/core/common';
+import { IPluginMetadata, IPluginPackage } from "@gepick/plugin-system/common/plugin-protocol";
 
 export class PluginReader extends InjectableService {
   private scanner: any;
@@ -30,5 +30,5 @@ export class PluginReader extends InjectableService {
   }
 }
 
-export const IPluginReader = PluginReader.getServiceDecorator()
+export const IPluginReader = PluginReader.createServiceDecorator()
 export type IPluginReader = PluginReader

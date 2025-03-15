@@ -36,6 +36,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@gepick/client": resolve(__dirname, "./src"),
+      "@gepick/plugin-system": resolve(__dirname, "../../packages/plugin-system/src"),
     },
   },
   server: {

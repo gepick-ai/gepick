@@ -81,5 +81,5 @@ export class GoogleOAuthProvider extends InjectableService {
   }
 }
 
-export const IGoogleOAuthProvider = GoogleOAuthProvider.getServiceDecorator();
+export const IGoogleOAuthProvider = GoogleOAuthProvider.createServiceDecorator();
 export type IGoogleOAuthProvider = GoogleOAuthProvider;

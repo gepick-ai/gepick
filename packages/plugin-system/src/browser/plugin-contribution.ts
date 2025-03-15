@@ -1,4 +1,4 @@
-import { HostedPlugin } from "./plugin/hosted-plugin"
+import { HostedPlugin } from "./hosted-plugin"
 
 export class PluginContribution {
   onStart(): void {

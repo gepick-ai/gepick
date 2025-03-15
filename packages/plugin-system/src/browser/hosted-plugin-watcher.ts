@@ -1,5 +1,5 @@
-import { Emitter, Event } from "../../common/event"
-import { IPluginClient } from "../../common/plugin-protocol"
+import { Emitter, Event } from "@gepick/core/common"
+import { IPluginClient } from "@gepick/plugin-system/common/plugin-protocol"
 
 export class HostedPluginWatcher {
   private onPostMessage = new Emitter<string[]>()

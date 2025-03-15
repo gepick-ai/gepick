@@ -25,5 +25,5 @@ export class AuthService extends InjectableService {
   }
 }
 
-export const IAuthService = AuthService.getServiceDecorator()
+export const IAuthService = AuthService.createServiceDecorator()
 export type IAuthService = AuthService

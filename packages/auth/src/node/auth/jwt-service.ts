@@ -16,5 +16,5 @@ export class JwtService extends InjectableService {
   }
 }
 
-export const IJwtService = JwtService.getServiceDecorator()
+export const IJwtService = JwtService.createServiceDecorator()
 export type IJwtService = JwtService

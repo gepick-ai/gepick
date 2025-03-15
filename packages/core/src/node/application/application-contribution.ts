@@ -1,8 +1,8 @@
 import http from 'http';
-import { createContributionProviderDecorator } from '@gepick/core/common'
+import { createContribution } from '@gepick/core/common'
 import { Application, Router } from 'express';
 
-export const [ApplicationContribution, IApplicationContributionProvider] = createContributionProviderDecorator<IApplicationContribution>('ApplicationContribution')
+export const [ApplicationContribution, IApplicationContributionProvider] = createContribution<IApplicationContribution>('ApplicationContribution')
 export interface IApplicationContribution {
   /**
    * 应用初始化

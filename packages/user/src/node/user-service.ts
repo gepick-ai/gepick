@@ -101,8 +101,8 @@ export class QuotaService extends InjectableService {
   }
 }
 
-export const IUserService = UserService.getServiceDecorator()
-export const IQuotaService = QuotaService.getServiceDecorator()
+export const IUserService = UserService.createServiceDecorator()
+export const IQuotaService = QuotaService.createServiceDecorator()
 
 export type IUserService = UserService
 export type IQuotaService = QuotaService

@@ -1,5 +1,5 @@
-import { IPluginResolverContext } from '@gepick/plugin-system/common';
 import { Contribution, InjectableService } from '@gepick/core/common';
+import { IPluginResolverContext } from '../../../common/plugin-protocol';
 import { IPluginResolverContribution, PluginResolverContribution } from './plugin-resolver-contribution';
 
 @Contribution(PluginResolverContribution)

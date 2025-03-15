@@ -1,12 +1,12 @@
 import { inject, interfaces, named } from "inversify";
-import { ContributionID, InjectableService, ServiceDecorator } from './instantiation';
+import { ContributionID, InjectableService, ServiceIdentifier } from './instantiation';
 
 export class ContributionProvider<T extends object> extends InjectableService implements IContributionProvider<T> {
   protected services: T[] | undefined;
 
-  static getContributionProviderDecorator<T extends InjectableService>(this: new (...args: any) => T, contributionId: ContributionID): ServiceDecorator<T> {
+  static getContributionProviderDecorator<T extends InjectableService>(this: new (...args: any) => T, contributionId: ContributionID): ServiceIdentifier<T> {
     named(contributionId)
-    return inject(Symbol.for(this.name)) as ServiceDecorator<T>
+    return inject(Symbol.for(this.name)) as ServiceIdentifier<T>
   }
 
   static getProviderId(contributionId: symbol) {

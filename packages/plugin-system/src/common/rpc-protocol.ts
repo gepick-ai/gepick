@@ -3,7 +3,7 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable ts/no-use-before-define */
 /* eslint-disable ts/no-empty-object-type */
-import { Event, ExtendedPromise } from '@gepick/plugin-system/common';
+import { Emitter, Event, ExtendedPromise, InjectableService } from '@gepick/core/common';
 
 export interface MessageConnection {
   send: (msg: {}) => void
@@ -392,4 +392,29 @@ export function transformErrorForSerialization(error: Error): SerializedError {
 
   // return as is
   return error;
+}
+
+export abstract class RpcProtocolService extends InjectableService {
+  readonly getProxy: IRPCProtocol['getProxy']
+  readonly set: IRPCProtocol['set']
+  readonly rpcProtocol: IRPCProtocol;
+
+  private static readonly _onMessage = new Emitter<any>()
+  public static readonly onMessage = RpcProtocolService._onMessage.event
+
+  constructor() {
+    super()
+
+    const rpcProtocol = this.onRpcServiceInit();
+
+    this.getProxy = rpcProtocol.getProxy.bind(rpcProtocol);
+    this.set = rpcProtocol.set.bind(rpcProtocol);
+    this.rpcProtocol = rpcProtocol;
+  }
+
+  protected abstract onRpcServiceInit(): IRPCProtocol;
+
+  dispatchAction(message: any) {
+    RpcProtocolService._onMessage.fire(message)
+  }
 }

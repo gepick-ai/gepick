@@ -49,5 +49,5 @@ export class MailService extends InjectableService {
   }
 }
 
-export const IMailService = MailService.getServiceDecorator()
+export const IMailService = MailService.createServiceDecorator()
 export type IMailService = MailService

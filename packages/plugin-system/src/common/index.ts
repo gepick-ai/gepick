@@ -1,6 +1,3 @@
-export * from "./disposable"
-export * from "./event"
-export * from "./extended-promise"
 export * from "./rpc-protocol"
 export * from "./plugin-api"
 export * from "./plugin-protocol"

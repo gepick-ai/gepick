@@ -1,9 +1,9 @@
 import { webSocketConnectionProvider } from '@gepick/core/browser';
-import { IRPCProtocol, RPCProtocol } from '../../common/rpc-protocol';
-import { IPluginMetadata, IPluginServer } from '../../common/plugin-protocol';
-import { EXT } from '../../common/plugin-api';
-import { setUpPluginApi } from './plugin-api-main/main-context';
-import { HostedPluginWatcher } from './hosted-plugin-watcher';
+import { IRPCProtocol, RPCProtocol } from '@gepick/plugin-system/common/rpc-protocol';
+import { IPluginMetadata, IPluginServer } from '@gepick/plugin-system/common/plugin-protocol';
+import { PluginHostContext } from '@gepick/plugin-system/common/plugin-api';
+import { setUpPluginApi } from '@gepick/plugin-system/browser/plugin-api';
+import { HostedPluginWatcher } from '@gepick/plugin-system/browser/hosted-plugin-watcher';
 
 export class HostedPlugin {
   private readonly hostedPluginWatcher = new HostedPluginWatcher()
@@ -35,7 +35,7 @@ export class HostedPlugin {
 
     // 这里最终利用json-rpc发送给server的hosted-plugin-server
     // 告知是利用plugin manager ext的$initialize、$loadPlugin去执行相关任务
-    const pluginManager = rpc.getProxy(EXT.PLUGIN_MANAGER)
+    const pluginManagerExt = rpc.getProxy(PluginHostContext.PluginManager)
     // const plugin: IPlugin = {
     //   pluginPath: pluginModel.entryPoint.backend,
     //   model: pluginModel,
@@ -43,11 +43,11 @@ export class HostedPlugin {
     // }
     // const backendInitPath = pluginLifecycle.backendInitPath;
 
-    const backendInitPath = "/Users/work/Projects/demo/.gepick/plugin-a/src/index.js"
+    const backendInitPath = "/Users/jaylen/Projects/gepick-plugin-system/.gepick/plugin-a/src/index.js"
     const pluginEntry = backendInitPath
     if (backendInitPath) {
-      pluginManager.$initialize(pluginEntry, pluginMetadata)
-      pluginManager.$loadPlugin(pluginEntry, {
+      pluginManagerExt.$initialize(pluginEntry, pluginMetadata)
+      pluginManagerExt.$loadPlugin(pluginEntry, {
         pluginPath: pluginEntry,
         lifecycle: {
           startMethod: "activate",

@@ -1,9 +1,9 @@
 import { Contribution, IContributionProvider, InjectableService } from '@gepick/core/common';
 import { ApplicationContribution, IApplicationContribution } from '@gepick/core/node';
-import { IPluginServer } from '@gepick/plugin-system/common';
-import { IPluginResolverContribution, IPluginResolverProvider } from './plugin-resolvers/plugin-resolver-contribution';
+import { IPluginServer } from '../../common/plugin-protocol';
+import { IPluginResolverContribution, IPluginResolverProvider } from './plugin-resolver/plugin-resolver-contribution';
 
-@Contribution(ApplicationContribution)
+// @Contribution(ApplicationContribution)
 export class PluginDeployer extends InjectableService implements IApplicationContribution {
   private pluginEntries: string[] = ["plugin-a"];
 

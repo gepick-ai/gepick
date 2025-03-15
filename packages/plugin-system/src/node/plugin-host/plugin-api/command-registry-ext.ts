@@ -1,18 +1,24 @@
+import { IDisposable, InjectableService, toDisposable } from "@gepick/core/common";
 import gepick from "@gepick/plugin-api";
-import { Disposable, ICommandRegistryExt, ICommandRegistryMain, MAIN } from '@gepick/plugin-system/common';
+import { ICommandRegistryExt, ICommandRegistryMain } from "../../../common/plugin-api/command-registry";
+import { MainContext } from "../../../common/plugin-api/api-context";
+import { IPluginHostRpcService } from "../plugin-host-rpc";
 
 export type Handler = <T>(...args: any[]) => T | PromiseLike<T>;
 
 /**
  * TODO(@jaylenchen): 补充CommandRegistry主要是registerCommand和registerHandler
  */
-export class CommandRegistryExt implements ICommandRegistryExt {
-  private main: ICommandRegistryMain
+export class CommandRegistryExt extends InjectableService implements ICommandRegistryExt {
+  #commandRegistryMain: ICommandRegistryMain
   private commands = new Map<string, Handler>();
 
-  constructor(rpc: any) {
+  constructor(
+    @IPluginHostRpcService private readonly pluginHostRpcService: IPluginHostRpcService,
+  ) {
+    super()
     // rpc如何通过MAIN的相关标识获取到main端的service？
-    this.main = rpc.getProxy(MAIN.COMMAND_REGISTRY);
+    this.#commandRegistryMain = this.pluginHostRpcService.getProxy(MainContext.CommandRegistry);
   }
 
   $executeCommand<T>(id: string, ...args: any[]): PromiseLike<T> {
@@ -24,7 +30,7 @@ export class CommandRegistryExt implements ICommandRegistryExt {
     }
   }
 
-  registerCommand(command: gepick.Command, handler?: Handler): Disposable {
+  registerCommand(command: gepick.Command, handler?: Handler): IDisposable {
     if (this.commands.has(command.id)) {
       throw new Error(`Command ${command.id} already exist`);
     }
@@ -32,22 +38,22 @@ export class CommandRegistryExt implements ICommandRegistryExt {
     if (handler) {
       this.commands.set(command.id, handler);
     }
-    this.main.$registerCommand(command);
+    this.#commandRegistryMain.$registerCommand(command);
 
-    return Disposable.create(() => {
-      this.main.$unregisterCommand(command.id);
+    return toDisposable(() => {
+      this.#commandRegistryMain.$unregisterCommand(command.id);
     });
   }
 
-  registerHandler(commandId: string, handler: Handler): Disposable {
+  registerHandler(commandId: string, handler: Handler): IDisposable {
     if (this.commands.has(commandId)) {
       throw new Error(`Command ${commandId} already has handler`);
     }
 
     this.commands.set(commandId, handler);
 
-    return Disposable.create(() => {
-      this.main.$unregisterCommand(commandId);
+    return toDisposable(() => {
+      this.#commandRegistryMain.$unregisterCommand(commandId);
     });
   }
 

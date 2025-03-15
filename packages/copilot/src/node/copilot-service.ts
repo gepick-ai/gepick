@@ -180,5 +180,5 @@ export class CopilotService extends InjectableService {
   }
 }
 
-export const ICopilotService = CopilotService.getServiceDecorator()
+export const ICopilotService = CopilotService.createServiceDecorator()
 export type ICopilotService = CopilotService

@@ -20,7 +20,7 @@ export function createJwtGuard(whitelist: string[], apiPrefix?: string): Request
   });
 }
 
-@Contribution(ApplicationContribution)
+// @Contribution(ApplicationContribution)
 export class JwtGuard extends InjectableService implements IApplicationContribution {
   onApplicationInit(router: Router, app: Application): void {
     const API_PREFIX = '/api';

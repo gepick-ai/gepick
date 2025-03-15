@@ -108,7 +108,7 @@ export class MessagingService extends InjectableService implements IApplicationC
   }
 }
 
-export const IMessagingService = MessagingService.getServiceDecorator()
+export const IMessagingService = MessagingService.createServiceDecorator()
 export interface IMessagingService {
   addHandler: (handler: IConnectionHandler) => void
 }

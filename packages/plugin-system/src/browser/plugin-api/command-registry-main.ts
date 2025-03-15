@@ -1,5 +1,5 @@
 import gepick from "@gepick/plugin-api"
-import { EXT, ICommandRegistryExt, ICommandRegistryMain } from "../../../common/plugin-api"
+import { ICommandRegistryExt, ICommandRegistryMain, PluginHostContext } from "@gepick/plugin-system/common/plugin-api"
 
 class CommandRegistry {
   cmdmap = new Map<string, gepick.Command>()
@@ -34,7 +34,7 @@ export class CommandRegistryMain implements ICommandRegistryMain {
 
   constructor(rpc: any) {
     // rpc如何通过EXT的相关标识获取到ext端的service？
-    this.ext = rpc.getProxy(EXT.COMMAND_REGISTRY)
+    this.ext = rpc.getProxy(PluginHostContext.CommandRegistry)
   }
 
   $registerCommand(command: gepick.Command): void {

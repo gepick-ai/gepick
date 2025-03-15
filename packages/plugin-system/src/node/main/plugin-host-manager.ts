@@ -1,7 +1,9 @@
 import * as cp from "node:child_process";
 import path from 'node:path';
-import { EXT, Emitter, IPluginClient, IPluginModel, RPCProtocol } from '@gepick/plugin-system/common';
-import { InjectableService } from '@gepick/core/common';
+import { Emitter, InjectableService } from '@gepick/core/common';
+import { PluginHostContext } from "../../common/plugin-api/api-context";
+import { RPCProtocol } from "../../common/rpc-protocol";
+import { IPluginClient, IPluginModel } from "../../common/plugin-protocol";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
@@ -64,14 +66,14 @@ export class PluginHostManager extends InjectableService {
         emitter.fire(JSON.parse(message));
       });
       const rpc = new RPCProtocol({
-        onMessage: emitter.event,
+        onMessage: emitter.event as any,
         send: (m: any) => {
           if (this.cp?.send) {
             this.cp?.send(JSON.stringify(m));
           }
         },
       });
-      const hostedPluginManager = rpc.getProxy(EXT.PLUGIN_MANAGER);
+      const hostedPluginManager = rpc.getProxy(PluginHostContext.PluginManager);
       hostedPluginManager.$stopPlugin('').then(() => {
         this.cp?.kill();
       });
@@ -98,7 +100,7 @@ export class PluginHostManager extends InjectableService {
       forkOptions.execArgv = ['--nolazy', `--inspect${inspectArg.substr(inspectArgPrefix.length)}`];
     }
 
-    const childProcess = cp.fork(path.resolve(__dirname, '../plugin/plugin-host-main'), options.args, forkOptions);
+    const childProcess = cp.fork(path.resolve(__dirname, '../plugin-host/plugin-host-main'), options.args, forkOptions);
 
     return childProcess;
   }
@@ -110,5 +112,5 @@ export class PluginHostManager extends InjectableService {
   }
 }
 
-export const IPluginHostManager = PluginHostManager.getServiceDecorator()
+export const IPluginHostManager = PluginHostManager.createServiceDecorator()
 export type IPluginHostManager = PluginHostManager
