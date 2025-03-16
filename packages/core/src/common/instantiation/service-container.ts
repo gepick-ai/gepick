@@ -1,6 +1,6 @@
-import { Container } from "inversify";
+import { Container, interfaces } from "../inversify";
 import { ServiceModuleConstructor } from './service-module';
-import { createServiceDecorator } from './instantiation';
+import { ServiceDecorator, createServiceDecorator, getServiceIdentifierFromDecorator } from './instantiation';
 
 export class ServiceContainer extends Container {
   constructor(protected readonly ModuleConstructors?: ServiceModuleConstructor[]) {
@@ -14,7 +14,7 @@ export class ServiceContainer extends Container {
   }
 
   loadModule(ModuleConstructor: ServiceModuleConstructor) {
-    this.load(new ModuleConstructor(this))
+    this.load(new ModuleConstructor(this as any))
   }
 
   loadModules(ModuleConstructors: ServiceModuleConstructor[]) {
@@ -23,6 +23,16 @@ export class ServiceContainer extends Container {
 
   protected injectThis = () => {
     this.bind(Symbol.for(ServiceContainer.name)).toConstantValue(this);
+  }
+
+  override get<T>(serviceDecorator: ServiceDecorator<any>): T {
+    const serviceId = getServiceIdentifierFromDecorator(serviceDecorator)
+
+    if (!serviceId) {
+      throw new Error("Make sure to use the 'createServiceDecorator' method from the service, or use the 'createServiceDecorator' function to create a service identifier.")
+    }
+
+    return super.get(serviceId) as T
   }
 }
 export const IServiceContainer = createServiceDecorator<IServiceContainer>("ServiceContainer")

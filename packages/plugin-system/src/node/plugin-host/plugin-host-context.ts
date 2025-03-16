@@ -6,8 +6,8 @@ import { CommandRegistryExt } from './plugin-api/command-registry-ext';
 import { IPluginHostRpcService, PluginHostRpcService } from "./plugin-host-rpc";
 
 export function setupPluginApi(serviceContainer: ServiceContainer) {
-  const pluginHostRpcService = serviceContainer.get<IPluginHostRpcService>(PluginHostRpcService.getServiceId())
-  const commandRegistryExt = serviceContainer.get<CommandRegistryExt>(CommandRegistryExt.getServiceId())
+  const pluginHostRpcService = serviceContainer.get<IPluginHostRpcService>(IPluginHostRpcService)
+  const commandRegistryExt = serviceContainer.get<CommandRegistryExt>(ICommandRegistryExt)
 
   pluginHostRpcService.set(PluginHostContext.CommandRegistry, commandRegistryExt)
 

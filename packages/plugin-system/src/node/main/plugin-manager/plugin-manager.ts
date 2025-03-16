@@ -1,4 +1,4 @@
-import { Contribution, IServiceContainer, InjectableService, RpcConnectionHandler } from "@gepick/core/common";
+import { Contribution, IServiceContainer, InjectableService, RpcConnectionHandler, createServiceDecorator } from "@gepick/core/common";
 import { ApplicationContribution, ConnectionHandlerContribution, IApplicationContribution, IConnectionHandlerContribution } from "@gepick/core/node";
 import { IPluginClient, IPluginMetadata } from "@gepick/plugin-system/common/plugin-protocol";
 import { IPluginScanner } from "../plugin-scanner/plugin-scanner";
@@ -71,7 +71,7 @@ export class PluginManager extends InjectableService implements IApplicationCont
   }
 }
 
-export const IPluginManager = PluginManager.createServiceDecorator()
+export const IPluginManager = createServiceDecorator<PluginManager>("PluginManager")
 
 @Contribution(ConnectionHandlerContribution)
 export class PluginServerConnectionHandlerService extends InjectableService implements IConnectionHandlerContribution {
@@ -83,7 +83,7 @@ export class PluginServerConnectionHandlerService extends InjectableService impl
 
   createConnectionHandler() {
     return new RpcConnectionHandler("/services/plugin", (client) => {
-      const pluginServer = this.container.get<PluginManager>(PluginManager.getServiceId())
+      const pluginServer = this.container.get<PluginManager>(IPluginManager)
       pluginServer.setClient(client as any);
 
       return pluginServer;

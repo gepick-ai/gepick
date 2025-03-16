@@ -10,13 +10,31 @@ export type ContributionProviderDecorator<T = unknown> = ReturnType<typeof injec
 
 const SERVICE_IDENTIFIER_KEY = 'serviceIdentifier';
 
-function defineServiceIdentifierForDecorator(decorator: ServiceDecorator<any>, serviceId: symbol) {
+export function defineServiceIdentifierForDecorator(decorator: ServiceDecorator<any>, serviceId: symbol) {
   Reflect.defineProperty(decorator, SERVICE_IDENTIFIER_KEY, {
     value: serviceId,
     writable: false,
     configurable: false,
     enumerable: false,
   })
+}
+
+/**
+ * NOTE： 由于我们在service container中重写了inversify的container的get方法。
+ * 我们会拿这个函数来获取decorator换取对应的service。它的使用方式就跟你直接在service类中使用decorator直接注入服务一样。
+ * 比如，目前我们允许直接使用IFileService这个decorator直接通过类注入，也可以使用container.get(IFileService)的方式来获取服务实例。
+ * 但是因为inversify内部会用到get获取相关服务，所以我们需要判断decorator可能不是个function，不是的话直接返回。不然的话，由于decorator
+ * 是一个symbol，那么走一回这个函数，逻辑直接会来到Reflect.get(decorator, SERVICE_IDENTIFIER_KEY)，拿到的就是一个undefined。
+ * 于是内部get就会出问题，报错信息类似于：You are attempting to construct Symbol(ApplicationContribution) in a synchronous way but it has asynchronous dependencies.
+ * 但实际上是我们重写get的时候，没对传入的decorator参数判断造成的。
+ */
+export function getServiceIdentifierFromDecorator(decorator: ServiceDecorator<any>) {
+  // FIX：解决重写inversify container的get方法入参没正确判断导致获取到undefined出现：You are attempting to construct Symbol(ApplicationContribution) in a synchronous way but it has asynchronous dependencies.的问题。
+  if (typeof decorator !== 'function') {
+    return decorator;
+  }
+
+  return Reflect.get(decorator, SERVICE_IDENTIFIER_KEY);
 }
 
 export function createServiceDecorator<T>(serviceName: string): ServiceDecorator<T> {
@@ -43,10 +61,6 @@ export const CONTRIBUTION_METADATA_KEY = 'contribution'
 export abstract class InjectableService extends Disposable {
   constructor() {
     super()
-  }
-
-  static createServiceDecorator<T extends InjectableService>(this: new (...args: any) => T): ServiceDecorator<T> {
-    return inject(Symbol.for(this.name)) as ServiceDecorator<T>
   }
 
   static getServiceId(): symbol {

@@ -1,8 +1,7 @@
 import { ServiceContainer } from '@gepick/core/common';
 import { IPluginManagerExt, PluginHostContext } from '@gepick/plugin-system/common';
 import { PluginApiModule } from './plugin-host-module';
-import { IPluginHostRpcService, PluginHostRpcService } from './plugin-host-rpc';
-import { PluginManagerExt } from './plugin-api/plugin-manager-ext';
+import { IPluginHostRpcService } from './plugin-host-rpc';
 
 function startPluginHostProcess() {
   // override exit() function, to do not allow plugin kill this node
@@ -56,8 +55,8 @@ function startPluginHostProcess() {
     PluginApiModule,
   ]);
 
-  const pluginHostRpcService = serviceContainer.get<IPluginHostRpcService>(PluginHostRpcService.getServiceId())
-  const pluginManagerExt = serviceContainer.get<IPluginManagerExt>(PluginManagerExt.getServiceId())
+  const pluginHostRpcService = serviceContainer.get<IPluginHostRpcService>(IPluginHostRpcService)
+  const pluginManagerExt = serviceContainer.get<IPluginManagerExt>(IPluginManagerExt)
 
   pluginHostRpcService.set(PluginHostContext.PluginManager, pluginManagerExt)
 

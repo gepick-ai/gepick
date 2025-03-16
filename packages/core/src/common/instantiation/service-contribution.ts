@@ -1,4 +1,4 @@
-import { inject, interfaces, named } from "inversify";
+import { inject, interfaces, named } from "../inversify";
 import { ContributionID, InjectableService, ServiceDecorator } from './instantiation';
 
 export class ContributionProvider<T extends object> extends InjectableService implements IContributionProvider<T> {
@@ -36,7 +36,7 @@ export class ContributionProvider<T extends object> extends InjectableService im
             currentServices.push(...currentContainer.getAll(this.serviceIdentifier));
           }
           catch (error) {
-            console.error(error);
+            console.error("serviceIdentifier", this.serviceIdentifier, error);
           }
         }
         // tslint:disable-next-line:no-null-keyword

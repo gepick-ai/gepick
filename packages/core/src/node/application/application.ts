@@ -6,7 +6,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import chalk from 'chalk';
 import mongoose from 'mongoose';
-import { IContributionProvider, InjectableService, PostConstruct } from '@gepick/core/common';
+import { IContributionProvider, InjectableService, PostConstruct, createServiceDecorator } from '@gepick/core/common';
 import { IApplicationContribution, IApplicationContributionProvider } from './application-contribution';
 
 export class Application extends InjectableService {
@@ -131,5 +131,5 @@ export class Application extends InjectableService {
   }
 }
 
-export const IApplication = Application.getServiceId()
+export const IApplication = createServiceDecorator<IApplication>("Application")
 export type IApplication = Application
