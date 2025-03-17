@@ -1,24 +1,21 @@
-import { IDisposable, InjectableService, toDisposable } from "@gepick/core/common";
+import { Contribution, IDisposable, InjectableService, toDisposable } from "@gepick/core/common";
 import gepick from "@gepick/plugin-api";
-import { ICommandRegistryExt, ICommandRegistryMain } from "../../../common/plugin-api/command-registry";
-import { MainContext } from "../../../common/plugin-api/api-context";
+import { Handler, ICommandRegistryExt, ICommandRegistryMain } from "../../../common/plugin-api/command-registry";
+import { MainContext, PluginHostContext } from "../../../common/plugin-api/api-context";
 import { IPluginHostRpcService } from "../plugin-host-rpc";
-
-export type Handler = <T>(...args: any[]) => T | PromiseLike<T>;
+import { ILocalServiceContribution, LocalServiceContribution } from "../../../common/rpc-protocol";
 
 /**
  * TODO(@jaylenchen): 补充CommandRegistry主要是registerCommand和registerHandler
  */
-export class CommandRegistryExt extends InjectableService implements ICommandRegistryExt {
+@Contribution(LocalServiceContribution)
+export class CommandRegistryExt extends InjectableService implements ICommandRegistryExt, ILocalServiceContribution {
   #commandRegistryMain: ICommandRegistryMain
   private commands = new Map<string, Handler>();
 
-  constructor(
-    @IPluginHostRpcService private readonly pluginHostRpcService: IPluginHostRpcService,
-  ) {
-    super()
-    // rpc如何通过MAIN的相关标识获取到main端的service？
-    this.#commandRegistryMain = this.pluginHostRpcService.getProxy(MainContext.CommandRegistry);
+  onRpcServiceInit(pluginHostRpcService: IPluginHostRpcService) {
+    pluginHostRpcService.setLocalService(PluginHostContext.CommandRegistry, this)
+    this.#commandRegistryMain = pluginHostRpcService.getRemoteServiceProxy(MainContext.CommandRegistry);
   }
 
   $executeCommand<T>(id: string, ...args: any[]): PromiseLike<T> {

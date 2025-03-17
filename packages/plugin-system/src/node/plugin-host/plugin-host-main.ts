@@ -1,9 +1,9 @@
-import { ServiceContainer } from '@gepick/core/common';
-import { IPluginManagerExt, PluginHostContext } from '@gepick/plugin-system/common';
+import { InjectableService, ServiceContainer } from '@gepick/core/common';
 import { PluginApiModule } from './plugin-host-module';
 import { IPluginHostRpcService } from './plugin-host-rpc';
+import { IPluginHostApiService } from './plugin-host-api';
 
-function startPluginHostProcess() {
+function patchProcess() {
   // override exit() function, to do not allow plugin kill this node
   process.exit = function (_code?: number): void {
     const err = new Error('An plugin call process.exit() and it was prevented.');
@@ -18,11 +18,9 @@ function startPluginHostProcess() {
       console.warn(err.stack);
     };
   }
+}
 
-  process.on('uncaughtException', (err: Error) => {
-    console.error(err.stack);
-  });
-
+function handleProcessException() {
   const unhandledPromises: Promise<any>[] = [];
 
   process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
@@ -42,12 +40,21 @@ function startPluginHostProcess() {
     }, 1000);
   });
 
+  process.on('uncaughtException', (err: Error) => {
+    console.error(err.stack);
+  });
+
   process.on('rejectionHandled', (promise: Promise<any>) => {
     const index = unhandledPromises.indexOf(promise);
     if (index >= 0) {
       unhandledPromises.splice(index, 1);
     }
   });
+}
+
+function startPluginHostProcess() {
+  handleProcessException();
+  patchProcess();
 
   const serviceContainer = new ServiceContainer();
 
@@ -55,21 +62,11 @@ function startPluginHostProcess() {
     PluginApiModule,
   ]);
 
-  const pluginHostRpcService = serviceContainer.get<IPluginHostRpcService>(IPluginHostRpcService)
-  const pluginManagerExt = serviceContainer.get<IPluginManagerExt>(IPluginManagerExt)
-
-  pluginHostRpcService.set(PluginHostContext.PluginManager, pluginManagerExt)
-
-  // 当前子进程接收到父进程传递过来的消息时会触发message事件
-  process.on('message', (message: any) => {
-    try {
-      // NOTE： 当父进程发送过来消息的时候，将消息通过emitter发送出去 @1
-      pluginHostRpcService.dispatchAction(JSON.parse(message));
-    }
-    catch (e) {
-      console.error(e);
-    }
-  });
+  const pluginHostRpcService = serviceContainer.get<IPluginHostRpcService>(IPluginHostRpcService);
+  const pluginHostApiService = serviceContainer.get<IPluginHostApiService>(IPluginHostApiService)
+  // 完成rpc service的初始化工作后才能接着完成@gepick/plugin-api的重写工作
+  pluginHostRpcService.initialize();
+  pluginHostApiService.initialize();
 
   // eslint-disable-next-line no-console
   console.log(`PLUGIN_HOST(${process.pid}) starting instance`);

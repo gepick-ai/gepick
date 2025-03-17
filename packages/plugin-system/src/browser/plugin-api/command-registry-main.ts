@@ -1,4 +1,5 @@
 import gepick from "@gepick/plugin-api"
+import { IRPCProtocol } from "@gepick/plugin-system/common";
 import { ICommandRegistryExt, ICommandRegistryMain, PluginHostContext } from "@gepick/plugin-system/common/plugin-api"
 
 class CommandRegistry {
@@ -32,9 +33,9 @@ export class CommandRegistryMain implements ICommandRegistryMain {
   private delegate: CommandRegistry = commandRegistry;
   private disposables = new Map<string, Disposable>();
 
-  constructor(rpc: any) {
+  constructor(rpc: IRPCProtocol) {
     // rpc如何通过EXT的相关标识获取到ext端的service？
-    this.ext = rpc.getProxy(PluginHostContext.CommandRegistry)
+    this.ext = rpc.getRemoteServiceProxy(PluginHostContext.CommandRegistry)
   }
 
   $registerCommand(command: gepick.Command): void {

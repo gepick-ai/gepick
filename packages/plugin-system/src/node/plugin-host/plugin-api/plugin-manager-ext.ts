@@ -1,7 +1,8 @@
-import { createRequire } from 'module';
-import { IServiceContainer, InjectableService } from '@gepick/core/common';
+import { Contribution, InjectableService } from "@gepick/core/common";
 import { IPluginManagerExt } from '../../../common/plugin-api/plugin-manager';
-import { setupPluginApi } from '../plugin-host-context';
+import { ILocalServiceContribution, LocalServiceContribution } from "../../../common/rpc-protocol";
+import { IPluginHostRpcService } from '../plugin-host-rpc';
+import { PluginHostContext } from "../../../common/plugin-api/api-context";
 
 export interface IPluginHost {
   initialize: (contextPath: string, pluginMetadata: any) => void
@@ -11,49 +12,13 @@ export interface IPluginHost {
   stopPlugins: (contextPath: string, pluginIds: string[]) => void
 }
 
-/**
- * 目前PluginManagerExt主要做的事情就是转发相关信息给plugin host处理
- */
-export class PluginManagerExt extends InjectableService implements IPluginManagerExt {
+@Contribution(LocalServiceContribution)
+export class PluginManagerExt extends InjectableService implements IPluginManagerExt, ILocalServiceContribution {
   private plugins = new Map<string, () => void>();
   private runningPluginIds: string[] = [];
 
-  constructor(
-    @IServiceContainer private readonly serviceContainer: IServiceContainer,
-  ) {
-    super();
-  }
-
-  /**
-   * 利用plugin host initialize
-   */
-  $initialize(_contextPath: string, _pluginMetadata: any): void {
-    const pluginAPI = setupPluginApi(this.serviceContainer);
-    const require = createRequire(import.meta.url);
-    const NODE_MODULE_NAMES = ['@gepick/plugin-api'];
-    const module = require('module');
-
-    // add theia object as module into npm cache
-    NODE_MODULE_NAMES.forEach((moduleName) => {
-      require.cache[moduleName] = {
-        id: moduleName,
-        filename: moduleName,
-        loaded: true,
-        exports: pluginAPI,
-      } as any;
-    });
-
-    // save original resolve method
-    const internalResolve = module._resolveFilename;
-
-    // if we try to resolve theia module, return the filename entry to use cache.
-    module._resolveFilename = (request: string, parent: any) => {
-      if (NODE_MODULE_NAMES.includes(request)) {
-        return request;
-      }
-      const retVal = internalResolve(request, parent);
-      return retVal;
-    };
+  onRpcServiceInit(pluginHostRpcService: IPluginHostRpcService) {
+    pluginHostRpcService.setLocalService(PluginHostContext.PluginManager, this)
   }
 
   /**

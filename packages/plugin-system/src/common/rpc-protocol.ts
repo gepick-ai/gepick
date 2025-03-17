@@ -3,7 +3,7 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable ts/no-use-before-define */
 /* eslint-disable ts/no-empty-object-type */
-import { Emitter, Event, ExtendedPromise, InjectableService } from '@gepick/core/common';
+import { Emitter, Event, ExtendedPromise, IContributionProvider, InjectableService, createContribution } from '@gepick/core/common';
 
 export interface MessageConnection {
   send: (msg: {}) => void
@@ -14,12 +14,12 @@ export interface IRPCProtocol {
   /**
    * Returns a proxy to an object addressable/named in the plugin process or in the main process.
    */
-  getProxy: <T>(proxyId: ProxyIdentifier<T>) => T
+  getRemoteServiceProxy: <T>(proxyId: ProxyIdentifier<T>) => T
 
   /**
    * Register manually created instance.
    */
-  set: <T, R extends T>(identifier: ProxyIdentifier<T>, instance: R) => R
+  setLocalService: <T, R extends T>(identifier: ProxyIdentifier<T>, instance: R) => R
 
 }
 
@@ -142,7 +142,7 @@ export class RPCProtocol implements IRPCProtocol {
   /**
    * 尝试找到对应id的代理，找不到就创建一个新的代理，并将其与id在proxies关联并保存起来。
    */
-  getProxy<T>(proxyId: ProxyIdentifier<T>): T {
+  getRemoteServiceProxy<T>(proxyId: ProxyIdentifier<T>): T {
     if (!this.proxies[proxyId.id]) {
       this.proxies[proxyId.id] = this.createProxy(proxyId.id);
     }
@@ -152,7 +152,7 @@ export class RPCProtocol implements IRPCProtocol {
   /**
    * 将target和id在locals中关联
    */
-  set<T, R extends T>(identifier: ProxyIdentifier<T>, instance: R): R {
+  setLocalService<T, R extends T>(identifier: ProxyIdentifier<T>, instance: R): R {
     this.locals[identifier.id] = instance;
     return instance;
   }
@@ -394,27 +394,60 @@ export function transformErrorForSerialization(error: Error): SerializedError {
   return error;
 }
 
-export abstract class RpcProtocolService extends InjectableService {
-  readonly getProxy: IRPCProtocol['getProxy']
-  readonly set: IRPCProtocol['set']
+export interface IRpcService {
+  getRemoteServiceProxy: IRPCProtocol['getRemoteServiceProxy']
+  setLocalService: IRPCProtocol['setLocalService']
+  triggerLocalService: (message: any) => void
+  getLocalServicesSetupStatus: () => boolean
+  initialize: () => void
+}
+
+export interface ILocalServiceContribution {
+  onRpcServiceInit: (rpcService: InstanceType<(new (...args: any[]) => any)> & { [K in keyof IRpcService]: IRpcService[K] }) => void
+}
+export const [LocalServiceContribution, ILocalServiceProvider] = createContribution<ILocalServiceContribution>("LocalServiceContribution")
+
+export abstract class RpcService extends InjectableService implements IRpcService {
+  readonly getRemoteServiceProxy: IRPCProtocol['getRemoteServiceProxy']
+  readonly setLocalService: IRPCProtocol['setLocalService']
   readonly rpcProtocol: IRPCProtocol;
+  isLocalServicesSetup: boolean = false;
 
   private static readonly _onMessage = new Emitter<any>()
-  public static readonly onMessage = RpcProtocolService._onMessage.event
+  private static readonly onMessage = RpcService._onMessage.event
 
-  constructor() {
+  constructor(
+    @ILocalServiceProvider private readonly localServiceProvider: IContributionProvider<ILocalServiceContribution>,
+  ) {
     super()
 
-    const rpcProtocol = this.onRpcServiceInit();
+    const rpcProtocol = new RPCProtocol({
+      onMessage: RpcService.onMessage,
+      send: this.sendMessage,
+    })
 
-    this.getProxy = rpcProtocol.getProxy.bind(rpcProtocol);
-    this.set = rpcProtocol.set.bind(rpcProtocol);
+    this.getRemoteServiceProxy = rpcProtocol.getRemoteServiceProxy.bind(rpcProtocol);
+    this.setLocalService = rpcProtocol.setLocalService.bind(rpcProtocol);
     this.rpcProtocol = rpcProtocol;
   }
 
-  protected abstract onRpcServiceInit(): IRPCProtocol;
+  initialize() {
+    if (!this.isLocalServicesSetup) {
+      for (const localService of this.localServiceProvider.getContributions()) {
+        localService.onRpcServiceInit(this);
+      }
 
-  dispatchAction(message: any) {
-    RpcProtocolService._onMessage.fire(message)
+      this.isLocalServicesSetup = true;
+    }
+  }
+
+  protected abstract sendMessage(m: any): void;
+
+  triggerLocalService(message: any) {
+    RpcService._onMessage.fire(message)
+  }
+
+  getLocalServicesSetupStatus() {
+    return this.isLocalServicesSetup
   }
 }

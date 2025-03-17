@@ -25,7 +25,7 @@ export class HostedPlugin {
     });
   }
 
-  loadPlugin(pluginMetadata: any): void {
+  loadPlugin(_pluginMetadata: any): void {
     // const pluginModel = pluginMetadata.model;
     // const pluginLifecycle = pluginMetadata.lifecycle
 
@@ -35,7 +35,7 @@ export class HostedPlugin {
 
     // 这里最终利用json-rpc发送给server的hosted-plugin-server
     // 告知是利用plugin manager ext的$initialize、$loadPlugin去执行相关任务
-    const pluginManagerExt = rpc.getProxy(PluginHostContext.PluginManager)
+    const pluginManagerExt = rpc.getRemoteServiceProxy(PluginHostContext.PluginManager)
     // const plugin: IPlugin = {
     //   pluginPath: pluginModel.entryPoint.backend,
     //   model: pluginModel,
@@ -46,7 +46,6 @@ export class HostedPlugin {
     const backendInitPath = "/Users/jaylen/Projects/gepick-plugin-system/.gepick/plugin-a/src/index.js"
     const pluginEntry = backendInitPath
     if (backendInitPath) {
-      pluginManagerExt.$initialize(pluginEntry, pluginMetadata)
       pluginManagerExt.$loadPlugin(pluginEntry, {
         pluginPath: pluginEntry,
         lifecycle: {

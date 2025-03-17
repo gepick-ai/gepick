@@ -73,7 +73,7 @@ export class PluginHostManager extends InjectableService {
           }
         },
       });
-      const hostedPluginManager = rpc.getProxy(PluginHostContext.PluginManager);
+      const hostedPluginManager = rpc.getRemoteServiceProxy(PluginHostContext.PluginManager);
       hostedPluginManager.$stopPlugin('').then(() => {
         this.cp?.kill();
       });
