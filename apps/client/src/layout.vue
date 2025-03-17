@@ -6,10 +6,13 @@ import Auth from "@gepick/client/components/auth/index.vue"
 import { webSocketConnectionProvider } from "@gepick/core/browser";
 import { ILoggerServer, loggerPath, loggerWatcher } from '@gepick/logger/common';
 import { IPluginServer } from '@gepick/plugin-system/common';
-import { commandRegistry, pluginContribution } from '@gepick/plugin-system/browser';
+import { PluginBrowserModule, PluginContribution, commandRegistry } from '@gepick/plugin-system/browser';
 import { onMounted } from 'vue';
+import { ServiceContainer } from "@gepick/core/common";
 
 defineProps<Props>();
+
+const container = new ServiceContainer([PluginBrowserModule])
 
 // const loggerServer = webSocketConnectionProvider.createProxy<ILoggerServer>(loggerPath, loggerWatcher.getLoggerClient());
 interface Props {
@@ -17,7 +20,8 @@ interface Props {
 }
 
 function handleLog() {
-  pluginContribution.onStart()
+  const pc = Reflect.construct(PluginContribution, [container])
+  pc.onStart()
 }
 
 function handleCmd() {
