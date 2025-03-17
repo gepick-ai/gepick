@@ -11,6 +11,19 @@ export interface IPluginHost {
 
   stopPlugins: (contextPath: string, pluginIds: string[]) => void
 }
+interface IPluginModule {
+  activate?: () => Promise<void>
+  deactivate?: () => void
+}
+export class ActivatedPlugin {
+  constructor(
+    public readonly module: IPluginModule,
+  ) {}
+
+  deactivate() {
+    this.module.deactivate?.()
+  }
+}
 
 @Contribution(LocalServiceContribution)
 export class PluginManagerExt extends InjectableService implements IPluginManagerExt, ILocalServiceContribution {

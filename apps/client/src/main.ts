@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import { createApp } from "vue";
 import { router } from "@gepick/client/router";
 import { pinia } from "@gepick/client/store";

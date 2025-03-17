@@ -1,15 +1,52 @@
 import * as cp from "node:child_process";
 import path from 'node:path';
-import { Emitter, InjectableService, createServiceDecorator } from '@gepick/core/common';
+import { Contribution, Emitter, IServiceContainer, InjectableService, RpcConnectionHandler, createServiceDecorator } from '@gepick/core/common';
+import { ApplicationContribution, ConnectionHandlerContribution, IApplicationContribution, IConnectionHandlerContribution } from "@gepick/core/node";
 import { PluginHostContext } from "../../common/plugin-api/api-context";
 import { RPCProtocol } from "../../common/rpc-protocol";
-import { IPluginClient, IPluginModel } from "../../common/plugin-protocol";
+import { IPluginClient, IPluginMetadata } from "../../common/plugin-protocol";
+import { IInstalledPlugin } from "./type";
+import { IPluginScanner } from "./plugin-scanner";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
-export class PluginHostManager extends InjectableService {
+export const IPluginHostManager = createServiceDecorator<IPluginHostManager>("PluginHostManager")
+export type IPluginHostManager = PluginHostManager
+
+@Contribution(ConnectionHandlerContribution)
+export class PluginHostConnectionHandlerService extends InjectableService implements IConnectionHandlerContribution {
+  constructor(
+    @IServiceContainer private readonly container: IServiceContainer,
+  ) {
+    super()
+  }
+
+  createConnectionHandler() {
+    return new RpcConnectionHandler("/services/plugin", (client) => {
+      const pluginHostManager = this.container.get<IPluginHostManager>(IPluginHostManager)
+      pluginHostManager.setClient(client as any);
+
+      return pluginHostManager;
+    })
+  }
+}
+
+@Contribution(ApplicationContribution)
+export class PluginHostManager extends InjectableService implements IApplicationContribution {
   private cp: cp.ChildProcess | undefined;
   private client: IPluginClient
+  private installedPlugins = new Map<string, IInstalledPlugin>()
+
+  constructor(
+    @IPluginScanner private readonly pluginScanner: IPluginScanner,
+  ) {
+    super()
+  }
+
+  onApplicationInit() {
+    this.getInstalledPlugins()
+    this.startPluginHostProcess()
+  }
 
   setClient(client: IPluginClient | undefined): void {
     if (client) {
@@ -17,30 +54,23 @@ export class PluginHostManager extends InjectableService {
     }
   }
 
-  runPlugin(plugin: IPluginModel): void {
-    if (plugin.entryPoint.backend) {
-      this.runPluginServer();
+  async getInstalledPlugins() {
+    let installedPlugins = Array.from(this.installedPlugins.values())
+
+    if (installedPlugins.length === 0) {
+      installedPlugins = await this.pluginScanner.scanAllPlugins()
+
+      installedPlugins.forEach((plugin) => {
+        this.installedPlugins.set(plugin.id, plugin)
+      })
     }
 
-    // eslint-disable-next-line no-console
-    console.log("run plugin")
-
-    this.cp = this.fork({
-      serverName: "hosted-plugin",
-      args: [],
-    })
-
-    // 当子进程接收到父进程发来的消息时，向plugin host发送过去
-    this.cp.on('message', (message: string) => {
-      if (this.client) {
-        this.client.postMessage(message);
-      }
-    });
+    return installedPlugins;
   }
 
-  runPluginServer() {
+  startPluginHostProcess() {
     if (this.cp) {
-      this.stopPluginServer()
+      this.stopPluginHostProcess()
     }
 
     this.cp = this.fork({
@@ -59,7 +89,7 @@ export class PluginHostManager extends InjectableService {
     });
   }
 
-  stopPluginServer() {
+  stopPluginHostProcess() {
     const emitter = new Emitter();
     if (this.cp) {
       this.cp?.on('message', (message: any) => {
@@ -105,12 +135,33 @@ export class PluginHostManager extends InjectableService {
     return childProcess;
   }
 
-  onMessage(message: string): void {
+  onMessage = (message: string): Promise<void> => {
     if (this.cp) {
       this.cp.send(message);
     }
+
+    return Promise.resolve()
+  }
+
+  deployPlugins = (pluginEntries: string[]) => {
+    if (pluginEntries.length > 0) {
+      this.startPluginHostProcess()
+    }
+
+    // pluginEntries.forEach((entry) => {
+    //   this.pluginReader.getPluginMetadata(entry)
+    // })
+
+    return Promise.resolve();
+  }
+
+  getDeployedMetadata = (): Promise<IPluginMetadata[]> => {
+    return Promise.resolve([
+      {
+        source: "" as any,
+        model: "" as any,
+        lifecycle: "" as any,
+      },
+    ])
   }
 }
-
-export const IPluginHostManager = createServiceDecorator<IPluginHostManager>("PluginHostManager")
-export type IPluginHostManager = PluginHostManager

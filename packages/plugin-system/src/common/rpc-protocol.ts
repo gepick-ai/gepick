@@ -399,7 +399,7 @@ export interface IRpcService {
   setLocalService: IRPCProtocol['setLocalService']
   triggerLocalService: (message: any) => void
   getLocalServicesSetupStatus: () => boolean
-  initialize: () => void
+  listenMessage: () => void
 }
 
 export interface ILocalServiceContribution {
@@ -423,7 +423,7 @@ export abstract class RpcService extends InjectableService implements IRpcServic
 
     const rpcProtocol = new RPCProtocol({
       onMessage: RpcService.onMessage,
-      send: this.sendMessage,
+      send:(message:any) => this.sendMessage(message), // NOTE: 这么写是为了固定this指向
     })
 
     this.getRemoteServiceProxy = rpcProtocol.getRemoteServiceProxy.bind(rpcProtocol);
@@ -431,7 +431,16 @@ export abstract class RpcService extends InjectableService implements IRpcServic
     this.rpcProtocol = rpcProtocol;
   }
 
-  initialize() {
+  abstract listenMessage(): void
+
+  protected abstract sendMessage(m: any): void;
+
+  triggerLocalService(message: any) {
+    this.setupLocalServices();
+    RpcService._onMessage.fire(message)
+  }
+
+  setupLocalServices() {
     if (!this.isLocalServicesSetup) {
       for (const localService of this.localServiceProvider.getContributions()) {
         localService.onRpcServiceInit(this);
@@ -439,12 +448,6 @@ export abstract class RpcService extends InjectableService implements IRpcServic
 
       this.isLocalServicesSetup = true;
     }
-  }
-
-  protected abstract sendMessage(m: any): void;
-
-  triggerLocalService(message: any) {
-    RpcService._onMessage.fire(message)
   }
 
   getLocalServicesSetupStatus() {

@@ -1,4 +1,4 @@
-import { IConnectionHandler, Disposable, Emitter, Event } from "@gepick/core/common";
+import { Disposable, Emitter, Event, IConnectionHandler } from "@gepick/core/common";
 import { MessageConnection } from "./vscode-ws-jsonrpc";
 
 export type RpcServer<Client> = Disposable & {

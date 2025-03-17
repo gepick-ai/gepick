@@ -1,41 +1,19 @@
 import gepick from "@gepick/plugin-api"
-import { IRPCProtocol } from "@gepick/plugin-system/common";
-import { ICommandRegistryExt, ICommandRegistryMain, PluginHostContext } from "@gepick/plugin-system/common/plugin-api"
+import { ICommandRegistryExt, ICommandRegistryMain, MainContext, PluginHostContext } from "@gepick/plugin-system/common/plugin-api"
+import { Contribution, IDisposable, InjectableService } from "@gepick/core/common";
+import { ILocalServiceContribution, LocalServiceContribution } from "../../common/rpc-protocol";
+import { IMainThreadRpcService } from "../main-thread-rpc";
+import { CommandRegistry, commandRegistry } from "../command-registry";
 
-class CommandRegistry {
-  cmdmap = new Map<string, gepick.Command>()
-  private commands = new WeakMap<gepick.Command, any>();
-
-  registerCommand(command: gepick.Command, p0: { execute: () => void, isEnabled: () => boolean, isVisible: () => boolean }): Disposable {
-    this.cmdmap.set(command.id, command)
-    this.commands.set(command, p0)
-    return Disposable.create(() => { })
-  }
-
-  executeCommand<T>(id: string): PromiseLike<T | undefined> {
-    const command = this.cmdmap.get(id);
-    if (!command)
-      return Promise.resolve(void 0)
-
-    const handler = this.commands.get(command);
-    if (!handler)
-      return Promise.resolve(void 0)
-
-    handler.execute()
-
-    return Promise.resolve(void 0)
-  }
-}
-
-export const commandRegistry = new CommandRegistry();
-export class CommandRegistryMain implements ICommandRegistryMain {
-  private ext: ICommandRegistryExt;
+@Contribution(LocalServiceContribution)
+export class CommandRegistryMain extends InjectableService implements ICommandRegistryMain, ILocalServiceContribution {
+  #commandRegistryExt: ICommandRegistryExt;
   private delegate: CommandRegistry = commandRegistry;
-  private disposables = new Map<string, Disposable>();
+  private disposables = new Map<string, IDisposable>();
 
-  constructor(rpc: IRPCProtocol) {
-    // rpc如何通过EXT的相关标识获取到ext端的service？
-    this.ext = rpc.getRemoteServiceProxy(PluginHostContext.CommandRegistry)
+  onRpcServiceInit(mainThreadRpcService: IMainThreadRpcService) {
+    mainThreadRpcService.setLocalService(MainContext.CommandRegistry, this);
+    this.#commandRegistryExt = mainThreadRpcService.getRemoteServiceProxy(PluginHostContext.CommandRegistry)
   }
 
   $registerCommand(command: gepick.Command): void {
@@ -43,7 +21,7 @@ export class CommandRegistryMain implements ICommandRegistryMain {
       command.id,
       this.delegate.registerCommand(command, {
         execute: () => {
-          this.ext.$executeCommand(command.id);
+          this.#commandRegistryExt.$executeCommand(command.id);
         },
         isEnabled() { return true; },
         isVisible() { return true; },
@@ -70,27 +48,5 @@ export class CommandRegistryMain implements ICommandRegistryMain {
 
   $getCommands(): PromiseLike<string[]> {
     throw new Error("Method not implemented.");
-  }
-}
-
-export class Disposable {
-  private disposable: undefined | (() => void);
-
-  constructor(func: () => void) {
-    this.disposable = func;
-  }
-
-  /**
-   * Dispose this object.
-   */
-  dispose(): void {
-    if (this.disposable) {
-      this.disposable();
-      this.disposable = undefined;
-    }
-  }
-
-  static create(func: () => void): Disposable {
-    return new Disposable(func);
   }
 }

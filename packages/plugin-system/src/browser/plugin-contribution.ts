@@ -1,10 +1,17 @@
-import { HostedPlugin } from "./hosted-plugin"
+import { ServiceContainer } from "@gepick/core/common";
+import { IHostedPluginService } from "./hosted-plugin"
+import { PluginBrowserModule } from "./plugin-browser-module";
+import { IMainThreadRpcService } from "./main-thread-rpc";
+
+const container = new ServiceContainer([PluginBrowserModule])
 
 export class PluginContribution {
   onStart(): void {
-    const hostedPlugin = new HostedPlugin();
+    const mainThreadRpcService = container.get<IMainThreadRpcService>(IMainThreadRpcService)
+    mainThreadRpcService.listenMessage()
 
-    hostedPlugin.loadPlugins()
+    const hostedPluginService = container.get<IHostedPluginService>(IHostedPluginService)
+    hostedPluginService.loadPlugins();
   }
 }
 

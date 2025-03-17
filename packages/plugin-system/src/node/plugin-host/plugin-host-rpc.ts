@@ -1,15 +1,17 @@
 import { createServiceDecorator } from "@gepick/core/common";
 import { IRpcService, RpcService } from "../../common/rpc-protocol";
 
+export const IPluginHostRpcService = createServiceDecorator<IPluginHostRpcService>("PluginHostRpcService")
+export interface IPluginHostRpcService extends IRpcService {}
+
 export class PluginHostRpcService extends RpcService implements IPluginHostRpcService {
-  protected override sendMessage(m: any): void {
+  protected override sendMessage(message: any): void {
     if (process.send) {
-      process.send(JSON.stringify(m));
+      process.send(JSON.stringify(message));
     }
   }
 
-  override initialize() {
-    super.initialize();
+  override listenMessage() {
     // 当前子进程接收到父进程传递过来的消息时会触发message事件
     process.on('message', (message: any) => {
       try {
@@ -22,6 +24,3 @@ export class PluginHostRpcService extends RpcService implements IPluginHostRpcSe
     });
   }
 }
-
-export const IPluginHostRpcService = createServiceDecorator<IPluginHostRpcService>("PluginHostRpcService")
-export interface IPluginHostRpcService extends IRpcService {}

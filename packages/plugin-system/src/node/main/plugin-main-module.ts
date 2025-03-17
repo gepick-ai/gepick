@@ -1,19 +1,15 @@
 import { Module, ServiceModule } from '@gepick/core/common';
 import { PluginReader } from './plugin-reader';
-import { PluginHostManager } from './plugin-host-manager';
-import { PluginDeployer } from './plugin-deployer';
+import { PluginHostConnectionHandlerService, PluginHostManager } from './plugin-host-manager';
 import { GithubPluginResolver } from './plugin-resolver/github-plugin-resolver';
-import { PluginManager, PluginServerConnectionHandlerService } from './plugin-manager/plugin-manager';
-import { PluginScanner } from './plugin-scanner/plugin-scanner';
+import { PluginScanner } from './plugin-scanner';
 
 @Module({
   services: [
-    PluginDeployer,
-    PluginReader,
     PluginHostManager,
-    PluginServerConnectionHandlerService,
+    PluginHostConnectionHandlerService,
+    PluginReader,
     GithubPluginResolver,
-    PluginManager,
     PluginScanner,
   ],
 })
