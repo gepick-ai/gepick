@@ -2,7 +2,7 @@ import { Emitter, Event } from "@gepick/core/common"
 import { IPluginClient } from "@gepick/plugin-system/common/plugin-protocol"
 
 export class HostedPluginWatcher {
-  private onPostMessage = new Emitter<string[]>()
+  private onPostMessage = new Emitter<string>()
 
   /**
    * 获取hosted plugin client，它有一个postMessage方法，用来发送消息。
@@ -16,13 +16,13 @@ export class HostedPluginWatcher {
 
     return {
       postMessage(message: string): Promise<void> {
-        messageEmitter.fire(JSON.parse(message));
+        messageEmitter.fire(message);
         return Promise.resolve();
       },
     };
   }
 
-  get onPostMessageEvent(): Event<string[]> {
+  get onPostMessageEvent(): Event<string> {
     return this.onPostMessage.event;
   }
 }

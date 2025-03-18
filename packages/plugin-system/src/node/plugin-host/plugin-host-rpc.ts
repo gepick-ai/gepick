@@ -16,7 +16,7 @@ export class PluginHostRpcService extends RpcService implements IPluginHostRpcSe
     process.on('message', (message: any) => {
       try {
       // NOTE： 当父进程发送过来消息的时候，将消息通过emitter发送出去 @1
-        this.triggerLocalService(JSON.parse(message));
+        this.triggerLocalService(message);
       }
       catch (e) {
         console.error(e);

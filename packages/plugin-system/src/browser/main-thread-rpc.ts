@@ -13,7 +13,7 @@ export class MainThreadRpcService extends RpcService {
   public readonly pluginHostManager = webSocketConnectionProvider.createProxy<any>('/services/plugin', this.hostedPluginWatcher.getHostedPluginClient())
 
   protected override sendMessage(message: any): void {
-    this.pluginHostManager.onMessage(JSON.stringify(message))
+    this.pluginHostManager.sendMessage(JSON.stringify(message))
   }
 
   override listenMessage() {

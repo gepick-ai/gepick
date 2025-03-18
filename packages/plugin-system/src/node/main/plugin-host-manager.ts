@@ -33,9 +33,9 @@ export class PluginHostConnectionHandlerService extends InjectableService implem
 
 @Contribution(ApplicationContribution)
 export class PluginHostManager extends InjectableService implements IApplicationContribution {
-  private cp: cp.ChildProcess | undefined;
-  private client: IPluginClient
-  private installedPlugins = new Map<string, IInstalledPlugin>()
+  private client: IPluginClient;
+  private pluginHostProcess: cp.ChildProcess | undefined;
+  private installedPlugins = new Map<string, IInstalledPlugin>();
 
   constructor(
     @IPluginScanner private readonly pluginScanner: IPluginScanner,
@@ -54,6 +54,14 @@ export class PluginHostManager extends InjectableService implements IApplication
     }
   }
 
+  sendMessage = (message: string): Promise<void> => {
+    if (this.pluginHostProcess) {
+      this.pluginHostProcess.send(message);
+    }
+
+    return Promise.resolve()
+  }
+
   async getInstalledPlugins() {
     let installedPlugins = Array.from(this.installedPlugins.values())
 
@@ -69,43 +77,41 @@ export class PluginHostManager extends InjectableService implements IApplication
   }
 
   startPluginHostProcess() {
-    if (this.cp) {
+    if (this.pluginHostProcess) {
       this.stopPluginHostProcess()
     }
 
-    this.cp = this.fork({
+    this.pluginHostProcess = this.fork({
       serverName: "hosted-plugin",
       args: [],
     });
 
-    // 监听子进程的message事件，将message传递给web那边的main端
-    // 那么子进程一定会使用process.send发送消息
-    this.cp.on('message', (message) => {
+    this.pluginHostProcess.on('message', (message) => {
       if (this.client) {
         // HostedPluginClient是一个json rpc proxy
         // proxy发送json rpc请求，指定连接hostedServicePath的web端service hosted plugin client，要求执行其postMessage方法，并将message当作参数传递
         this.client.postMessage(message as string);
       }
-    });
+    })
   }
 
   stopPluginHostProcess() {
     const emitter = new Emitter();
-    if (this.cp) {
-      this.cp?.on('message', (message: any) => {
+    if (this.pluginHostProcess) {
+      this.pluginHostProcess?.on('message', (message: any) => {
         emitter.fire(JSON.parse(message));
       });
       const rpc = new RPCProtocol({
         onMessage: emitter.event as any,
         send: (m: any) => {
-          if (this.cp?.send) {
-            this.cp?.send(JSON.stringify(m));
+          if (this.pluginHostProcess?.send) {
+            this.pluginHostProcess?.send(JSON.stringify(m));
           }
         },
       });
       const hostedPluginManager = rpc.getRemoteServiceProxy(PluginHostContext.PluginManager);
       hostedPluginManager.$stopPlugin('').then(() => {
-        this.cp?.kill();
+        this.pluginHostProcess?.kill();
       });
     }
   }
@@ -135,12 +141,8 @@ export class PluginHostManager extends InjectableService implements IApplication
     return childProcess;
   }
 
-  onMessage = (message: string): Promise<void> => {
-    if (this.cp) {
-      this.cp.send(message);
-    }
-
-    return Promise.resolve()
+  getChildProcess() {
+    return this.pluginHostProcess
   }
 
   deployPlugins = (pluginEntries: string[]) => {

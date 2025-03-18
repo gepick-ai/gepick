@@ -423,7 +423,7 @@ export abstract class RpcService extends InjectableService implements IRpcServic
 
     const rpcProtocol = new RPCProtocol({
       onMessage: RpcService.onMessage,
-      send:(message:any) => this.sendMessage(message), // NOTE: 这么写是为了固定this指向
+      send: (message: any) => this.sendMessage(message), // NOTE: 这么写是为了固定this指向
     })
 
     this.getRemoteServiceProxy = rpcProtocol.getRemoteServiceProxy.bind(rpcProtocol);
@@ -435,9 +435,9 @@ export abstract class RpcService extends InjectableService implements IRpcServic
 
   protected abstract sendMessage(m: any): void;
 
-  triggerLocalService(message: any) {
+  triggerLocalService(message: string) {
     this.setupLocalServices();
-    RpcService._onMessage.fire(message)
+    RpcService._onMessage.fire(JSON.parse(message))
   }
 
   setupLocalServices() {
