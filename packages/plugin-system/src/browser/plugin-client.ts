@@ -3,10 +3,10 @@ import { PluginHostContext } from '@gepick/plugin-system/common/plugin-api';
 import { InjectableService, createServiceDecorator } from '@gepick/core/common';
 import { IMainThreadRpcService } from './main-thread-rpc';
 
-export const IHostedPluginService = createServiceDecorator<IHostedPluginService>("HostedPluginService")
-export type IHostedPluginService = HostedPluginService;
+export const IPluginClient = createServiceDecorator<IPluginClient>("PluginClient")
+export type IPluginClient = PluginClient;
 
-export class HostedPluginService extends InjectableService {
+export class PluginClient extends InjectableService {
   constructor(
     @IMainThreadRpcService private readonly mainThreadRpcService: IMainThreadRpcService,
   ) {
@@ -14,7 +14,8 @@ export class HostedPluginService extends InjectableService {
   }
 
   loadPlugins(): void {
-    const backendMetadata = this.mainThreadRpcService.pluginService.getDeployedMetadata();
+    const pluginServiceProxy = this.mainThreadRpcService.getPluginServiceProxy();
+    const backendMetadata = pluginServiceProxy.getDeployedMetadata();
 
     // 遍历启动所有plugins
     backendMetadata.then((pluginMetadata: IPluginMetadata[]) => {

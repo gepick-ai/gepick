@@ -3,18 +3,14 @@ import { Button, Layout, LayoutContent, LayoutHeader } from "ant-design-vue"
 import Tabs from "@gepick/client/components/tabs/index.vue"
 import Auth from "@gepick/client/components/auth/index.vue"
 
-import { webSocketConnectionProvider } from "@gepick/core/browser";
-import { ILoggerServer, loggerPath, loggerWatcher } from '@gepick/logger/common';
-import { IPluginServer } from '@gepick/plugin-system/common';
-import { PluginBrowserModule, PluginContribution, commandRegistry } from '@gepick/plugin-system/browser';
-import { onMounted } from 'vue';
+import { PluginBrowserModule, commandRegistry } from '@gepick/plugin-system/browser';
 import { ServiceContainer } from "@gepick/core/common";
+import { PluginContribution } from "./plugin-contribution";
 
 defineProps<Props>();
 
 const container = new ServiceContainer([PluginBrowserModule])
 
-// const loggerServer = webSocketConnectionProvider.createProxy<ILoggerServer>(loggerPath, loggerWatcher.getLoggerClient());
 interface Props {
   tabs?: { key: string, title: string }[]
 }

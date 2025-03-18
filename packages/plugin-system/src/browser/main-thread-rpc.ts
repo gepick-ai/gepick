@@ -5,6 +5,7 @@ import { IRpcService, RpcService } from "../common";
 export const IMainThreadRpcService = createServiceDecorator<IMainThreadRpcService>("MainThreadRpcService")
 export interface IMainThreadRpcService extends IRpcService {
   pluginService: any
+  getPluginServiceProxy: () => any
 }
 
 /**
@@ -14,7 +15,7 @@ export interface IMainThreadRpcService extends IRpcService {
  * 上面两种调用方式的区别方式是：搞清楚你是想要发消息给plugin host还是plugin server main。plugin host就是插件所运行的宿主环境，而plugin server main就是server主代码运行的宿主环境。
  */
 export class MainThreadRpcService extends RpcService {
-  public readonly pluginService = webSocketConnectionProvider.createProxy<any>('/services/plugin', this)
+  private readonly pluginService = webSocketConnectionProvider.createProxy<any>('/services/plugin', this)
 
   protected override sendMessage(message: any): void {
     this.pluginService.sendMessage(JSON.stringify(message))
@@ -26,5 +27,9 @@ export class MainThreadRpcService extends RpcService {
     }
 
     return Promise.resolve()
+  }
+
+  getPluginServiceProxy() {
+    return this.pluginService
   }
 }

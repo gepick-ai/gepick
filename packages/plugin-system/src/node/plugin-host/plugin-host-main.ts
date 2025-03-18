@@ -1,4 +1,4 @@
-import { InjectableService, ServiceContainer } from '@gepick/core/common';
+import { ServiceContainer } from '@gepick/core/common';
 import { PluginApiModule } from './plugin-host-module';
 import { IPluginHostRpcService } from './plugin-host-rpc';
 import { IPluginHostApiService } from './plugin-host-api';
