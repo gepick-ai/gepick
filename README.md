@@ -14,6 +14,7 @@
 
 ![img](./docs/plugin-system/plugin-core-communication.png)
 ![img](./docs/plugin-system/rpc-protocol-service.svg)
+![img](./docs/plugin-system/rpc-service.svg)
 
 ## 代码结构设计
 

@@ -399,7 +399,8 @@ export interface IRpcService {
   setLocalService: IRPCProtocol['setLocalService']
   triggerLocalService: (message: any) => void
   getLocalServicesSetupStatus: () => boolean
-  listenMessage: () => void
+  listenMessage: (message?: string) => Promise<void>
+  setupLocalServicesIfNeeded: () => void
 }
 
 export interface ILocalServiceContribution {
@@ -431,16 +432,16 @@ export abstract class RpcService extends InjectableService implements IRpcServic
     this.rpcProtocol = rpcProtocol;
   }
 
-  abstract listenMessage(): void
+  abstract listenMessage(message?: string): Promise<void>
 
   protected abstract sendMessage(m: any): void;
 
   triggerLocalService(message: string) {
-    this.setupLocalServices();
+    this.setupLocalServicesIfNeeded();
     RpcService._onMessage.fire(JSON.parse(message))
   }
 
-  setupLocalServices() {
+  setupLocalServicesIfNeeded(): void {
     if (!this.isLocalServicesSetup) {
       for (const localService of this.localServiceProvider.getContributions()) {
         localService.onRpcServiceInit(this);

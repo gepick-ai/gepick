@@ -22,5 +22,7 @@ export class PluginHostRpcService extends RpcService implements IPluginHostRpcSe
         console.error(e);
       }
     });
+
+    return Promise.resolve()
   }
 }

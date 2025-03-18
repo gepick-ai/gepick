@@ -14,7 +14,7 @@ export class HostedPluginService extends InjectableService {
   }
 
   loadPlugins(): void {
-    const backendMetadata = this.mainThreadRpcService.pluginHostManager.getDeployedMetadata();
+    const backendMetadata = this.mainThreadRpcService.pluginService.getDeployedMetadata();
 
     // 遍历启动所有plugins
     backendMetadata.then((pluginMetadata: IPluginMetadata[]) => {

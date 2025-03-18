@@ -52,7 +52,7 @@ function handleProcessException() {
   });
 }
 
-function startPluginHostProcess() {
+async function startPluginHostProcess() {
   handleProcessException();
   patchProcess();
 
@@ -65,7 +65,7 @@ function startPluginHostProcess() {
   const pluginHostRpcService = serviceContainer.get<IPluginHostRpcService>(IPluginHostRpcService);
   const pluginHostApiService = serviceContainer.get<IPluginHostApiService>(IPluginHostApiService)
   // 完成rpc service的初始化工作后才能接着完成@gepick/plugin-api的重写工作
-  pluginHostRpcService.listenMessage();
+  await pluginHostRpcService.listenMessage();
   pluginHostApiService.initialize();
 
   // eslint-disable-next-line no-console

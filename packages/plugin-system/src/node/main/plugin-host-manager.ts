@@ -16,14 +16,14 @@ export type IPluginHostManager = PluginHostManager
 @Contribution(ConnectionHandlerContribution)
 export class PluginHostConnectionHandlerService extends InjectableService implements IConnectionHandlerContribution {
   constructor(
-    @IServiceContainer private readonly container: IServiceContainer,
+    @IServiceContainer private readonly serviceContainer: IServiceContainer,
   ) {
     super()
   }
 
   createConnectionHandler() {
     return new RpcConnectionHandler("/services/plugin", (client) => {
-      const pluginHostManager = this.container.get<IPluginHostManager>(IPluginHostManager)
+      const pluginHostManager = this.serviceContainer.get<IPluginHostManager>(IPluginHostManager)
       pluginHostManager.setClient(client as any);
 
       return pluginHostManager;
@@ -33,7 +33,7 @@ export class PluginHostConnectionHandlerService extends InjectableService implem
 
 @Contribution(ApplicationContribution)
 export class PluginHostManager extends InjectableService implements IApplicationContribution {
-  private client: IPluginClient;
+  private client: any;
   private pluginHostProcess: cp.ChildProcess | undefined;
   private installedPlugins = new Map<string, IInstalledPlugin>();
 
@@ -54,7 +54,7 @@ export class PluginHostManager extends InjectableService implements IApplication
     }
   }
 
-  sendMessage = (message: string): Promise<void> => {
+  sendMessage(message: string): Promise<void> {
     if (this.pluginHostProcess) {
       this.pluginHostProcess.send(message);
     }
@@ -86,11 +86,9 @@ export class PluginHostManager extends InjectableService implements IApplication
       args: [],
     });
 
-    this.pluginHostProcess.on('message', (message) => {
+    this.pluginHostProcess.on('message', (message: string) => {
       if (this.client) {
-        // HostedPluginClient是一个json rpc proxy
-        // proxy发送json rpc请求，指定连接hostedServicePath的web端service hosted plugin client，要求执行其postMessage方法，并将message当作参数传递
-        this.client.postMessage(message as string);
+        this.client.listenMessage(message);
       }
     })
   }
@@ -145,7 +143,7 @@ export class PluginHostManager extends InjectableService implements IApplication
     return this.pluginHostProcess
   }
 
-  deployPlugins = (pluginEntries: string[]) => {
+  deployPlugins(pluginEntries: string[]) {
     if (pluginEntries.length > 0) {
       this.startPluginHostProcess()
     }
@@ -157,7 +155,7 @@ export class PluginHostManager extends InjectableService implements IApplication
     return Promise.resolve();
   }
 
-  getDeployedMetadata = (): Promise<IPluginMetadata[]> => {
+  getDeployedMetadata(): Promise<IPluginMetadata[]> {
     return Promise.resolve([
       {
         source: "" as any,

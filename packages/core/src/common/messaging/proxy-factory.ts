@@ -1,4 +1,4 @@
-import { Disposable, Emitter, Event, IConnectionHandler } from "@gepick/core/common";
+import { Disposable, Emitter, Event, IConnectionHandler, InjectableService } from "@gepick/core/common";
 import { MessageConnection } from "./vscode-ws-jsonrpc";
 
 export type RpcServer<Client> = Disposable & {
@@ -119,12 +119,22 @@ export class RpcProxyFactory<T extends object> implements ProxyHandler<T> {
    */
   listen(connection: MessageConnection) {
     if (this.target) {
-      for (const prop in this.target) {
-        if (typeof this.target[prop] === 'function') {
-          connection.onRequest(prop, (...args) => this.onRequest(prop, ...args));
-          connection.onNotification(prop, (...args) => this.onNotification(prop, ...args));
+      let parent = this.target;
+      const methodNames: string[] = []
+
+      // TODO(@jaylenchen): 这里应该想个更好的方式来解决class 全部method的获取。
+      while (parent) {
+        if (parent.constructor.name === InjectableService.name) {
+          break;
         }
+        parent = Reflect.getPrototypeOf(parent);
+        methodNames.push(...Array.from(new Set((Object.getOwnPropertyNames(parent).filter(prop => typeof this.target[prop] === 'function' && prop !== 'constructor')))));
       }
+
+      methodNames.forEach((method) => {
+        connection.onRequest(method, (...args) => this.onRequest(method, ...args));
+        connection.onNotification(method, (...args) => this.onNotification(method, ...args));
+      })
     }
     connection.onDispose(() => this.waitForConnection());
     connection.listen();

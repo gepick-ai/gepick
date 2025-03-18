@@ -1,5 +1,5 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { IConnectionHandler, ConsoleLogger, RpcProxy, RpcProxyFactory, listen as doListen } from "@gepick/core/common";
+import { ConsoleLogger, IConnectionHandler, RpcProxy, RpcProxyFactory, listen as doListen } from "@gepick/core/common";
 import { Endpoint } from "@gepick/core/browser";
 
 export interface WebSocketOptions {
