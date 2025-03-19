@@ -1,11 +1,11 @@
 import { webSocketConnectionProvider } from "@gepick/core/browser/messaging/messaging-frontend";
 import { createServiceDecorator } from "@gepick/core/common";
-import { IRpcService, RpcService } from "../common";
+import { IPluginService, IRpcService, RpcService } from "../common";
 
 export const IMainThreadRpcService = createServiceDecorator<IMainThreadRpcService>("MainThreadRpcService")
 export interface IMainThreadRpcService extends IRpcService {
-  pluginService: any
-  getPluginServiceProxy: () => any
+  pluginService: IPluginService
+  getPluginServiceProxy: () => IPluginService
 }
 
 /**
@@ -15,13 +15,13 @@ export interface IMainThreadRpcService extends IRpcService {
  * 上面两种调用方式的区别方式是：搞清楚你是想要发消息给plugin host还是plugin server main。plugin host就是插件所运行的宿主环境，而plugin server main就是server主代码运行的宿主环境。
  */
 export class MainThreadRpcService extends RpcService {
-  private readonly pluginService = webSocketConnectionProvider.createProxy<any>('/services/plugin', this)
+  private readonly pluginService = webSocketConnectionProvider.createProxy<IPluginService>('/services/plugin', this)
 
   protected override sendMessage(message: any): void {
-    this.pluginService.sendMessage(JSON.stringify(message))
+    this.pluginService.onMessage(JSON.stringify(message))
   }
 
-  override listenMessage(message?: string) {
+  override onMessage(message?: string) {
     if (message) {
       this.triggerLocalService(message)
     }

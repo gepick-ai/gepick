@@ -11,7 +11,7 @@ export class PluginHostRpcService extends RpcService implements IPluginHostRpcSe
     }
   }
 
-  override listenMessage() {
+  override onMessage() {
     // 当前子进程接收到父进程传递过来的消息时会触发message事件
     process.on('message', (message: any) => {
       try {

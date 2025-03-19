@@ -399,7 +399,7 @@ export interface IRpcService {
   setLocalService: IRPCProtocol['setLocalService']
   triggerLocalService: (message: any) => void
   getLocalServicesSetupStatus: () => boolean
-  listenMessage: (message?: string) => Promise<void>
+  onMessage: (message?: string) => Promise<void>
   setupLocalServicesIfNeeded: () => void
 }
 
@@ -414,8 +414,8 @@ export abstract class RpcService extends InjectableService implements IRpcServic
   readonly rpcProtocol: IRPCProtocol;
   isLocalServicesSetup: boolean = false;
 
-  private static readonly _onMessage = new Emitter<any>()
-  private static readonly onMessage = RpcService._onMessage.event
+  private static readonly _onRemoteMessage = new Emitter<any>()
+  private static readonly onRemoteMessage = RpcService._onRemoteMessage.event
 
   constructor(
     @ILocalServiceProvider private readonly localServiceProvider: IContributionProvider<ILocalServiceContribution>,
@@ -423,7 +423,7 @@ export abstract class RpcService extends InjectableService implements IRpcServic
     super()
 
     const rpcProtocol = new RPCProtocol({
-      onMessage: RpcService.onMessage,
+      onMessage: RpcService.onRemoteMessage,
       send: (message: any) => this.sendMessage(message), // NOTE: 这么写是为了固定this指向
     })
 
@@ -432,13 +432,13 @@ export abstract class RpcService extends InjectableService implements IRpcServic
     this.rpcProtocol = rpcProtocol;
   }
 
-  abstract listenMessage(message?: string): Promise<void>
+  abstract onMessage(message?: string): Promise<void>
 
   protected abstract sendMessage(m: any): void;
 
   triggerLocalService(message: string) {
     this.setupLocalServicesIfNeeded();
-    RpcService._onMessage.fire(JSON.parse(message))
+    RpcService._onRemoteMessage.fire(JSON.parse(message))
   }
 
   setupLocalServicesIfNeeded(): void {

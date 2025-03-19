@@ -4,8 +4,8 @@ const require = createRequire(import.meta.url);
 const gepick = require("@gepick/plugin-api");
 
 export async function activate() {
-  gepick.commands.registerCommand({ id: "hello-plugin-a" }, () => {
+  gepick.commands.registerCommand({ id: "plugin-b" }, () => {
     // eslint-disable-next-line no-console
-    console.log("成功执行plugin a的hello-plugin-a命令");
+    console.log("你好～成功调用Plugin B🏅");
   });
 }

@@ -5,7 +5,7 @@ export class PluginContribution {
   constructor(public readonly container: ServiceContainer) {}
 
   onStart(): void {
-    const hostedPluginService = this.container.get<IPluginClient>(IPluginClient)
-    hostedPluginService.loadPlugins();
+    const pluginClient = this.container.get<IPluginClient>(IPluginClient)
+    pluginClient.initialize();
   }
 }

@@ -10,10 +10,25 @@ export class PluginClient extends InjectableService {
   constructor(
     @IMainThreadRpcService private readonly mainThreadRpcService: IMainThreadRpcService,
   ) {
-    super()
+    super();
   }
 
-  loadPlugins(): void {
+  initialize() {
+    this.startPluginHostIfNeeded();
+    this.syncPlugins();
+    this.startPlugins();
+  }
+
+  private syncPlugins(): Promise<void> {
+    return Promise.resolve()
+  }
+
+  private startPluginHostIfNeeded() {
+    const pluginServiceProxy = this.mainThreadRpcService.getPluginServiceProxy();
+    pluginServiceProxy.startPluginHostProcess();
+  }
+
+  private startPlugins(): void {
     const pluginServiceProxy = this.mainThreadRpcService.getPluginServiceProxy();
     const backendMetadata = pluginServiceProxy.getDeployedMetadata();
 
@@ -23,7 +38,7 @@ export class PluginClient extends InjectableService {
     });
   }
 
-  loadPlugin(_pluginMetadata: any): void {
+  private loadPlugin(_pluginMetadata: any): void {
     // const pluginModel = pluginMetadata.model;
     // const pluginLifecycle = pluginMetadata.lifecycle
 

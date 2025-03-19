@@ -45,7 +45,7 @@ export class PluginService extends InjectableService implements IApplicationCont
 
   onApplicationInit() {
     this.getInstalledPlugins()
-    this.startPluginHostProcess()
+    // this.startPluginHostProcess()
   }
 
   setClient(client: IPluginClient | undefined): void {
@@ -54,7 +54,7 @@ export class PluginService extends InjectableService implements IApplicationCont
     }
   }
 
-  sendMessage(message: string): Promise<void> {
+  onMessage(message: string): Promise<void> {
     if (this.pluginHostProcess) {
       this.pluginHostProcess.send(message);
     }
@@ -76,7 +76,7 @@ export class PluginService extends InjectableService implements IApplicationCont
     return installedPlugins;
   }
 
-  startPluginHostProcess() {
+  async startPluginHostProcess() {
     if (this.pluginHostProcess) {
       this.stopPluginHostProcess()
     }
@@ -88,9 +88,11 @@ export class PluginService extends InjectableService implements IApplicationCont
 
     this.pluginHostProcess.on('message', (message: string) => {
       if (this.client) {
-        this.client.listenMessage(message);
+        this.client.onMessage(message);
       }
     })
+
+    return Promise.resolve();
   }
 
   stopPluginHostProcess() {

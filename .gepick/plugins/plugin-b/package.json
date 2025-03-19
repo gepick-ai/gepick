@@ -1,5 +1,6 @@
 {
-  "name": "@gepick/plugin-a",
+  "publisher": "jaylenchen",
+  "name": "@gepick/plugin-b",
   "type": "module",
   "version": "0.1.0",
   "private": true,
@@ -8,6 +9,7 @@
       "import": "./src/index.js"
     }
   },
+  "main": "./src/index.js",
   "dependencies": {
     "@gepick/plugin-api": "workspace:*"
   }
