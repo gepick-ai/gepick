@@ -128,6 +128,15 @@ export interface IPluginDeployerEntry {
   accept: (...types: any[]) => void
 
   hasError: () => boolean
+
+  type: number
+  /**
+   * A fs path to a directory where a plugin is located.
+   * Depending on a plugin format it can be different from `path`.
+   * Use `path` if you want to resolve something within a plugin, like `README.md` file.
+   * Use `rootPath` if you want to manipulate the entire plugin location, like delete or move it.
+   */
+  rootPath: string
 }
 
 export const IPluginServer = createServiceDecorator("PluginServer")
@@ -155,9 +164,11 @@ export function getPluginId(plugin: IPluginPackage | IPluginModel): string {
   return `${plugin.publisher}_${plugin.name}`.replace(/\W/g, '_');
 }
 
-export interface IPluginResolverContext {
+export interface IPluginScannerContext {
 
   addPlugin: (pluginId: string, path: string) => void
+
+  getPlugins: () => any[]
 
   getOriginId: () => string
 
@@ -174,6 +185,23 @@ export interface IPluginResolver {
 
   accept: (pluginSourceId: string) => boolean
 
-  resolve: (pluginResolverContext: IPluginResolverContext) => Promise<void>
+  resolve: (pluginResolverContext: IPluginScannerContext) => Promise<void>
 
+}
+
+/**
+ * Whether a plugin installed by a user or system.
+ */
+export enum PluginType {
+  System,
+  User,
+};
+
+export interface IDeployedPlugin {
+  /**
+   * defaults to system
+   */
+  type?: PluginType
+  metadata: any
+  contributes?: any
 }

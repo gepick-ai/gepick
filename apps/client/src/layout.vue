@@ -20,8 +20,11 @@ function handleLog() {
   pc.onStart()
 }
 
-function handleCmd() {
-  commandRegistry.executeCommand('hello-plugin-a')
+function handleCmdA() {
+  commandRegistry.executeCommand('plugin-a')
+}
+function handleCmdB() {
+  commandRegistry.executeCommand('plugin-b')
 }
 </script>
 
@@ -38,12 +41,17 @@ function handleCmd() {
         </div>
         <div class="header-login">
           <Auth></Auth>
-          <Button type="primary" @click="handleLog">
-            启动插件系统
-          </Button>
-          <Button type="primary" @click="handleCmd">
-            调用cmd插件
-          </Button>
+          <div class="plugin-system-debug">
+            <Button type="primary" @click="handleLog">
+              启动插件系统
+            </Button>
+            <Button type="primary" @click="handleCmdA">
+              调用插件A所注册的命令
+            </Button>
+            <Button type="primary" @click="handleCmdB">
+              调用插件B所注册的命令
+            </Button>
+          </div>
         </div>
       </div>
     </LayoutHeader>
@@ -59,6 +67,11 @@ function handleCmd() {
 .layout {
   height: 100%;
   width: 100%;
+}
+
+.plugin-system-debug {
+  display: flex;
+  gap: 10px;
 }
 
 :deep(.ant-layout-header) {

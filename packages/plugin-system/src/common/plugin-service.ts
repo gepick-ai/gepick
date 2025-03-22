@@ -1,4 +1,5 @@
 import { InjectableService } from "@gepick/core/common";
+import { PluginIdentifiers } from "./plugin-identifiers";
 
 export interface IPluginService extends InjectableService {
   onMessage: (message: string) => Promise<void>
@@ -6,4 +7,7 @@ export interface IPluginService extends InjectableService {
   startPluginHostProcess: () => Promise<void>
   deployPlugins: (pluginEntries: string[]) => void
   getDeployedMetadata: () => Promise<any[]>
+  getDeployedPluginIds: () => Promise<PluginIdentifiers.VersionedId[]>
+  getUninstalledPluginIds: () => Promise<readonly PluginIdentifiers.VersionedId[]>
+  getDeployedPlugins: (params: { pluginIds: string[] }) => Promise<any[]>
 }

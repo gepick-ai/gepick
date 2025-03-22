@@ -2336,7 +2336,7 @@ __metadata:
     reconnecting-websocket: "npm:^4.4.0"
     reflect-metadata: "npm:^0.1.13"
     vscode-jsonrpc: "npm:^8.2.1"
-    vscode-uri: "npm:^1.0.1"
+    vscode-uri: "npm:^2.1.1"
     ws: "npm:^3.0.0"
   languageName: unknown
   linkType: soft
@@ -16228,10 +16228,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vscode-uri@npm:^1.0.1":
-  version: 1.0.8
-  resolution: "vscode-uri@npm:1.0.8"
-  checksum: 10/95b72ecc64e07cb98706fbd004849c525530cae682f81c23bae79f6dc197dc5a1f504a4a2bd0607e5bbf58efbd5b5a7f30ce3f79f93d86376e009ba1162d076d
+"vscode-uri@npm:^2.1.1":
+  version: 2.1.2
+  resolution: "vscode-uri@npm:2.1.2"
+  checksum: 10/9384da42075dafc97f09194119c2f84f9e7838badccc768721aba31d43f96e597744129b717a9fd46162ca7102d6b9a658d4b873b019ead91814ee5cb798b433
   languageName: node
   linkType: hard
 

@@ -3,6 +3,11 @@ import { PluginReader } from './plugin-reader';
 import { PluginService, PluginServiceConnectionHandler } from './plugin-service';
 import { GithubPluginResolver } from './plugin-resolver/github-plugin-resolver';
 import { PluginScanner } from './plugin-scanner';
+import { GepickPluginStoreLocationHandler } from './plugin-store-location/gepick-plugin-store-location-handler';
+import { PluginDeployment } from './plugin-deployment';
+import { PluginGithubScanner } from './plugin-scanner/plugin-github-scanner';
+import { PluginHttpScanner } from './plugin-scanner/plugin-http-scanner';
+import { PluginLocalScanner } from './plugin-scanner/plugin-local-scanner';
 
 @Module({
   services: [
@@ -11,6 +16,11 @@ import { PluginScanner } from './plugin-scanner';
     PluginReader,
     GithubPluginResolver,
     PluginScanner,
+    PluginDeployment,
+    GepickPluginStoreLocationHandler,
+    PluginGithubScanner,
+    PluginHttpScanner,
+    PluginLocalScanner,
   ],
 })
 export class PluginMainModule extends ServiceModule {}

@@ -7,6 +7,7 @@ import { RPCProtocol } from "../../common/rpc-protocol";
 import { IPluginClient, IPluginMetadata } from "../../common/plugin-protocol";
 import { IInstalledPlugin } from "./type";
 import { IPluginScanner } from "./plugin-scanner";
+import { IPluginDeployment } from "./plugin-deployment";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
@@ -39,6 +40,7 @@ export class PluginService extends InjectableService implements IApplicationCont
 
   constructor(
     @IPluginScanner private readonly pluginScanner: IPluginScanner,
+    @IPluginDeployment private readonly pluginDeployment: IPluginDeployment,
   ) {
     super()
   }
@@ -165,5 +167,21 @@ export class PluginService extends InjectableService implements IApplicationCont
         lifecycle: "" as any,
       },
     ])
+  }
+
+  async getDeployedPluginIds(): Promise<any[]> {
+    return this.pluginDeployment.getDeployedPluginIds();
+  }
+
+  async getUninstalledPluginIds(): Promise<any[]> {
+    return Promise.resolve([])
+  }
+
+  async getDeployedPlugins({ pluginIds }: { pluginIds: string[] }): Promise<any[]> {
+    if (!pluginIds.length) {
+      return [];
+    }
+
+    return this.pluginDeployment.getDeployedPlugins();
   }
 }

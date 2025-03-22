@@ -44,7 +44,7 @@ export class Application extends InjectableService {
       console.log(chalk.green.bold('✔ Connected to Gepick MongoDB'))
     })
 
-    const port = 3000;
+    const port = 5173;
 
     this.server.listen(port, () => {
       const address = this.server.address() as AddressInfo;

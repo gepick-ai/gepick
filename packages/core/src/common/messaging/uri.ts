@@ -1,6 +1,6 @@
 /* eslint-disable ts/no-this-alias */
 
-import Uri from 'vscode-uri';
+import { URI as Uri } from 'vscode-uri';
 import { Path } from "@gepick/core/common";
 
 export class URI {

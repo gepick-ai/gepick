@@ -17,7 +17,7 @@ export class PluginScanner extends InjectableService {
      */
     const systemPluginStore: IPluginStore = {
       type: PluginType.System,
-      entry: '/Users/jaylen/projects/gepick-plugin-system/.gepick/plugins',
+      entry: '/Users/jaylen/projects/gepick-plugin-system/plugins',
     }
     // const userPluginStore: IPluginStore = {
     //   type: PluginType.User,

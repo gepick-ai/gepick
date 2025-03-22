@@ -10,6 +10,10 @@ export class FileService extends InjectableService {
   async readDir(path: string) {
     return fs.readdir(path)
   }
+
+  async pathExists(path: string) {
+    return fs.pathExists(path)
+  }
 }
 
 export const IFileService = createServiceDecorator<IFileService>("FileService")

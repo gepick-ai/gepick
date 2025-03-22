@@ -158,7 +158,7 @@ export default defineComponent({
 
       // ==================进行OpenAI API请求==================
       try {
-        createSse(process.env.COPILOT_CHAT_URL ?? `http://localhost:3000/api/copilot/chat`, {
+        createSse(process.env.COPILOT_CHAT_URL ?? `http://localhost:5173/api/copilot/chat`, {
           query,
         })
 

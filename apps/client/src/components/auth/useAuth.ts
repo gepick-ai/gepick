@@ -1,6 +1,6 @@
 export function useAuth() {
   function checkAuthState() {
-    fetch(`http://localhost:3000/api/user`, {
+    fetch(`http://localhost:5173/api/user`, {
       credentials: "include", // fetch won't send cookies unless you set credentials
     })
       .then(response => response.json())

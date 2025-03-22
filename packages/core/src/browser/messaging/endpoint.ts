@@ -18,7 +18,7 @@ export class Endpoint {
   }
 
   protected get host() {
-    return `localhost:3000`
+    return `localhost:5173`
     // if (location.host) {
     //   return location.host;
     // }
@@ -26,7 +26,7 @@ export class Endpoint {
   }
 
   protected get port(): string {
-    return this.getSearchParam('port', '3000');
+    return this.getSearchParam('port', '5173');
   }
 
   protected getSearchParam(name: string, defaultValue: string): string {

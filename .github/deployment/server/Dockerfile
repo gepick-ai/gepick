@@ -45,6 +45,6 @@ RUN yarn
 
 WORKDIR /gepick/apps/server
 
-EXPOSE 3000
+EXPOSE 5173
 
 CMD ["node", "--import", "./scripts/register.js", "./dist/index.js"]

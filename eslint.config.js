@@ -22,7 +22,8 @@ export default antfu(
       'jsdoc/require-returns-check': 'off',
       'jsdoc/check-param-names': 'off',
       'jsdoc/require-returns-description': 'off',
-      'unicorn/prefer-node-protocol':'off'
+      'unicorn/prefer-node-protocol': 'off',
+      'ts/no-namespace': 'off',
     },
   },
 )
