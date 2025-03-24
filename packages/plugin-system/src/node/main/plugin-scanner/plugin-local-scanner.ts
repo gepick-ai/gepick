@@ -2,11 +2,11 @@ import path from "node:path";
 import { Contribution, InjectableService } from "@gepick/core/common";
 import { FileUri, IFileService, URI } from "@gepick/core/node";
 import { IPluginScannerContext } from '../../../common/plugin-protocol';
-import { IPluginScannerContribution, PluginScannerContribution } from './plugin-scanner-contribution';
+import { IPluginScanner } from './plugin-scanner-contribution';
 
-@Contribution(PluginScannerContribution)
-export class PluginLocalScanner extends InjectableService implements IPluginScannerContribution {
-  static scheme = 'local-dir'
+@Contribution(IPluginScanner)
+export class PluginLocalScanner extends InjectableService implements IPluginScanner {
+  static scheme = 'local-dir';
 
   constructor(
     @IFileService private readonly fileService: IFileService,
@@ -18,7 +18,7 @@ export class PluginLocalScanner extends InjectableService implements IPluginScan
    * Handle only the plugins that starts with http or https:
    */
   accept(pluginStoreLocation: string) {
-    return pluginStoreLocation.startsWith(PluginLocalScanner.scheme)
+    return pluginStoreLocation.startsWith(PluginLocalScanner.scheme);
   }
 
   async resolve(pluginResolverContext: IPluginScannerContext): Promise<void> {

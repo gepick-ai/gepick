@@ -1,6 +1,6 @@
 import { OAUTH_CALLBACK_API, OAUTH_PREFILIGHT_API, SEND_EMAIL_CAPTCHA_API, VERIFY_EMAIL_CAPTCHA_API } from '@gepick/auth/common';
-import { Contribution, InjectableService } from '@gepick/core/common';
-import { ApplicationContribution, IApplicationContribution } from '@gepick/core/node';
+import { InjectableService } from '@gepick/core/common';
+import { IApplicationContribution } from '@gepick/core/node';
 import { Application, RequestHandler, Router } from 'express';
 import { expressjwt } from 'express-jwt';
 
@@ -35,8 +35,8 @@ export class JwtGuard extends InjectableService implements IApplicationContribut
             res.json({
               code: 401,
               message: "jwt expired",
-            })
-            return
+            });
+            return;
           }
         }
         next(err);
@@ -46,9 +46,9 @@ export class JwtGuard extends InjectableService implements IApplicationContribut
         OAUTH_CALLBACK_API,
         SEND_EMAIL_CAPTCHA_API,
         VERIFY_EMAIL_CAPTCHA_API,
-      ], API_PREFIX)
+      ], API_PREFIX);
 
       middleware(req, res, handleErrorNext);
-    }, router)
+    }, router);
   }
 }

@@ -1,9 +1,9 @@
 import { Contribution, InjectableService } from '@gepick/core/common';
 import { IPluginScannerContext } from '../../../common/plugin-protocol';
-import { IPluginResolverContribution, PluginResolverContribution } from './plugin-resolver-contribution';
+import { IPluginResolver } from './plugin-resolver-contribution';
 
-@Contribution(PluginResolverContribution)
-export class GithubPluginResolver extends InjectableService implements IPluginResolverContribution {
+@Contribution(IPluginResolver)
+export class GithubPluginResolver extends InjectableService implements IPluginResolver {
   accept: (pluginSourceId: string) => boolean;
   resolve: (pluginResolverContext: IPluginScannerContext) => Promise<void>;
 }

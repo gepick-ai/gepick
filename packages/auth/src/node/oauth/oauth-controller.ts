@@ -1,21 +1,21 @@
 // Request<ParamsDictionary/*路径参数 */, ResBody/* 响应体*/, ReqBody* 请求体*/, ReqQuery/*查询参数 */, Locals>/*本地变量 */
 
-import { Request, Router } from "express"
+import { Request, Router } from "express";
 import { Contribution, InjectableService } from '@gepick/core/common';
-import { ApplicationContribution, IApplicationContribution } from '@gepick/core/node';
+import { IApplicationContribution } from '@gepick/core/node';
 import { OAUTH_CALLBACK_API, OAUTH_PREFILIGHT_API, OAuthCallbackRequestDto, OAuthPreflightRequestDto, OAuthPreflightResponseDto, OAuthProvider } from '@gepick/auth/common';
 import { IJwtService } from '../auth';
 import { IGoogleOAuthProvider } from './google-provider';
 import { IOAuthService } from './oauth-service';
 
-@Contribution(ApplicationContribution)
+@Contribution(IApplicationContribution)
 export class OAuthController extends InjectableService implements IApplicationContribution {
   constructor(
     @IJwtService private readonly jwtService: IJwtService,
     @IOAuthService private readonly oauthService: IOAuthService,
     @IGoogleOAuthProvider private readonly provider: IGoogleOAuthProvider,
   ) {
-    super()
+    super();
   }
 
   onApplicationConfigure(app: Router): void {
@@ -36,7 +36,7 @@ export class OAuthController extends InjectableService implements IApplicationCo
           res.status(404).send("Not found");
         }
       }
-    })
+    });
 
     /**
      * Oauth登录
@@ -52,7 +52,7 @@ export class OAuthController extends InjectableService implements IApplicationCo
        */
 
       try {
-        const tokens = await this.provider.getToken(code)
+        const tokens = await this.provider.getToken(code);
         const externAccount = await this.provider.getUser(tokens.accessToken);
         const user = await this.oauthService.signInFromOauth(
           OAuthProvider.Google,
@@ -70,6 +70,6 @@ export class OAuthController extends InjectableService implements IApplicationCo
       catch (err) {
         console.error(err);
       }
-    })
+    });
   }
 }

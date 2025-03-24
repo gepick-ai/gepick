@@ -1,29 +1,24 @@
-import { inject, interfaces, named } from "../inversify";
-import { ContributionID, InjectableService, ServiceDecorator } from './instantiation';
+import { interfaces } from "../inversify";
+import { InjectableService } from './instantiation';
 
 export class ContributionProvider<T extends object> extends InjectableService implements IContributionProvider<T> {
   protected services: T[] | undefined;
-
-  static getContributionProviderDecorator<T extends InjectableService>(this: new (...args: any) => T, contributionId: ContributionID): ServiceDecorator<T> {
-    named(contributionId)
-    return inject(Symbol.for(this.name)) as ServiceDecorator<T>
-  }
 
   static getProviderId(contributionId: symbol) {
     const serviceName = contributionId.description?.split("Contribution")?.[0];
 
     if (!serviceName) {
-      throw new Error(`description of ${contributionId.toString()} must end with 'Contribution'. Current name: ${contributionId.description}`)
+      throw new Error(`description of ${contributionId.toString()} must end with 'Contribution'. Current name: ${contributionId.description}`);
     }
 
-    return Symbol.for(serviceName + this.name)
+    return Symbol.for(serviceName + this.name);
   }
 
   constructor(
     protected readonly serviceIdentifier: interfaces.ServiceIdentifier<T>,
     protected readonly container: interfaces.Container,
   ) {
-    super()
+    super();
   }
 
   getContributions(recursive?: boolean): T[] {
@@ -39,7 +34,6 @@ export class ContributionProvider<T extends object> extends InjectableService im
             console.error("serviceIdentifier", this.serviceIdentifier, error);
           }
         }
-        // tslint:disable-next-line:no-null-keyword
         currentContainer = recursive === true ? currentContainer.parent : null;
       }
       this.services = currentServices;
@@ -52,5 +46,5 @@ export interface IContributionProvider<T extends object> {
   /**
    * @param recursive `true` if the contributions should be collected from the parent containers as well. Otherwise, `false`. It is `false` by default.
    */
-  getContributions: (recursive?: boolean) => T[]
+  getContributions: (recursive?: boolean) => T[];
 }

@@ -1,8 +1,11 @@
-import antfu from '@antfu/eslint-config'
+import antfu from '@antfu/eslint-config';
 
 export default antfu(
   {
     markdown: false,
+    stylistic: {
+      semi: true,
+    },
   },
   {
     // 针对全局的指定（文件夹/文件）进行忽略
@@ -13,7 +16,6 @@ export default antfu(
       'eslint-comments/no-unlimited-disable': 'off',
       'vue/html-self-closing': 'off',
       'style/quotes': 'off',
-      'style/semi': 'off',
       'ts/no-redeclare': 'off',
       'vue/custom-event-name-casing': 'off',
       'node/prefer-global/process': 'off',
@@ -26,4 +28,4 @@ export default antfu(
       'ts/no-namespace': 'off',
     },
   },
-)
+);

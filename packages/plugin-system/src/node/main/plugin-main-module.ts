@@ -1,9 +1,8 @@
 import { Module, ServiceModule } from '@gepick/core/common';
 import { PluginReader } from './plugin-reader';
 import { PluginService, PluginServiceConnectionHandler } from './plugin-service';
-import { GithubPluginResolver } from './plugin-resolver/github-plugin-resolver';
 import { PluginScanner } from './plugin-scanner';
-import { GepickPluginStoreLocationHandler } from './plugin-store-location/gepick-plugin-store-location-handler';
+import { GepickPluginStoreLocationHandler } from './plugin-storage-location/gepick-plugin-store-location-handler';
 import { PluginDeployment } from './plugin-deployment';
 import { PluginGithubScanner } from './plugin-scanner/plugin-github-scanner';
 import { PluginHttpScanner } from './plugin-scanner/plugin-http-scanner';
@@ -14,7 +13,6 @@ import { PluginLocalScanner } from './plugin-scanner/plugin-local-scanner';
     PluginService,
     PluginServiceConnectionHandler,
     PluginReader,
-    GithubPluginResolver,
     PluginScanner,
     PluginDeployment,
     GepickPluginStoreLocationHandler,

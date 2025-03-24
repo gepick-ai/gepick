@@ -17,32 +17,32 @@ export class Application extends InjectableService {
   constructor(
     @IApplicationContributionProvider private readonly contributionProvider: IContributionProvider<IApplicationContribution>,
   ) {
-    super()
+    super();
 
-    this.useBodyParser()
-    this.useCors()
-    this.useResponseFormatter()
-    this.useErrorHandler()
+    this.useBodyParser();
+    this.useCors();
+    this.useResponseFormatter();
+    this.useErrorHandler();
 
     for (const contribution of this.contributionProvider.getContributions()) {
-      contribution.onApplicationInit?.(this.expressRouter, this.expressApp)
+      contribution.onApplicationInit?.(this.expressRouter, this.expressApp);
     }
   }
 
   @PostConstruct()
   configure() {
     for (const contribution of this.contributionProvider.getContributions()) {
-      contribution.onApplicationConfigure?.(this.expressRouter)
+      contribution.onApplicationConfigure?.(this.expressRouter);
     }
 
-    this.use404Handler()
+    this.use404Handler();
   }
 
   async start() {
     await this.connectToDatabase(() => {
       // eslint-disable-next-line no-console
-      console.log(chalk.green.bold('✔ Connected to Gepick MongoDB'))
-    })
+      console.log(chalk.green.bold('✔ Connected to Gepick MongoDB'));
+    });
 
     const port = 5173;
 
@@ -55,7 +55,7 @@ export class Application extends InjectableService {
       console.log(chalk.green.bold(`✔ Gepick Server is running at http://${host}:${port}`));
 
       for (const contribution of this.contributionProvider.getContributions()) {
-        contribution.onApplicationStart?.(this.server)
+        contribution.onApplicationStart?.(this.server);
       }
     });
   }
@@ -96,9 +96,9 @@ export class Application extends InjectableService {
   // 处理错误响应，作用是统一错误处理
   private useErrorHandler(): void {
     interface Error {
-      status?: number
-      message?: string
-      stack?: string
+      status?: number;
+      message?: string;
+      stack?: string;
     }
 
     this.expressApp.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
@@ -127,9 +127,9 @@ export class Application extends InjectableService {
 
   private async connectToDatabase(log: () => void): Promise<void> {
     await mongoose.connect(process.env.DATABASE_URL ?? 'mongodb://localhost:27017/gepick');
-    log()
+    log();
   }
 }
 
-export const IApplication = createServiceDecorator<IApplication>("Application")
-export type IApplication = Application
+export const IApplication = createServiceDecorator<IApplication>("Application");
+export type IApplication = Application;

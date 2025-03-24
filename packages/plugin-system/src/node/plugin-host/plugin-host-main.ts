@@ -1,7 +1,7 @@
 import { ServiceContainer } from '@gepick/core/common';
 import { PluginApiModule } from './plugin-host-module';
-import { IPluginHostRpcService } from './plugin-host-rpc';
-import { IPluginHostApiService } from './plugin-host-api';
+import { IPluginHostRpcService } from './plugin-host-rpc-service';
+import { IPluginApiService } from './plugin-api-service';
 
 function patchProcess() {
   // override exit() function, to do not allow plugin kill this node
@@ -56,20 +56,15 @@ async function startPluginHostProcess() {
   handleProcessException();
   patchProcess();
 
-  const serviceContainer = new ServiceContainer();
-
-  serviceContainer.loadModules([
-    PluginApiModule,
-  ]);
-
+  const serviceContainer = new ServiceContainer([PluginApiModule]);
   const pluginHostRpcService = serviceContainer.get<IPluginHostRpcService>(IPluginHostRpcService);
-  const pluginHostApiService = serviceContainer.get<IPluginHostApiService>(IPluginHostApiService)
-  // 完成rpc service的初始化工作后才能接着完成@gepick/plugin-api的重写工作
+  const pluginApiService = serviceContainer.get<IPluginApiService>(IPluginApiService);
+
   await pluginHostRpcService.onMessage();
-  pluginHostApiService.initialize();
+  pluginApiService.setupPluginApiRuntime();
 
   // eslint-disable-next-line no-console
   console.log(`PLUGIN_HOST(${process.pid}) starting instance`);
 }
 
-startPluginHostProcess()
+startPluginHostProcess();

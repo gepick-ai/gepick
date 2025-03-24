@@ -1,7 +1,7 @@
 import * as cp from "node:child_process";
 import path from 'node:path';
 import { Contribution, Emitter, IServiceContainer, InjectableService, RpcConnectionHandler, createServiceDecorator } from '@gepick/core/common';
-import { ApplicationContribution, ConnectionHandlerContribution, IApplicationContribution, IConnectionHandlerContribution } from "@gepick/core/node";
+import { IApplicationContribution, IConnectionHandlerContribution } from "@gepick/core/node";
 import { PluginHostContext } from "../../common/plugin-api/api-context";
 import { RPCProtocol } from "../../common/rpc-protocol";
 import { IPluginClient, IPluginMetadata } from "../../common/plugin-protocol";
@@ -11,28 +11,28 @@ import { IPluginDeployment } from "./plugin-deployment";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
-export const IPluginService = createServiceDecorator<IPluginService>("PluginService")
-export type IPluginService = PluginService
+export const IPluginService = createServiceDecorator<IPluginService>("PluginService");
+export type IPluginService = PluginService;
 
-@Contribution(ConnectionHandlerContribution)
+@Contribution(IConnectionHandlerContribution)
 export class PluginServiceConnectionHandler extends InjectableService implements IConnectionHandlerContribution {
   constructor(
     @IServiceContainer private readonly serviceContainer: IServiceContainer,
   ) {
-    super()
+    super();
   }
 
   createConnectionHandler() {
     return new RpcConnectionHandler("/services/plugin", (client) => {
-      const pluginHostManager = this.serviceContainer.get<IPluginService>(IPluginService)
+      const pluginHostManager = this.serviceContainer.get<IPluginService>(IPluginService);
       pluginHostManager.setClient(client as any);
 
       return pluginHostManager;
-    })
+    });
   }
 }
 
-@Contribution(ApplicationContribution)
+@Contribution(IApplicationContribution)
 export class PluginService extends InjectableService implements IApplicationContribution {
   private client: any;
   private pluginHostProcess: cp.ChildProcess | undefined;
@@ -42,11 +42,11 @@ export class PluginService extends InjectableService implements IApplicationCont
     @IPluginScanner private readonly pluginScanner: IPluginScanner,
     @IPluginDeployment private readonly pluginDeployment: IPluginDeployment,
   ) {
-    super()
+    super();
   }
 
   onApplicationInit() {
-    this.getInstalledPlugins()
+    this.getInstalledPlugins();
     // this.startPluginHostProcess()
   }
 
@@ -61,18 +61,18 @@ export class PluginService extends InjectableService implements IApplicationCont
       this.pluginHostProcess.send(message);
     }
 
-    return Promise.resolve()
+    return Promise.resolve();
   }
 
   async getInstalledPlugins() {
-    let installedPlugins = Array.from(this.installedPlugins.values())
+    let installedPlugins = Array.from(this.installedPlugins.values());
 
     if (installedPlugins.length === 0) {
-      installedPlugins = await this.pluginScanner.scanAllPlugins()
+      installedPlugins = await this.pluginScanner.scanAllPlugins();
 
       installedPlugins.forEach((plugin) => {
-        this.installedPlugins.set(plugin.id, plugin)
-      })
+        this.installedPlugins.set(plugin.id, plugin);
+      });
     }
 
     return installedPlugins;
@@ -80,7 +80,7 @@ export class PluginService extends InjectableService implements IApplicationCont
 
   async startPluginHostProcess() {
     if (this.pluginHostProcess) {
-      this.stopPluginHostProcess()
+      this.stopPluginHostProcess();
     }
 
     this.pluginHostProcess = this.fork({
@@ -92,7 +92,7 @@ export class PluginService extends InjectableService implements IApplicationCont
       if (this.client) {
         this.client.onMessage(message);
       }
-    })
+    });
 
     return Promise.resolve();
   }
@@ -130,7 +130,7 @@ export class PluginService extends InjectableService implements IApplicationCont
       // See: https://nodejs.org/docs/latest-v14.x/api/child_process.html#child_process_options_stdio
       // Note: For some reason `@types/node` does not know about 'overlapped'.
       stdio: ['pipe', 'pipe', 'pipe', 'ipc', 'overlapped' as 'pipe'],
-    }
+    };
 
     const inspectArgPrefix = `--${options.serverName}-inspect`;
     const inspectArg = process.argv.find(v => v.startsWith(inspectArgPrefix));
@@ -144,12 +144,12 @@ export class PluginService extends InjectableService implements IApplicationCont
   }
 
   getChildProcess() {
-    return this.pluginHostProcess
+    return this.pluginHostProcess;
   }
 
   deployPlugins(pluginEntries: string[]) {
     if (pluginEntries.length > 0) {
-      this.startPluginHostProcess()
+      this.startPluginHostProcess();
     }
 
     // pluginEntries.forEach((entry) => {
@@ -166,7 +166,7 @@ export class PluginService extends InjectableService implements IApplicationCont
         model: "" as any,
         lifecycle: "" as any,
       },
-    ])
+    ]);
   }
 
   async getDeployedPluginIds(): Promise<any[]> {
@@ -174,7 +174,7 @@ export class PluginService extends InjectableService implements IApplicationCont
   }
 
   async getUninstalledPluginIds(): Promise<any[]> {
-    return Promise.resolve([])
+    return Promise.resolve([]);
   }
 
   async getDeployedPlugins({ pluginIds }: { pluginIds: string[] }): Promise<any[]> {

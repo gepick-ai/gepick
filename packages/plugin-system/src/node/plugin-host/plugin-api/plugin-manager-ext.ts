@@ -1,8 +1,8 @@
 import path from "node:path"
 import { Contribution, InjectableService } from "@gepick/core/common";
 import { IPluginManagerExt } from '../../../common/plugin-api/plugin-manager';
-import { ILocalServiceContribution, LocalServiceContribution } from "../../../common/rpc-protocol";
-import { IPluginHostRpcService } from '../plugin-host-rpc';
+import { ILocalService } from "../../../common/rpc-protocol";
+import { IPluginHostRpcService } from '../plugin-host-rpc-service';
 import { PluginHostContext } from "../../../common/plugin-api/api-context";
 
 export interface IPluginHost {
@@ -26,8 +26,8 @@ export class ActivatedPlugin {
   }
 }
 
-@Contribution(LocalServiceContribution)
-export class PluginManagerExt extends InjectableService implements IPluginManagerExt, ILocalServiceContribution {
+@Contribution(ILocalService)
+export class PluginManagerExt extends InjectableService implements IPluginManagerExt, ILocalService {
   private plugins = new Map<string, () => void>();
   private runningPluginIds: string[] = [];
   private readonly registry = new Map<string, any>();

@@ -10,6 +10,7 @@
     }
   },
   "main": "./src/index.js",
+  "activationEvents": ["*"],
   "dependencies": {
     "@gepick/plugin-api": "workspace:*"
   }

@@ -1,17 +1,17 @@
 // Request<ParamsDictionary/*路径参数 */, ResBody/* 响应体*/, ReqBody* 请求体*/, ReqQuery/*查询参数 */, Locals>/*本地变量 */
 
-import { Request, Router } from "express"
-import { GET_USER_API, GetUserRequestDto, GetUserResponseDto } from "@gepick/user/common"
-import { IUserService } from "@gepick/user/node"
-import { Contribution, InjectableService } from '@gepick/core/common'
-import { ApplicationContribution, IApplicationContribution } from '@gepick/core/node'
+import { Request, Router } from "express";
+import { GET_USER_API, GetUserRequestDto, GetUserResponseDto } from "@gepick/user/common";
+import { IUserService } from "@gepick/user/node";
+import { Contribution, InjectableService } from '@gepick/core/common';
+import { IApplicationContribution } from '@gepick/core/node';
 
-@Contribution(ApplicationContribution)
+@Contribution(IApplicationContribution)
 export class UserController extends InjectableService implements IApplicationContribution {
   constructor(
     @IUserService private readonly userService: IUserService,
   ) {
-    super()
+    super();
   }
 
   onApplicationConfigure(app: Router): void {
@@ -21,9 +21,9 @@ export class UserController extends InjectableService implements IApplicationCon
     interface IGetUserRequest extends Request<any, any, GetUserRequestDto> {}
 
     app.get(GET_USER_API, async (req: IGetUserRequest, res) => {
-      const { id } = (req as IGetUserRequest & { user: { id: string, name: string } }).user
+      const { id } = (req as IGetUserRequest & { user: { id: string; name: string } }).user;
 
-      const user = await this.userService.getUser(id)
+      const user = await this.userService.getUser(id);
 
       if (user) {
         res.send(new GetUserResponseDto({
@@ -32,12 +32,12 @@ export class UserController extends InjectableService implements IApplicationCon
           avatarUrl: user.avatarUrl,
           chatLimit: user.chatLimit,
           chatUsed: user.chatUsed,
-        }))
+        }));
 
         return;
       }
 
-      res.status(500).send("User not found")
-    })
+      res.status(500).send("User not found");
+    });
   }
 }

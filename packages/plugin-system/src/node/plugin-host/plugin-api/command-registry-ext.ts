@@ -1,15 +1,12 @@
-import { Contribution, IDisposable, InjectableService, toDisposable } from "@gepick/core/common";
 import gepick from "@gepick/plugin-api";
+import { Contribution, IDisposable, InjectableService, toDisposable } from "@gepick/core/common";
 import { Handler, ICommandRegistryExt, ICommandRegistryMain } from "../../../common/plugin-api/command-registry";
 import { MainContext, PluginHostContext } from "../../../common/plugin-api/api-context";
-import { IPluginHostRpcService } from "../plugin-host-rpc";
-import { ILocalServiceContribution, LocalServiceContribution } from "../../../common/rpc-protocol";
+import { IPluginHostRpcService } from "../plugin-host-rpc-service";
+import { ILocalService } from "../../../common/rpc-protocol";
 
-/**
- * TODO(@jaylenchen): 补充CommandRegistry主要是registerCommand和registerHandler
- */
-@Contribution(LocalServiceContribution)
-export class CommandRegistryExt extends InjectableService implements ICommandRegistryExt, ILocalServiceContribution {
+@Contribution(ILocalService)
+export class CommandRegistryExt extends InjectableService implements ICommandRegistryExt, ILocalService {
   #commandRegistryMain: ICommandRegistryMain
   private commands = new Map<string, Handler>();
 

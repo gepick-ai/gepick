@@ -4,6 +4,7 @@ import { IFileService } from "@gepick/core/node"
 import { IPluginStore, PluginType } from "./type";
 
 export class PluginScanner extends InjectableService {
+
   constructor(
         @IFileService private readonly fileService: IFileService,
   ) {

@@ -6,20 +6,20 @@
 import { Emitter, Event, ExtendedPromise, IContributionProvider, InjectableService, createContribution } from '@gepick/core/common';
 
 export interface MessageConnection {
-  send: (msg: {}) => void
-  onMessage: Event<any>
+  send: (msg: {}) => void;
+  onMessage: Event<any>;
 }
 
 export interface IRPCProtocol {
   /**
    * Returns a proxy to an object addressable/named in the plugin process or in the main process.
    */
-  getRemoteServiceProxy: <T>(proxyId: ProxyIdentifier<T>) => T
+  getRemoteServiceProxy: <T>(proxyId: ProxyIdentifier<T>) => T;
 
   /**
    * Register manually created instance.
    */
-  setLocalService: <T, R extends T>(identifier: ProxyIdentifier<T>, instance: R) => R
+  setLocalService: <T, R extends T>(identifier: ProxyIdentifier<T>, instance: R) => R;
 
 }
 
@@ -372,10 +372,10 @@ class ReplyErrMessage {
 type RPCMessage = RequestMessage | ReplyMessage | ReplyErrMessage;
 
 export interface SerializedError {
-  readonly $isError: true
-  readonly name: string
-  readonly message: string
-  readonly stack: string
+  readonly $isError: true;
+  readonly name: string;
+  readonly message: string;
+  readonly stack: string;
 }
 
 export function transformErrorForSerialization(error: Error): SerializedError {
@@ -395,50 +395,50 @@ export function transformErrorForSerialization(error: Error): SerializedError {
 }
 
 export interface IRpcService {
-  getRemoteServiceProxy: IRPCProtocol['getRemoteServiceProxy']
-  setLocalService: IRPCProtocol['setLocalService']
-  triggerLocalService: (message: any) => void
-  getLocalServicesSetupStatus: () => boolean
-  onMessage: (message?: string) => Promise<void>
-  setupLocalServicesIfNeeded: () => void
+  getRemoteServiceProxy: IRPCProtocol['getRemoteServiceProxy'];
+  setLocalService: IRPCProtocol['setLocalService'];
+  triggerLocalService: (message: any) => void;
+  getLocalServicesSetupStatus: () => boolean;
+  onMessage: (message?: string) => Promise<void>;
+  setupLocalServicesIfNeeded: () => void;
 }
 
-export interface ILocalServiceContribution {
-  onRpcServiceInit: (rpcService: InstanceType<(new (...args: any[]) => any)> & { [K in keyof IRpcService]: IRpcService[K] }) => void
+export interface ILocalService {
+  onRpcServiceInit: (rpcService: InstanceType<(new (...args: any[]) => any)> & { [K in keyof IRpcService]: IRpcService[K] }) => void;
 }
-export const [LocalServiceContribution, ILocalServiceProvider] = createContribution<ILocalServiceContribution>("LocalServiceContribution")
+export const [ILocalService, ILocalServiceProvider] = createContribution<ILocalService>("LocalService");
 
 export abstract class RpcService extends InjectableService implements IRpcService {
-  readonly getRemoteServiceProxy: IRPCProtocol['getRemoteServiceProxy']
-  readonly setLocalService: IRPCProtocol['setLocalService']
+  readonly getRemoteServiceProxy: IRPCProtocol['getRemoteServiceProxy'];
+  readonly setLocalService: IRPCProtocol['setLocalService'];
   readonly rpcProtocol: IRPCProtocol;
   isLocalServicesSetup: boolean = false;
 
-  private static readonly _onRemoteMessage = new Emitter<any>()
-  private static readonly onRemoteMessage = RpcService._onRemoteMessage.event
+  private static readonly _onRemoteMessage = new Emitter<any>();
+  private static readonly onRemoteMessage = RpcService._onRemoteMessage.event;
 
   constructor(
-    @ILocalServiceProvider private readonly localServiceProvider: IContributionProvider<ILocalServiceContribution>,
+    @ILocalServiceProvider private readonly localServiceProvider: IContributionProvider<ILocalService>,
   ) {
-    super()
+    super();
 
     const rpcProtocol = new RPCProtocol({
       onMessage: RpcService.onRemoteMessage,
       send: (message: any) => this.sendMessage(message), // NOTE: 这么写是为了固定this指向
-    })
+    });
 
     this.getRemoteServiceProxy = rpcProtocol.getRemoteServiceProxy.bind(rpcProtocol);
     this.setLocalService = rpcProtocol.setLocalService.bind(rpcProtocol);
     this.rpcProtocol = rpcProtocol;
   }
 
-  abstract onMessage(message?: string): Promise<void>
+  abstract onMessage(message?: string): Promise<void>;
 
   protected abstract sendMessage(m: any): void;
 
   triggerLocalService(message: string) {
     this.setupLocalServicesIfNeeded();
-    RpcService._onRemoteMessage.fire(JSON.parse(message))
+    RpcService._onRemoteMessage.fire(JSON.parse(message));
   }
 
   setupLocalServicesIfNeeded(): void {
@@ -452,6 +452,6 @@ export abstract class RpcService extends InjectableService implements IRpcServic
   }
 
   getLocalServicesSetupStatus() {
-    return this.isLocalServicesSetup
+    return this.isLocalServicesSetup;
   }
 }

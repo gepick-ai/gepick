@@ -3,38 +3,46 @@ import gepick from "@gepick/plugin-api";
 import { IDisposable, IServiceContainer, InjectableService, createServiceDecorator } from "@gepick/core/common";
 import { ICommandRegistryExt } from "../../common/plugin-api/command-registry";
 
-export class PluginHostApiService extends InjectableService {
+export const IPluginApiService = createServiceDecorator<IPluginApiService>("PluginApiService");
+export interface IPluginApiService {
+  /**
+   * 为plugi-api包准备plugin api运行时
+   */
+  setupPluginApiRuntime: () => void;
+}
+
+export class PluginApiService extends InjectableService implements IPluginApiService {
   constructor(
     @IServiceContainer private readonly serviceContainer: IServiceContainer,
   ) {
     super();
   }
 
-  initialize() {
-    const pluginAPI = this.createPluginApi();
-    const NODE_MODULE_NAMES = ['@gepick/plugin-api'];
+  setupPluginApiRuntime(): void {
+    const pluginApi = this.createPluginApi();
+    const moduleNames = ['@gepick/plugin-api'];
 
-    this.interceptNodeModuleRequire(NODE_MODULE_NAMES, pluginAPI)
+    this.interceptNodeModuleRequire(moduleNames, pluginApi);
   }
 
-  createPluginApi(): typeof gepick {
+  private createPluginApi(): typeof gepick {
     const commandRegistryExt = this.serviceContainer.get<ICommandRegistryExt>(ICommandRegistryExt);
 
     const commands: typeof gepick.commands = {
       registerCommand(command: gepick.Command, handler?: <T>(...args: any[]) => T | PromiseLike<T>): IDisposable {
-        return commandRegistryExt.registerCommand(command, handler)
+        return commandRegistryExt.registerCommand(command, handler);
       },
       executeCommand<T>(commandId: string, ...args: any[]): PromiseLike<T | undefined> {
-        return commandRegistryExt.executeCommand(commandId, args)
+        return commandRegistryExt.executeCommand(commandId, args);
       },
       registerHandler(commandId: string, handler: (...args: any[]) => any): IDisposable {
-        return commandRegistryExt.registerHandler(commandId, handler)
+        return commandRegistryExt.registerHandler(commandId, handler);
       },
-    }
+    };
 
     return <typeof gepick>{
       commands,
-    }
+    };
   }
 
   private interceptNodeModuleRequire(moduleNames: string[], exports: any) {
@@ -64,6 +72,3 @@ export class PluginHostApiService extends InjectableService {
     };
   }
 }
-
-export const IPluginHostApiService = createServiceDecorator<IPluginHostApiService>("PluginHostApiService");
-export type IPluginHostApiService = PluginHostApiService

@@ -1,9 +1,9 @@
 // Request<ParamsDictionary/*路径参数 */, ResBody/* 响应体*/, ReqBody* 请求体*/, ReqQuery/*查询参数 */, Locals>/*本地变量 */
 
-import { Request, Router } from "express"
-import { SEND_EMAIL_CAPTCHA_API, SendEmailCaptchaRequestDto, VERIFY_EMAIL_CAPTCHA_API, VerifyEmailCaptchaRequestDto } from "@gepick/auth/common"
+import { Request, Router } from "express";
+import { SEND_EMAIL_CAPTCHA_API, SendEmailCaptchaRequestDto, VERIFY_EMAIL_CAPTCHA_API, VerifyEmailCaptchaRequestDto } from "@gepick/auth/common";
 import { Contribution, InjectableService } from '@gepick/core/common';
-import { ApplicationContribution, IApplicationContribution } from '@gepick/core/node';
+import { IApplicationContribution } from '@gepick/core/node';
 import { IAuthService } from './auth-service';
 import { IJwtService } from './jwt-service';
 import { IMailService } from './mail-service';
@@ -23,14 +23,14 @@ import { IMailService } from './mail-service';
 
 const captchaMap = new Map<string, string>();
 
-@Contribution(ApplicationContribution)
+@Contribution(IApplicationContribution)
 export class AuthController extends InjectableService implements IApplicationContribution {
   constructor(
     @IAuthService private readonly authService: IAuthService,
     @IJwtService private readonly jwtService: IJwtService,
     @IMailService private readonly mailService: IMailService,
   ) {
-    super()
+    super();
   }
 
   onApplicationConfigure(app: Router): void {
@@ -50,10 +50,10 @@ export class AuthController extends InjectableService implements IApplicationCon
       您正在请求通过电子邮件登录Gepick,
       您的登录验证码为：\n ${captcha}。 \n请勿将此验证码转发或提供给任何人。
       `,
-      })
+      });
 
-      res.end()
-    })
+      res.end();
+    });
 
     interface IVerifyEmailCaptchaRequest extends Request<any, any, VerifyEmailCaptchaRequestDto> { }
 
@@ -69,7 +69,7 @@ export class AuthController extends InjectableService implements IApplicationCon
 
         captchaMap.delete(email);
 
-        const user = await this.authService.signInFromEmail(email)
+        const user = await this.authService.signInFromEmail(email);
         const token = this.jwtService.sign({ id: user.id, name: user.name });
 
         res.send({
@@ -80,6 +80,6 @@ export class AuthController extends InjectableService implements IApplicationCon
       catch (err) {
         console.error(err);
       }
-    })
+    });
   }
 }

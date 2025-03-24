@@ -1,15 +1,15 @@
 import { Module, ServiceModule } from "@gepick/core/common";
-import { PluginHostRpcService } from "./plugin-host-rpc"
+import { PluginHostRpcService } from "./plugin-host-rpc-service";
 import { PluginManagerExt } from "./plugin-api/plugin-manager-ext";
 import { CommandRegistryExt } from "./plugin-api/command-registry-ext";
-import { PluginHostApiService } from "./plugin-host-api";
+import { PluginApiService } from "./plugin-api-service";
 
 @Module({
   services: [
     PluginManagerExt,
     CommandRegistryExt,
     PluginHostRpcService,
-    PluginHostApiService,
+    PluginApiService,
   ],
 })
 export class PluginApiModule extends ServiceModule {}
