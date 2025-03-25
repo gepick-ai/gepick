@@ -1,5 +1,5 @@
 import { Contribution, IServiceContainer, InjectableService, RpcConnectionHandler, createServiceDecorator } from '@gepick/core/common';
-import { IApplicationContribution, IConnectionHandlerContribution } from "@gepick/core/node";
+import { IApplicationContribution, IConnectionHandlerContribution, IMessagingService } from "@gepick/core/node";
 import { IPluginClient, IPluginMetadata } from "../../common/plugin-protocol";
 import { IInstalledPlugin } from "./type";
 import { IPluginScanner } from "./plugin-scanner";
@@ -17,13 +17,13 @@ export class PluginServiceConnectionHandler extends InjectableService implements
     super();
   }
 
-  createConnectionHandler() {
-    return new RpcConnectionHandler("/services/plugin", (client) => {
+  onConfigureConnectionHandler(messagingService: IMessagingService) {
+    messagingService.addHandler(new RpcConnectionHandler("/services/plugin", (client) => {
       const pluginHostManager = this.serviceContainer.get<IPluginService>(IPluginService);
       pluginHostManager.setClient(client as any);
 
       return pluginHostManager;
-    });
+    }));
   }
 }
 
@@ -52,7 +52,7 @@ export class PluginService extends InjectableService implements IApplicationCont
     }
   }
 
-  //=region PluginHostProcess=
+  // =region PluginHostProcess=
 
   /**
    * 向plugin host process发消息
@@ -92,7 +92,7 @@ export class PluginService extends InjectableService implements IApplicationCont
     this.pluginHostProcessManager.stopPluginHostProcess();
   }
 
-  //=endregion PluginHostProcess=
+  // =endregion PluginHostProcess=
 
   async getInstalledPlugins() {
     let installedPlugins = Array.from(this.installedPlugins.values());

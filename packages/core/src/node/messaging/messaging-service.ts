@@ -2,10 +2,10 @@ import * as http from 'node:http';
 import { Contribution, IConnectionHandler, IContributionProvider, InjectableService, createServiceDecorator } from "@gepick/core/common";
 import { createServerWebSocketConnection } from "@gepick/core/node";
 import { IApplicationContribution } from "../application/application-contribution";
-import { IConnectionHandlerContribution, IConnectionHandlerProvider } from "./connection-handler-contribution";
+import { IConnectionHandlerContribution, IConnectionHandlerProvider, IMessagingService } from "./connection-handler-contribution";
 
 @Contribution(IApplicationContribution)
-export class MessagingService extends InjectableService implements IApplicationContribution {
+export class MessagingService extends InjectableService implements IMessagingService, IApplicationContribution {
   constructor(
     @IConnectionHandlerProvider private readonly connectionHandlerProvider: IContributionProvider<IConnectionHandlerContribution>,
   ) {
@@ -16,11 +16,7 @@ export class MessagingService extends InjectableService implements IApplicationC
 
   onApplicationStart(server: http.Server) {
     for (const contribution of this.connectionHandlerProvider.getContributions()) {
-      const connectionHandler = contribution.createConnectionHandler?.();
-
-      if (connectionHandler) {
-        this.addHandler(connectionHandler);
-      }
+      contribution.onConfigureConnectionHandler(this);
     }
     /**
      * server端的handler示例：
@@ -106,9 +102,4 @@ export class MessagingService extends InjectableService implements IApplicationC
   addHandler(handler: IConnectionHandler): void {
     this.handlers.push(handler);
   }
-}
-
-export const IMessagingService = createServiceDecorator<IMessagingService>("MessagingService");
-export interface IMessagingService {
-  addHandler: (handler: IConnectionHandler) => void;
 }
