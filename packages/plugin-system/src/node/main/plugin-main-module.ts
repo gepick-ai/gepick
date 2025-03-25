@@ -7,6 +7,7 @@ import { PluginDeployment } from './plugin-deployment';
 import { PluginGithubScanner } from './plugin-scanner/plugin-github-scanner';
 import { PluginHttpScanner } from './plugin-scanner/plugin-http-scanner';
 import { PluginLocalScanner } from './plugin-scanner/plugin-local-scanner';
+import { PluginHostProcessManager } from './plugin-host-process-manager';
 
 @Module({
   services: [
@@ -19,6 +20,7 @@ import { PluginLocalScanner } from './plugin-scanner/plugin-local-scanner';
     PluginGithubScanner,
     PluginHttpScanner,
     PluginLocalScanner,
+    PluginHostProcessManager,
   ],
 })
 export class PluginMainModule extends ServiceModule {}
