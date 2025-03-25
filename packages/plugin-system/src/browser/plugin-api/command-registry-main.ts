@@ -1,12 +1,12 @@
 import gepick from "@gepick/plugin-api";
 import { ICommandRegistryExt, ICommandRegistryMain, MainContext, PluginHostContext } from "@gepick/plugin-system/common/plugin-api";
 import { Contribution, IDisposable, InjectableService } from "@gepick/core/common";
-import { ILocalService } from "../../common/rpc-protocol";
+import { IRpcLocalService } from "../../common/rpc-protocol";
 import { IMainThreadRpcService } from "../main-thread-rpc";
 import { CommandRegistry, commandRegistry } from "../command-registry";
 
 @Contribution(ILocalService)
-export class CommandRegistryMain extends InjectableService implements ICommandRegistryMain, ILocalService {
+export class CommandRegistryMain extends InjectableService implements ICommandRegistryMain, IRpcLocalService {
   #commandRegistryExt: ICommandRegistryExt;
   private delegate: CommandRegistry = commandRegistry;
   private disposables = new Map<string, IDisposable>();

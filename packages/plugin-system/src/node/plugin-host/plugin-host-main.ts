@@ -1,7 +1,7 @@
 import { ServiceContainer } from '@gepick/core/common';
-import { PluginApiModule } from './plugin-host-module';
+import { PluginHostModule } from './plugin-host-module';
 import { IPluginHostRpcService } from './plugin-host-rpc-service';
-import { IPluginApiService } from './plugin-api-service';
+import { IPluginApiRuntimeService } from './plugin-api-runtime-service';
 
 function patchProcess() {
   // override exit() function, to do not allow plugin kill this node
@@ -56,12 +56,12 @@ async function startPluginHostProcess() {
   handleProcessException();
   patchProcess();
 
-  const serviceContainer = new ServiceContainer([PluginApiModule]);
+  const serviceContainer = new ServiceContainer([PluginHostModule]);
   const pluginHostRpcService = serviceContainer.get<IPluginHostRpcService>(IPluginHostRpcService);
-  const pluginApiService = serviceContainer.get<IPluginApiService>(IPluginApiService);
+  const pluginApiRuntimeService = serviceContainer.get<IPluginApiRuntimeService>(IPluginApiRuntimeService);
 
   await pluginHostRpcService.onMessage();
-  pluginApiService.setupPluginApiRuntime();
+  pluginApiRuntimeService.setupPluginApiRuntime();
 
   // eslint-disable-next-line no-console
   console.log(`PLUGIN_HOST(${process.pid}) starting instance`);

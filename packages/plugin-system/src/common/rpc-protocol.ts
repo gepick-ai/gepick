@@ -394,6 +394,11 @@ export function transformErrorForSerialization(error: Error): SerializedError {
   return error;
 }
 
+export interface IRpcLocalService {
+  onRpcServiceInit: (rpcService: InstanceType<(new (...args: any[]) => any)> & { [K in keyof IRpcService]: IRpcService[K] }) => void;
+}
+export const [IRpcLocalService, IRpcLocalServiceProvider] = createContribution<IRpcLocalService>("RpcLocalService");
+
 export interface IRpcService {
   getRemoteServiceProxy: IRPCProtocol['getRemoteServiceProxy'];
   setLocalService: IRPCProtocol['setLocalService'];
@@ -402,11 +407,6 @@ export interface IRpcService {
   onMessage: (message?: string) => Promise<void>;
   setupLocalServicesIfNeeded: () => void;
 }
-
-export interface ILocalService {
-  onRpcServiceInit: (rpcService: InstanceType<(new (...args: any[]) => any)> & { [K in keyof IRpcService]: IRpcService[K] }) => void;
-}
-export const [ILocalService, ILocalServiceProvider] = createContribution<ILocalService>("LocalService");
 
 export abstract class RpcService extends InjectableService implements IRpcService {
   readonly getRemoteServiceProxy: IRPCProtocol['getRemoteServiceProxy'];
@@ -418,7 +418,7 @@ export abstract class RpcService extends InjectableService implements IRpcServic
   private static readonly onRemoteMessage = RpcService._onRemoteMessage.event;
 
   constructor(
-    @ILocalServiceProvider private readonly localServiceProvider: IContributionProvider<ILocalService>,
+    @IRpcLocalServiceProvider private readonly rpcLocalServiceProvider: IContributionProvider<IRpcLocalService>,
   ) {
     super();
 
@@ -443,7 +443,7 @@ export abstract class RpcService extends InjectableService implements IRpcServic
 
   setupLocalServicesIfNeeded(): void {
     if (!this.isLocalServicesSetup) {
-      for (const localService of this.localServiceProvider.getContributions()) {
+      for (const localService of this.rpcLocalServiceProvider.getContributions()) {
         localService.onRpcServiceInit(this);
       }
 

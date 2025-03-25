@@ -1,8 +1,9 @@
 import { createServiceDecorator } from "@gepick/core/common";
 import { IRpcService, RpcService } from "../../common/rpc-protocol";
 
-export const IPluginHostRpcService = createServiceDecorator<IPluginHostRpcService>("PluginHostRpcService");
 export interface IPluginHostRpcService extends IRpcService {}
+
+export const IPluginHostRpcService = createServiceDecorator<IPluginHostRpcService>("PluginHostRpcService");
 
 export class PluginHostRpcService extends RpcService implements IPluginHostRpcService {
   protected override sendMessage(message: any): void {

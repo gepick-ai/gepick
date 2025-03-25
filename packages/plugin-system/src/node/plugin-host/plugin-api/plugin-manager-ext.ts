@@ -1,20 +1,20 @@
-import path from "node:path"
+import path from "node:path";
 import { Contribution, InjectableService } from "@gepick/core/common";
 import { IPluginManagerExt } from '../../../common/plugin-api/plugin-manager';
-import { ILocalService } from "../../../common/rpc-protocol";
+import { IRpcLocalService } from "../../../common/rpc-protocol";
 import { IPluginHostRpcService } from '../plugin-host-rpc-service';
 import { PluginHostContext } from "../../../common/plugin-api/api-context";
 
 export interface IPluginHost {
-  initialize: (contextPath: string, pluginMetadata: any) => void
+  initialize: (contextPath: string, pluginMetadata: any) => void;
 
-  loadPlugin: (contextPath: string, plugin: any) => void
+  loadPlugin: (contextPath: string, plugin: any) => void;
 
-  stopPlugins: (contextPath: string, pluginIds: string[]) => void
+  stopPlugins: (contextPath: string, pluginIds: string[]) => void;
 }
 interface IPluginModule {
-  activate?: () => Promise<void>
-  deactivate?: () => void
+  activate?: () => Promise<void>;
+  deactivate?: () => void;
 }
 export class ActivatedPlugin {
   constructor(
@@ -22,12 +22,12 @@ export class ActivatedPlugin {
   ) {}
 
   deactivate() {
-    this.module.deactivate?.()
+    this.module.deactivate?.();
   }
 }
 
-@Contribution(ILocalService)
-export class PluginManagerExt extends InjectableService implements IPluginManagerExt, ILocalService {
+@Contribution(IRpcLocalService)
+export class PluginManagerExt extends InjectableService implements IPluginManagerExt, IRpcLocalService {
   private plugins = new Map<string, () => void>();
   private runningPluginIds: string[] = [];
   private readonly registry = new Map<string, any>();
@@ -35,7 +35,7 @@ export class PluginManagerExt extends InjectableService implements IPluginManage
   private readonly activatedPlugins = new Map<string, ActivatedPlugin>();
 
   onRpcServiceInit(pluginHostRpcService: IPluginHostRpcService) {
-    pluginHostRpcService.setLocalService(PluginHostContext.PluginManager, this)
+    pluginHostRpcService.setLocalService(PluginHostContext.PluginManager, this);
   }
 
   async $start(plugins: any[]): Promise<void> {
@@ -99,7 +99,7 @@ export class PluginManagerExt extends InjectableService implements IPluginManage
     this.activations.set(activationEvent, undefined);
     const pendingActivations = [];
     while (activations.length) {
-      const activation = activations.pop()!
+      const activation = activations.pop()!;
       pendingActivations.push(activation());
     }
     await Promise.all(pendingActivations);
@@ -112,10 +112,10 @@ export class PluginManagerExt extends InjectableService implements IPluginManage
     this.runningPluginIds.push("id");
     try {
       // debug
-      plugin.pluginPath = "/Users/work/Projects/gepick-plugin-system/.gepick/plugin-a/src/index.js"
+      plugin.pluginPath = "/Users/work/Projects/gepick-plugin-system/.gepick/plugin-a/src/index.js";
 
       const pluginModule = await import(plugin.pluginPath);
-      const pluginMain = pluginModule.default || pluginModule
+      const pluginMain = pluginModule.default || pluginModule;
 
       // ===startPlugin(plugin, pluginMain, plugins) block-start
 
@@ -149,6 +149,6 @@ export class PluginManagerExt extends InjectableService implements IPluginManage
         this.plugins.delete(pluginId);
       }
     });
-    return Promise.resolve()
+    return Promise.resolve();
   };
 }

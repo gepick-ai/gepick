@@ -3,15 +3,16 @@ import gepick from "@gepick/plugin-api";
 import { IDisposable, IServiceContainer, InjectableService, createServiceDecorator } from "@gepick/core/common";
 import { ICommandRegistryExt } from "../../common/plugin-api/command-registry";
 
-export const IPluginApiService = createServiceDecorator<IPluginApiService>("PluginApiService");
-export interface IPluginApiService {
+export interface IPluginApiRuntimeService {
   /**
-   * 为plugi-api包准备plugin api运行时
+   * 为plugin准备plugin api运行时
    */
   setupPluginApiRuntime: () => void;
 }
 
-export class PluginApiService extends InjectableService implements IPluginApiService {
+export const IPluginApiRuntimeService = createServiceDecorator<IPluginApiRuntimeService>("PluginApiService");
+
+export class PluginApiRuntimeService extends InjectableService implements IPluginApiRuntimeService {
   constructor(
     @IServiceContainer private readonly serviceContainer: IServiceContainer,
   ) {
