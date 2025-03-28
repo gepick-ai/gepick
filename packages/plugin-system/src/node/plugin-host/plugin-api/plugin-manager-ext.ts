@@ -100,11 +100,14 @@ export class PluginManagerExt extends InjectableService implements IPluginManage
     }
 
     this.activations.set(activationEvent, undefined);
+
     const pendingActivations = [];
+
     while (activations.length) {
       const activation = activations.pop()!;
       pendingActivations.push(activation());
     }
+
     await Promise.all(pendingActivations);
   }
 
