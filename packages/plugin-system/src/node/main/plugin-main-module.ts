@@ -1,26 +1,23 @@
 import { Module, ServiceModule } from '@gepick/core/common';
-import { PluginReader } from './plugin-reader';
 import { PluginService, PluginServiceConnectionHandler } from './plugin-service';
-import { PluginScanner } from './plugin-scanner';
-import { GepickPluginStoreLocationHandler } from './plugin-storage-location/gepick-plugin-store-location-handler';
-import { PluginDeployment } from './plugin-deployment';
-import { PluginGithubScanner } from './plugin-scanner/plugin-github-scanner';
-import { PluginHttpScanner } from './plugin-scanner/plugin-http-scanner';
-import { PluginLocalScanner } from './plugin-scanner/plugin-local-scanner';
 import { PluginHostProcessManager } from './plugin-host-process-manager';
+import { GithubPluginScanner } from './plugin-scanner/github-plugin-scanner';
+import { LocalPluginScanner } from './plugin-scanner/local-plugin-scanner';
+import { PluginStorageScanService } from './plugin-scanner/plugin-storage-scan-service';
+import { PluginDeploymentManager } from './plugin-deployment-manager';
 
 @Module({
   services: [
+    // =region PluginResolve=
+    GithubPluginScanner,
+    LocalPluginScanner,
+    PluginStorageScanService,
+    // =endregion PluginResolve=,
+    PluginDeploymentManager,
+    PluginHostProcessManager,
     PluginService,
     PluginServiceConnectionHandler,
-    PluginReader,
-    PluginScanner,
-    PluginDeployment,
-    GepickPluginStoreLocationHandler,
-    PluginGithubScanner,
-    PluginHttpScanner,
-    PluginLocalScanner,
-    PluginHostProcessManager,
+
   ],
 })
 export class PluginMainModule extends ServiceModule {}

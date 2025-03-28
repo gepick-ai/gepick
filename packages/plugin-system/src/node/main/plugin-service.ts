@@ -1,49 +1,17 @@
 import { Contribution, IServiceContainer, InjectableService, RpcConnectionHandler, createServiceDecorator } from '@gepick/core/common';
-import { IApplicationContribution, IConnectionHandlerContribution, IMessagingService } from "@gepick/core/node";
-import { IPluginClient, IPluginMetadata } from "../../common/plugin-protocol";
-import { IInstalledPlugin } from "./type";
-import { IPluginScanner } from "./plugin-scanner";
-import { IPluginDeployment } from "./plugin-deployment";
+import { IConnectionHandlerContribution, IMessagingService } from "@gepick/core/node";
+import { IPluginClient, IPluginService } from '../../common/plugin-service';
 import { IPluginHostProcessManager } from "./plugin-host-process-manager";
+import { IPluginDeploymentManager } from './plugin-deployment-manager';
 
-export const IPluginService = createServiceDecorator<IPluginService>("PluginService");
-export type IPluginService = PluginService;
-
-@Contribution(IConnectionHandlerContribution)
-export class PluginServiceConnectionHandler extends InjectableService implements IConnectionHandlerContribution {
-  constructor(
-    @IServiceContainer private readonly serviceContainer: IServiceContainer,
-  ) {
-    super();
-  }
-
-  onConfigureConnectionHandler(messagingService: IMessagingService) {
-    messagingService.addHandler(new RpcConnectionHandler("/services/plugin", (client) => {
-      const pluginHostManager = this.serviceContainer.get<IPluginService>(IPluginService);
-      pluginHostManager.setClient(client as any);
-
-      return pluginHostManager;
-    }));
-  }
-}
-
-@Contribution(IApplicationContribution)
-export class PluginService extends InjectableService implements IApplicationContribution {
-  private client: any;
-  private installedPlugins = new Map<string, IInstalledPlugin>();
+export class PluginService extends InjectableService implements IPluginService {
+  private client: IPluginClient;
 
   constructor(
-    @IPluginScanner private readonly pluginScanner: IPluginScanner,
-    @IPluginDeployment private readonly pluginDeployment: IPluginDeployment,
     @IPluginHostProcessManager private readonly pluginHostProcessManager: IPluginHostProcessManager,
-
+    @IPluginDeploymentManager private readonly pluginDeploymentManager: IPluginDeploymentManager,
   ) {
     super();
-  }
-
-  onApplicationInit() {
-    this.getInstalledPlugins();
-    // this.startPluginHostProcess()
   }
 
   setClient(client: IPluginClient | undefined): void {
@@ -52,16 +20,11 @@ export class PluginService extends InjectableService implements IApplicationCont
     }
   }
 
-  // =region PluginHostProcess=
-
   /**
    * 向plugin host process发消息
    */
   onMessage(message: string): Promise<void> {
-    const pluginHostProcess = this.pluginHostProcessManager.getPluginHostProcess();
-    if (pluginHostProcess) {
-      pluginHostProcess.send(message);
-    }
+    this.pluginHostProcessManager.sendMessageToPluginHostProcess(message);
 
     return Promise.resolve();
   }
@@ -72,15 +35,11 @@ export class PluginService extends InjectableService implements IApplicationCont
   async startPluginHostProcess() {
     await this.pluginHostProcessManager.startPluginHostProcess();
 
-    const pluginHostProcess = this.pluginHostProcessManager.getPluginHostProcess();
-
-    if (pluginHostProcess) {
-      pluginHostProcess.on('message', (message: string) => {
-        if (this.client) {
-          this.client.onMessage(message);
-        }
-      });
-    }
+    this.pluginHostProcessManager.onPluginHostProcessMessage((message) => {
+      if (this.client) {
+        this.client.onMessage(message);
+      }
+    });
 
     return Promise.resolve();
   }
@@ -92,45 +51,25 @@ export class PluginService extends InjectableService implements IApplicationCont
     this.pluginHostProcessManager.stopPluginHostProcess();
   }
 
-  // =endregion PluginHostProcess=
+  async getDeployedPlugins(): Promise<any[]> {
+    return this.pluginDeploymentManager.getDeployedPlugins();
+  }
+}
 
-  async getInstalledPlugins() {
-    let installedPlugins = Array.from(this.installedPlugins.values());
-
-    if (installedPlugins.length === 0) {
-      installedPlugins = await this.pluginScanner.scanAllPlugins();
-
-      installedPlugins.forEach((plugin) => {
-        this.installedPlugins.set(plugin.id, plugin);
-      });
-    }
-
-    return installedPlugins;
+@Contribution(IConnectionHandlerContribution)
+export class PluginServiceConnectionHandler extends InjectableService implements IConnectionHandlerContribution {
+  constructor(
+    @IServiceContainer private readonly serviceContainer: IServiceContainer,
+  ) {
+    super();
   }
 
-  getDeployedMetadata(): Promise<IPluginMetadata[]> {
-    return Promise.resolve([
-      {
-        source: "" as any,
-        model: "" as any,
-        lifecycle: "" as any,
-      },
-    ]);
-  }
+  onConfigureConnectionHandler(messagingService: IMessagingService) {
+    messagingService.addHandler(new RpcConnectionHandler("/services/plugin", (client: IPluginClient) => {
+      const pluginService = this.serviceContainer.get<IPluginService>(IPluginService);
+      pluginService.setClient(client);
 
-  async getDeployedPluginIds(): Promise<any[]> {
-    return this.pluginDeployment.getDeployedPluginIds();
-  }
-
-  async getUninstalledPluginIds(): Promise<any[]> {
-    return Promise.resolve([]);
-  }
-
-  async getDeployedPlugins({ pluginIds }: { pluginIds: string[] }): Promise<any[]> {
-    if (!pluginIds.length) {
-      return [];
-    }
-
-    return this.pluginDeployment.getDeployedPlugins();
+      return pluginService;
+    }));
   }
 }

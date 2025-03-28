@@ -10,7 +10,7 @@ export interface IPluginApiRuntimeService {
   setupPluginApiRuntime: () => void;
 }
 
-export const IPluginApiRuntimeService = createServiceDecorator<IPluginApiRuntimeService>("PluginApiService");
+export const IPluginApiRuntimeService = createServiceDecorator<IPluginApiRuntimeService>("PluginApiRuntimeService");
 
 export class PluginApiRuntimeService extends InjectableService implements IPluginApiRuntimeService {
   constructor(

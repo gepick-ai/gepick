@@ -1,21 +1,30 @@
 import cp from "node:child_process";
 import path from "node:path";
-import { InjectableService, createServiceDecorator } from "@gepick/core/common";
+import { fileURLToPath } from "node:url";
+import { Emitter, Event, InjectableService, createServiceDecorator } from "@gepick/core/common";
 
 export const IPluginHostProcessManager = createServiceDecorator<IPluginHostProcessManager>("PluginHostProcessManager");
 /**
  * 负责plugin host process的相关操作
  */
 export interface IPluginHostProcessManager {
+  /**
+   *  当plugin host process发来消息的时候触发
+   */
+  readonly onPluginHostProcessMessage: Event<string>;
   startPluginHostProcess: () => Promise<void>;
   stopPluginHostProcess: () => Promise<void>;
   getPluginHostProcess: () => cp.ChildProcess | undefined;
+  sendMessageToPluginHostProcess: (message: string) => void;
 }
 
 export class PluginHostProcessManager extends InjectableService implements IPluginHostProcessManager {
-  private static pluginHostMainPath = path.resolve(__dirname, '../plugin-host/plugin-host-main');
+  private static pluginHostMainPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../plugin-host/plugin-host-main');
 
   private pluginHostProcess: cp.ChildProcess | undefined;
+
+  private readonly _onPluginHostProcessMessage = this._register(new Emitter<string>());
+  public readonly onPluginHostProcessMessage = this._onPluginHostProcessMessage.event;
 
   async startPluginHostProcess(): Promise<void> {
     if (this.pluginHostProcess) {
@@ -27,11 +36,9 @@ export class PluginHostProcessManager extends InjectableService implements IPlug
       args: [],
     });
 
-    //   this.pluginHostProcess.on('message', (message: string) => {
-    //     if (this.client) {
-    //       this.client.onMessage(message);
-    //     }
-    //   });
+    this.pluginHostProcess.on('message', (message: string) => {
+      this._onPluginHostProcessMessage.fire(message);
+    });
 
     return Promise.resolve();
   }
@@ -67,5 +74,9 @@ export class PluginHostProcessManager extends InjectableService implements IPlug
     const childProcess = cp.fork(PluginHostProcessManager.pluginHostMainPath, options.args, forkOptions);
 
     return childProcess;
+  }
+
+  sendMessageToPluginHostProcess(message: string): void {
+    this.pluginHostProcess?.send(message);
   }
 }

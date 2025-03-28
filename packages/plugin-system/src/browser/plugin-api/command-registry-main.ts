@@ -5,7 +5,7 @@ import { IRpcLocalService } from "../../common/rpc-protocol";
 import { IMainThreadRpcService } from "../main-thread-rpc";
 import { CommandRegistry, commandRegistry } from "../command-registry";
 
-@Contribution(ILocalService)
+@Contribution(IRpcLocalService)
 export class CommandRegistryMain extends InjectableService implements ICommandRegistryMain, IRpcLocalService {
   #commandRegistryExt: ICommandRegistryExt;
   private delegate: CommandRegistry = commandRegistry;

@@ -1,9 +1,15 @@
 import path from "node:path";
 import { Contribution, InjectableService } from "@gepick/core/common";
+import { IDeployedPlugin } from "../../../common/plugin-service";
 import { IPluginManagerExt } from '../../../common/plugin-api/plugin-manager';
 import { IRpcLocalService } from "../../../common/rpc-protocol";
 import { IPluginHostRpcService } from '../plugin-host-rpc-service';
 import { PluginHostContext } from "../../../common/plugin-api/api-context";
+
+export interface IPluginModule {
+  activate?: () => Promise<void>;
+  deactivate?: () => void;
+}
 
 export interface IPluginHost {
   initialize: (contextPath: string, pluginMetadata: any) => void;
@@ -12,10 +18,7 @@ export interface IPluginHost {
 
   stopPlugins: (contextPath: string, pluginIds: string[]) => void;
 }
-interface IPluginModule {
-  activate?: () => Promise<void>;
-  deactivate?: () => void;
-}
+
 export class ActivatedPlugin {
   constructor(
     public readonly module: IPluginModule,
@@ -38,7 +41,7 @@ export class PluginManagerExt extends InjectableService implements IPluginManage
     pluginHostRpcService.setLocalService(PluginHostContext.PluginManager, this);
   }
 
-  async $start(plugins: any[]): Promise<void> {
+  async $start(plugins: IDeployedPlugin[]): Promise<void> {
     for (const plugin of plugins) {
       this.registerPlugin(plugin);
     }
@@ -48,12 +51,12 @@ export class PluginManagerExt extends InjectableService implements IPluginManage
     return Promise.resolve();
   }
 
-  protected registerPlugin(plugin: any): void {
-    this.registry.set(plugin.model.id, plugin);
-    const activation = () => this.$activatePlugin(plugin.model.id);
-    this.setActivation(`onPlugin:${plugin.model.id}`, activation);
+  protected registerPlugin(plugin: IDeployedPlugin): void {
+    this.registry.set(plugin.model.identifier.id, plugin);
+    const activation = () => this.$activatePlugin(plugin.model.identifier.id);
+    this.setActivation(`onPlugin:${plugin.model.identifier.id}`, activation);
 
-    for (const activationEvent of ['*']) {
+    for (const activationEvent of plugin.contributions.activationEvents) {
       this.setActivation(activationEvent, activation);
     }
   }
@@ -66,21 +69,21 @@ export class PluginManagerExt extends InjectableService implements IPluginManage
     }
   }
 
-  async _activatePlugin(plugin: any) {
-    const pluginModule = await import(path.resolve(plugin.model.packagePath, plugin.model.entryPoint));
-    const pluginMain = pluginModule.default || pluginModule;
+  async _activatePlugin(plugin: IDeployedPlugin) {
+    const pluginSource = await import(path.resolve(plugin.model.entryPoint));
+    const pluginModule: IPluginModule = pluginSource.default || pluginSource;
 
-    const id = plugin.model.displayName || plugin.model.id;
+    const id = plugin.model.displayName || plugin.model.identifier.id;
 
-    if (typeof pluginMain[plugin.lifecycle.startMethod] === 'function') {
-      await pluginMain[plugin.lifecycle.startMethod].apply(globalThis, []);
-      this.activatedPlugins.set(plugin.model.id, new ActivatedPlugin(pluginMain));
+    if (typeof pluginModule.activate === 'function') {
+      await pluginModule.activate.apply(globalThis, []);
+      this.activatedPlugins.set(plugin.model.identifier.id, new ActivatedPlugin(pluginModule));
     }
     else {
       // https://github.com/TypeFox/vscode/blob/70b8db24a37fafc77247de7f7cb5bb0195120ed0/src/vs/workbench/api/common/extHostExtensionService.ts#L400-L401
       // eslint-disable-next-line no-console
-      console.log(`plugin ${id}, ${plugin.lifecycle.startMethod} method is undefined so the module is the extension's exports`);
-      this.activatedPlugins.set(plugin.model.id, new ActivatedPlugin(pluginMain));
+      console.log(`plugin ${id}, activate method is undefined so the module is the extension's exports`);
+      this.activatedPlugins.set(plugin.model.identifier.id, new ActivatedPlugin(pluginModule));
     }
   }
 
@@ -104,39 +107,6 @@ export class PluginManagerExt extends InjectableService implements IPluginManage
     }
     await Promise.all(pendingActivations);
   }
-
-  /**
-   * 利用plugin host loadPlugin
-   */
-  async $loadPlugin(contextPath: string, plugin: any): Promise<void> {
-    this.runningPluginIds.push("id");
-    try {
-      // debug
-      plugin.pluginPath = "/Users/work/Projects/gepick-plugin-system/.gepick/plugin-a/src/index.js";
-
-      const pluginModule = await import(plugin.pluginPath);
-      const pluginMain = pluginModule.default || pluginModule;
-
-      // ===startPlugin(plugin, pluginMain, plugins) block-start
-
-      // if (typeof pluginMain[plugin.lifecycle.startMethod] === 'function') {
-      pluginMain['activate' as any].apply(globalThis, []);
-      // }
-      // else {
-      //   console.log('there is no doStart method on plugin');
-      // }
-
-      // if (typeof pluginMain[plugin.lifecycle.stopMethod] === 'function') {
-      //   const pluginId = getPluginId(plugin.model);
-      //   plugins.set(pluginId, pluginMain[plugin.lifecycle.stopMethod]);
-      // }
-
-      // ===startPlugin(plugin, pluginMain, plugins) block-end
-    }
-    catch (e: any) {
-      console.error(e.stack);
-    }
-  };
 
   /**
    * 利用plugin host stopPlugins
