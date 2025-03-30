@@ -1,4 +1,4 @@
-import { Contribution, IServiceContainer, InjectableService, RpcConnectionHandler, createServiceDecorator } from '@gepick/core/common';
+import { Contribution, IServiceContainer, InjectableService, RpcConnectionHandler } from '@gepick/core/common';
 import { IConnectionHandlerContribution, IMessagingService } from "@gepick/core/node";
 import { IPluginClient, IPluginService } from '../../common/plugin-service';
 import { IPluginHostProcessManager } from "./plugin-host-process-manager";
