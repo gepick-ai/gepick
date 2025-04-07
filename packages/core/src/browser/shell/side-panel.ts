@@ -1,5 +1,12 @@
+/* eslint-disable prefer-promise-reject-errors */
 import { Signal } from "@lumino/signaling";
-import { DockPanel, Widget } from "@lumino/widgets";
+import { BoxLayout, BoxPanel, DockPanel, SplitLayout, SplitPanel, TabBar, Title, Widget } from "@lumino/widgets";
+import { find, map, some, toArray } from '@lumino/algorithm';
+import { AttachedProperty } from '@lumino/properties';
+import { MimeData } from '@lumino/coreutils';
+import { Drag } from '@lumino/dragdrop';
+
+import { SideTabBar, TabBarRenderer } from "./tab-bars";
 
 export namespace SidePanel {
   /**
@@ -118,5 +125,592 @@ export class GepickDockPanel extends DockPanel {
   protected override onChildRemoved(msg: Widget.ChildMessage): void {
     super.onChildRemoved(msg);
     this.widgetRemoved.emit(msg.child);
+  }
+}
+
+export class SidePanelHandler {
+  /**
+   * A property that can be attached to widgets in order to determine the insertion index
+   * of their title in the tab bar.
+   */
+  protected static readonly rankProperty = new AttachedProperty<Widget, number | undefined>({
+    name: 'sidePanelRank',
+    create: () => undefined,
+  });
+
+  splitPositionHandler = new SplitPositionHandler();
+  tabBar: SideTabBar;
+  dockPanel: DockPanel;
+  container: BoxPanel;
+  /**
+   * Options that control the behavior of the side panel.
+   */
+  protected options: SidePanel.Options;
+  /**
+   * The current state of the side panel.
+   */
+  readonly state: SidePanel.State = {
+    empty: true,
+    expansion: SidePanel.ExpansionState.collapsed,
+    pendingUpdate: Promise.resolve(),
+  };
+
+  /**
+   * Create the side bar and dock panel widgets.
+   */
+  createSidePanel(options: SidePanel.Options): void {
+    this.options = options;
+    this.tabBar = this.createTabBar();
+    this.dockPanel = this.createDockPanel();
+    this.container = this.createContainer();
+
+    this.refresh();
+  }
+
+  createContainer(): BoxPanel {
+    const boxLayout = new BoxLayout({ direction: "left-to-right", spacing: 0 });
+    BoxPanel.setStretch(this.tabBar, 1);
+    boxLayout.addWidget(this.tabBar);
+    BoxPanel.setStretch(this.dockPanel, 4);
+    boxLayout.addWidget(this.dockPanel);
+    const boxPanel = new BoxPanel({ layout: boxLayout });
+    boxPanel.id = `theia-left-content-panel`;
+    return boxPanel;
+  }
+
+  protected createTabBar(): SideTabBar {
+    const tabBarRenderer = new TabBarRenderer();
+    const sideBar = new SideTabBar({
+      // Tab bar options
+      orientation: 'vertical',
+      insertBehavior: 'none',
+      removeBehavior: 'select-previous-tab',
+      allowDeselect: false,
+      tabsMovable: true,
+      renderer: tabBarRenderer,
+      // Scroll bar options
+      handlers: ['drag-thumb', 'keyboard', 'wheel', 'touch'],
+      useBothWheelAxes: true,
+      scrollYMarginOffset: 8,
+      suppressScrollX: true,
+    });
+
+    sideBar.addClass('theia-app-left');
+    sideBar.addClass('theia-app-sides');
+
+    sideBar.tabAdded.connect((sender, { title }) => {
+      const widget = title.owner;
+      if (!some(this.dockPanel.widgets(), w => w === widget)) {
+        this.dockPanel.addWidget(widget);
+      }
+    }, this);
+    sideBar.tabCloseRequested.connect((sender, { title }) => title.owner.close());
+    sideBar.collapseRequested.connect(() => this.collapse(), this);
+    sideBar.currentChanged.connect(this.handleCurrentTabChanged, this);
+    sideBar.tabDetachRequested.connect(this.handleTabDetachRequested, this);
+
+    return sideBar;
+  }
+
+  protected createDockPanel(): GepickDockPanel {
+    const sidePanel = new GepickDockPanel({
+      mode: 'single-document',
+    });
+    sidePanel.id = 'theia-left-side-panel';
+
+    sidePanel.widgetActivated.connect((sender, widget) => {
+      this.tabBar.currentTitle = widget.title;
+    }, this);
+    sidePanel.widgetAdded.connect(this.handleWidgetAdded, this);
+    sidePanel.widgetRemoved.connect(this.handleWidgetRemoved, this);
+    return sidePanel;
+  }
+
+  /**
+   * Apply a side panel layout that has been previously created with `getLayoutData`.
+   */
+  setLayoutData(layoutData: SidePanel.LayoutData): void {
+    // tslint:disable-next-line:no-null-keyword
+    this.tabBar.currentTitle = null;
+
+    let currentTitle: Title<Widget> | undefined;
+    if (layoutData.items) {
+      for (const { widget, rank, expanded } of layoutData.items) {
+        if (widget) {
+          if (rank) {
+            SidePanelHandler.rankProperty.set(widget, rank);
+          }
+          if (expanded) {
+            currentTitle = widget.title;
+          }
+          // Add the widgets directly to the tab bar in the same order as they are stored
+          this.tabBar.addTab(widget.title);
+        }
+      }
+    }
+    if (layoutData.size) {
+      this.state.lastPanelSize = layoutData.size;
+    }
+
+    // If the layout data contains an expanded item, update the currentTitle property
+    // This implies a refresh through the `currentChanged` signal
+    if (currentTitle) {
+      this.tabBar.currentTitle = currentTitle;
+    }
+    else {
+      this.refresh();
+    }
+  }
+
+  /**
+   * Create an object that describes the current side panel layout. This object may contain references
+   * to widgets; these need to be transformed before the layout can be serialized.
+   */
+  getLayoutData(): SidePanel.LayoutData {
+    const currentTitle = this.tabBar.currentTitle;
+    const items = toArray(map(this.tabBar.titles, title => <SidePanel.WidgetItem>{
+      widget: title.owner,
+      rank: SidePanelHandler.rankProperty.get(title.owner),
+      expanded: title === currentTitle,
+    }));
+    const size = currentTitle !== null ? this.getPanelSize() : this.state.lastPanelSize;
+    return { type: 'sidepanel', items, size };
+  }
+
+  /**
+   * Refresh the visibility of the side bar and dock panel.
+   */
+  refresh(): void {
+    const container = this.container;
+    const parent = container.parent;
+    const tabBar = this.tabBar;
+    const dockPanel = this.dockPanel;
+    const isEmpty = tabBar.titles.length === 0;
+    const currentTitle = tabBar.currentTitle;
+    const hideDockPanel = currentTitle === null;
+    let relativeSizes: number[] | undefined;
+
+    if (hideDockPanel) {
+      container.addClass('theia-mod-collapsed');
+      if (this.state.expansion === SidePanel.ExpansionState.expanded && !this.state.empty) {
+        // Update the lastPanelSize property
+        const size = this.getPanelSize();
+        if (size) {
+          this.state.lastPanelSize = size;
+        }
+      }
+      this.state.expansion = SidePanel.ExpansionState.collapsed;
+    }
+    else {
+      container.removeClass('theia-mod-collapsed');
+      let size: number | undefined;
+      if (this.state.expansion !== SidePanel.ExpansionState.expanded) {
+        if (this.state.lastPanelSize) {
+          size = this.state.lastPanelSize;
+        }
+        else {
+          size = this.getDefaultPanelSize();
+        }
+      }
+
+      if (size) {
+        // Restore the panel size to the last known size or the default size
+        this.state.expansion = SidePanel.ExpansionState.expanding;
+        if (parent instanceof SplitPanel) {
+          relativeSizes = parent.relativeSizes();
+        }
+        this.setPanelSize(size).then(() => {
+          if (this.state.expansion === SidePanel.ExpansionState.expanding) {
+            this.state.expansion = SidePanel.ExpansionState.expanded;
+          }
+        });
+      }
+      else {
+        this.state.expansion = SidePanel.ExpansionState.expanded;
+      }
+    }
+    container.setHidden(isEmpty && hideDockPanel);
+    tabBar.setHidden(isEmpty);
+    dockPanel.setHidden(hideDockPanel);
+    this.state.empty = isEmpty;
+    if (currentTitle) {
+      dockPanel.selectWidget(currentTitle.owner);
+    }
+    if (relativeSizes && parent instanceof SplitPanel) {
+      // Make sure that the expansion animation starts at the smallest possible size
+      parent.setRelativeSizes(relativeSizes);
+    }
+  }
+
+  /**
+   * Modify the width of the panel. This implementation assumes that the parent of the panel
+   * container is a `SplitPanel`.
+   */
+  protected setPanelSize(size: number): Promise<void> {
+    const options: SplitPositionOptions = {
+      side: 'left',
+      duration: 0,
+      referenceWidget: this.dockPanel,
+    };
+    const promise = this.splitPositionHandler.setSidePanelSize(this.container, size, options);
+    const result = new Promise<void>((resolve) => {
+      // Resolve the resulting promise in any case, regardless of whether resizing was successful
+      promise.then(() => resolve(), () => resolve());
+    });
+    this.state.pendingUpdate = this.state.pendingUpdate.then(() => result);
+    return result;
+  }
+
+  /**
+   * Compute the current width of the panel. This implementation assumes that the parent of
+   * the panel container is a `SplitPanel`.
+   */
+  protected getPanelSize(): number | undefined {
+    const parent = this.container.parent;
+    if (parent instanceof SplitPanel && parent.isVisible) {
+      const index = parent.widgets.indexOf(this.container);
+      const handle = parent.handles[index];
+      if (!handle.classList.contains('p-mod-hidden')) {
+        return handle.offsetLeft;
+      }
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Determine the default size to apply when the panel is expanded for the first time.
+   */
+  protected getDefaultPanelSize(): number | undefined {
+    const parent = this.container.parent;
+    if (parent && parent.isVisible) {
+      return parent.node.clientWidth * this.options.initialSizeRatio;
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Activate a widget residing in the side panel by ID.
+   *
+   * @returns the activated widget if it was found
+   */
+  activate(id: string): Widget | undefined {
+    const widget = this.expand(id);
+    if (widget) {
+      widget.activate();
+    }
+    return widget;
+  }
+
+  /**
+   * Expand a widget residing in the side panel by ID. If no ID is given and the panel is
+   * currently collapsed, the last active tab of this side panel is expanded. If no tab
+   * was expanded previously, the first one is taken.
+   *
+   * @returns the expanded widget if it was found
+   */
+  expand(id?: string): Widget | undefined {
+    if (id) {
+      const widget = find(this.dockPanel.widgets(), w => w.id === id);
+      if (widget) {
+        this.tabBar.currentTitle = widget.title;
+      }
+      return widget;
+    }
+    else if (this.tabBar.currentTitle) {
+      return this.tabBar.currentTitle.owner;
+    }
+    else if (this.tabBar.titles.length > 0) {
+      let index = this.state.lastActiveTabIndex;
+      if (!index) {
+        index = 0;
+      }
+      else if (index >= this.tabBar.titles.length) {
+        index = this.tabBar.titles.length - 1;
+      }
+      const title = this.tabBar.titles[index];
+      this.tabBar.currentTitle = title;
+      return title.owner;
+    }
+    else {
+      // Reveal the tab bar and dock panel even if there is no widget
+      // The next call to `refreshVisibility` will collapse them again
+      this.state.expansion = SidePanel.ExpansionState.expanding;
+      let relativeSizes: number[] | undefined;
+      const parent = this.container.parent;
+      if (parent instanceof SplitPanel) {
+        relativeSizes = parent.relativeSizes();
+      }
+      this.container.removeClass('theia-mod-collapsed');
+      this.container.show();
+      this.tabBar.show();
+      this.dockPanel.node.style.minWidth = '0';
+      this.dockPanel.show();
+      if (relativeSizes && parent instanceof SplitPanel) {
+        // Make sure that the expansion animation starts at zero size
+        parent.setRelativeSizes(relativeSizes);
+      }
+      this.setPanelSize(this.options.emptySize).then(() => {
+        if (this.state.expansion === SidePanel.ExpansionState.expanding) {
+          this.state.expansion = SidePanel.ExpansionState.expanded;
+        }
+      });
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Collapse the sidebar so no items are expanded.
+   */
+  collapse(): void {
+    if (this.tabBar.currentTitle) {
+      // tslint:disable-next-line:no-null-keyword
+      this.tabBar.currentTitle = null;
+    }
+    else {
+      this.refresh();
+    }
+  }
+
+  /**
+   * Handle the `widgetAdded` signal from the dock panel. The widget's title is inserted into the
+   * tab bar according to the `rankProperty` value that may be attached to the widget.
+   */
+  protected handleWidgetAdded(sender: DockPanel, widget: Widget): void {
+    const titles = this.tabBar.titles;
+    if (!find(titles, t => t.owner === widget)) {
+      const rank = SidePanelHandler.rankProperty.get(widget);
+      let index = titles.length;
+      if (rank !== undefined) {
+        for (let i = index - 1; i >= 0; i--) {
+          const r = SidePanelHandler.rankProperty.get(titles[i].owner);
+          if (r !== undefined && r > rank) {
+            index = i;
+          }
+        }
+      }
+      this.tabBar.insertTab(index, widget.title);
+
+    //   this.refresh();
+    }
+  }
+
+  /**
+   * Handle the `widgetRemoved` signal from the dock panel. The widget's title is also removed
+   * from the tab bar.
+   */
+  protected handleWidgetRemoved(sender: DockPanel, widget: Widget): void {
+    this.tabBar.removeTab(widget.title);
+    this.refresh();
+  }
+
+  /**
+   * Handle a `currentChanged` signal from the sidebar. The side panel is refreshed so it displays
+   * the new selected widget.
+   */
+  protected handleCurrentTabChanged(sender: SideTabBar, { currentIndex }: TabBar.ICurrentChangedArgs<Widget>): void {
+    if (currentIndex >= 0) {
+      this.state.lastActiveTabIndex = currentIndex;
+      sender.revealTab(currentIndex);
+    }
+    this.refresh();
+  }
+
+  /**
+   * Handle a `tabDetachRequested` signal from the sidebar. A drag is started so the widget can be
+   * moved to another application shell area.
+   */
+  protected handleTabDetachRequested(sender: SideTabBar, { title, tab, clientX, clientY }: TabBar.ITabDetachRequestedArgs<Widget>): void {
+    // Release the tab bar's hold on the mouse
+    sender.releaseMouse();
+
+    // Clone the selected tab and use that as drag image
+    // tslint:disable:no-null-keyword
+    const clonedTab = tab.cloneNode(true) as any;
+    clonedTab.style.width = null;
+    clonedTab.style.height = null;
+    const label = clonedTab.getElementsByClassName('p-TabBar-tabLabel')[0] as any;
+    label.style.width = null;
+    label.style.height = null;
+    // tslint:enable:no-null-keyword
+
+    // Create and start a drag to move the selected tab to another panel
+    const mimeData = new MimeData();
+    mimeData.setData('application/vnd.phosphor.widget-factory', () => title.owner);
+    const drag = new Drag({
+      mimeData,
+      dragImage: clonedTab,
+      proposedAction: 'move',
+      supportedActions: 'move',
+    });
+
+    tab.classList.add('p-mod-hidden');
+    drag.start(clientX, clientY).then(() => {
+      // The promise is resolved when the drag has ended
+      tab.classList.remove('p-mod-hidden');
+    });
+  }
+}
+
+export interface SplitPositionOptions {
+  /** The side of the side panel that shall be resized. */
+  side: 'left' | 'right' | 'top' | 'bottom';
+  /** The duration in milliseconds, or 0 for no animation. */
+  duration: number;
+  /** When this widget is hidden, the animation is canceled. */
+  referenceWidget?: Widget;
+}
+
+export interface MoveEntry extends SplitPositionOptions {
+  parent: SplitPanel;
+  index: number;
+  started: boolean;
+  ended: boolean;
+  targetSize: number;
+  targetPosition?: number;
+  startPosition?: number;
+  startTime?: number;
+  resolve?: (position: number) => void;
+  reject?: (reason: string) => void;
+}
+
+export class SplitPositionHandler {
+  private readonly splitMoves: MoveEntry[] = [];
+  private currentMoveIndex: number = 0;
+
+  /**
+   * Resize a side panel asynchronously. This function makes sure that such movements are performed
+   * one after another in order to prevent the movements from overriding each other.
+   * When resolved, the returned promise yields the final position of the split handle.
+   */
+  setSidePanelSize(sidePanel: Widget, targetSize: number, options: SplitPositionOptions): Promise<number> {
+    if (targetSize < 0) {
+      return Promise.reject('Cannot resize to negative value.');
+    }
+    const parent = sidePanel.parent;
+    if (!(parent instanceof SplitPanel)) {
+      return Promise.reject('Widget must be contained in a SplitPanel.');
+    }
+    let index = parent.widgets.indexOf(sidePanel);
+    if (index > 0 && (options.side === 'right' || options.side === 'bottom')) {
+      index--;
+    }
+    const move: MoveEntry = {
+      ...options,
+      parent,
+      targetSize,
+      index,
+      started: false,
+      ended: false,
+    };
+    return this.moveSplitPos(move);
+  }
+
+  protected moveSplitPos(move: MoveEntry): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+      move.resolve = resolve;
+      move.reject = reject;
+      if (this.splitMoves.length === 0) {
+        window.requestAnimationFrame(this.animationFrame.bind(this));
+      }
+      this.splitMoves.push(move);
+    });
+  }
+
+  protected animationFrame(time: number): void {
+    const move = this.splitMoves[this.currentMoveIndex];
+    let rejectedOrResolved = false;
+    if (move.ended || move.referenceWidget && move.referenceWidget.isHidden) {
+      this.splitMoves.splice(this.currentMoveIndex, 1);
+      if (move.startPosition === undefined || move.targetPosition === undefined) {
+        move.reject!('Panel is not visible.');
+      }
+      else {
+        move.resolve!(move.targetPosition);
+      }
+      rejectedOrResolved = true;
+    }
+    else if (!move.started) {
+      this.startMove(move, time);
+      if (move.duration <= 0 || move.startPosition === undefined || move.targetPosition === undefined
+        || move.startPosition === move.targetPosition) {
+        this.endMove(move);
+      }
+    }
+    else {
+      const elapsedTime = time - move.startTime!;
+      if (elapsedTime >= move.duration) {
+        this.endMove(move);
+      }
+      else {
+        const t = elapsedTime / move.duration;
+        const start = move.startPosition || 0;
+        const target = move.targetPosition || 0;
+        const pos = start + (target - start) * t;
+        (move.parent.layout as SplitLayout).moveHandle(move.index, pos);
+      }
+    }
+    if (!rejectedOrResolved) {
+      this.currentMoveIndex++;
+    }
+    if (this.currentMoveIndex >= this.splitMoves.length) {
+      this.currentMoveIndex = 0;
+    }
+    if (this.splitMoves.length > 0) {
+      window.requestAnimationFrame(this.animationFrame.bind(this));
+    }
+  }
+
+  protected startMove(move: MoveEntry, time: number): void {
+    if (move.targetPosition === undefined) {
+      const { clientWidth, clientHeight } = move.parent.node;
+      if (clientWidth && clientHeight) {
+        switch (move.side) {
+          case 'left':
+            move.targetPosition = Math.max(Math.min(move.targetSize, clientWidth), 0);
+            break;
+          case 'right':
+            move.targetPosition = Math.max(Math.min(clientWidth - move.targetSize, clientWidth), 0);
+            break;
+          case 'top':
+            move.targetPosition = Math.max(Math.min(move.targetSize, clientHeight), 0);
+            break;
+          case 'bottom':
+            move.targetPosition = Math.max(Math.min(clientHeight - move.targetSize, clientHeight), 0);
+            break;
+        }
+      }
+    }
+    if (move.startPosition === undefined) {
+      move.startPosition = this.getCurrentPosition(move);
+    }
+    move.startTime = time;
+    move.started = true;
+  }
+
+  protected endMove(move: MoveEntry): void {
+    if (move.targetPosition !== undefined) {
+      (move.parent.layout as SplitLayout).moveHandle(move.index, move.targetPosition);
+    }
+    move.ended = true;
+  }
+
+  protected getCurrentPosition(move: MoveEntry): number | undefined {
+    const layout = move.parent.layout as SplitLayout;
+    let pos: number | null;
+    if (layout.orientation === 'horizontal') {
+      pos = layout.handles[move.index].offsetLeft;
+    }
+    else {
+      pos = layout.handles[move.index].offsetTop;
+    }
+    if (pos !== null) {
+      return pos;
+    }
+    else {
+      return undefined;
+    }
   }
 }

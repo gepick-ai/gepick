@@ -27,6 +27,7 @@ export default antfu(
       'unicorn/prefer-node-protocol': 'off',
       'ts/no-namespace': 'off',
       'ts/ban-ts-comment': 'off',
+      'unicorn/no-new-array': 'off',
     },
   },
 );
