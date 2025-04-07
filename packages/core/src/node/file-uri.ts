@@ -16,7 +16,7 @@
 
 import { URI as Uri } from 'vscode-uri';
 import URI from './uri';
-import { isWindows } from './os';
+import { isWindows } from '../common/os';
 
 export namespace FileUri {
 

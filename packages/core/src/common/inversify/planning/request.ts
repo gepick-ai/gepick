@@ -15,7 +15,6 @@ class Request implements interfaces.Request {
     serviceIdentifier: interfaces.ServiceIdentifier,
     parentContext: interfaces.Context,
     parentRequest: interfaces.Request | null,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     bindings: interfaces.Binding<any> | interfaces.Binding<any>[],
     target: interfaces.Target,
   ) {

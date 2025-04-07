@@ -2,7 +2,7 @@ import * as ERRORS_MSGS from '../constants/error_msgs';
 import * as METADATA_KEY from '../constants/metadata_keys';
 
 function injectable() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   return function <T extends abstract new (...args: any) => unknown>(
     target: T,
   ) {

@@ -26,6 +26,7 @@ export default antfu(
       'jsdoc/require-returns-description': 'off',
       'unicorn/prefer-node-protocol': 'off',
       'ts/no-namespace': 'off',
+      'ts/ban-ts-comment': 'off',
     },
   },
 );

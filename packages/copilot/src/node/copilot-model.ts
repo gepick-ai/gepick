@@ -1,20 +1,20 @@
 import { randomUUID } from 'node:crypto';
 import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
-import { ChatMessage, Conversation, MessageAttachment } from "@gepick/copilot/common"
+import { ChatMessage, Conversation, MessageAttachment } from "@gepick/copilot/common";
 
 @modelOptions({ schemaOptions: { collection: 'chat-messages' } })
 export class ChatMessageClass extends ChatMessage {
   @prop({ required: true })
-  public override role: 'system' | 'assistant' | 'user';
+  declare public role: 'system' | 'assistant' | 'user';
 
   @prop({ required: true })
-  public override content: string;
+  declare public content: string;
 
   @prop()
-  public override attachments: MessageAttachment[];
+  declare public attachments: MessageAttachment[];
 }
 
-export const ChatMessageModel = getModelForClass(ChatMessageClass)
+export const ChatMessageModel = getModelForClass(ChatMessageClass);
 
 @modelOptions({ schemaOptions: { collection: 'conversations' } })
 export class ConversationClass extends Conversation {
@@ -22,16 +22,16 @@ export class ConversationClass extends Conversation {
   public _id: string;
 
   @prop({ required: true })
-  public override conversationId: string;
+  declare public conversationId: string;
 
   @prop({ type: ChatMessageClass, required: true })
-  public override messages: ChatMessageClass[];
+  declare public messages: ChatMessageClass[];
 
   @prop({ required: true })
-  public override createdAt: Date;
+  declare public createdAt: Date;
 
   @prop({ required: true })
   public userId: string;
 }
 
-export const ConversationModel = getModelForClass(ConversationClass)
+export const ConversationModel = getModelForClass(ConversationClass);

@@ -136,9 +136,7 @@ namespace interfaces {
   }
 
   export type Provider<T> = (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...args: any[]
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ) => ((...args: any[]) => Promise<T>) | Promise<T>;
 
   export type ProviderCreator<T> = (context: Context) => Provider<T>;

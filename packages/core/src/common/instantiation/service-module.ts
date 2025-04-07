@@ -8,10 +8,12 @@ export type ServiceModuleConstructor = (new (container: Container) => ServiceMod
 
 export const MODULE_METADATA = {
   SERVICES: 'services',
+  FACTORIES: 'factories',
 };
 
 const metadataKeys = [
   MODULE_METADATA.SERVICES,
+  MODULE_METADATA.FACTORIES,
 ];
 export const INVALID_MODULE_CONFIG_MESSAGE = (
   _text: TemplateStringsArray,
@@ -41,8 +43,10 @@ export function Module(metadata: IModuleMetadata) {
   };
 }
 
+interface ServiceFactory { id: symbol; handler: ((context: interfaces.Context) => InstanceType<ServiceConstructor>) }
 export interface IModuleMetadata {
   services: ServiceConstructor[];
+  factories?: ServiceFactory[];
 }
 
 export abstract class ServiceModule extends ContainerModule {
@@ -51,6 +55,10 @@ export abstract class ServiceModule extends ContainerModule {
       const services = this.getServices();
 
       services.forEach(service => this.registerService(bind, container, service));
+
+      const factories = this.getFactories();
+
+      factories?.forEach(factory => this.registerFactory(bind, container, factory));
     });
   }
 
@@ -61,6 +69,10 @@ export abstract class ServiceModule extends ContainerModule {
 
   protected getServices(): IModuleMetadata['services'] {
     return Reflect.getMetadata(MODULE_METADATA.SERVICES, this.constructor.prototype);
+  }
+
+  protected getFactories(): IModuleMetadata['factories'] {
+    return Reflect.getMetadata(MODULE_METADATA.FACTORIES, this.constructor.prototype);
   }
 
   protected registerService<T extends ServiceConstructor>(bind: interfaces.Bind, container: Container, serviceConstructor: T): void {
@@ -82,5 +94,9 @@ export abstract class ServiceModule extends ContainerModule {
 
       bind(contributionId).toService(serviceId);
     }
+  }
+
+  protected registerFactory<T extends ServiceFactory>(bind: interfaces.Bind, _container: Container, factory: T): void {
+    bind(factory.id).toFactory(context => () => factory.handler(context));
   }
 }

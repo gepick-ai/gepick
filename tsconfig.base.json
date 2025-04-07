@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "target": "es2015",
-    "jsx": "preserve",
+    "jsx": "react",
     "lib": [
       "es2024",
       "dom"
     ],
+    "useDefineForClassFields": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "baseUrl": ".",

@@ -1,11 +1,10 @@
 import { resolve } from "node:path";
 import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
 import checker from "vite-plugin-checker";
 import tsconfigPaths from "vite-tsconfig-paths";
 import svgLoader from "vite-svg-loader";
-import vueJsx from '@vitejs/plugin-vue-jsx'
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import react from "@vitejs/plugin-react";
 
 function staticSavePath(type?: string, ext?: string): string {
   const STATIC_BASE_FOLDER = "static";
@@ -25,8 +24,14 @@ export default defineConfig({
     tsconfigPaths({
       projects: ["./tsconfig.json"],
     }),
-    vue(),
-    vueJsx(),
+    react({
+      babel: {
+        plugins: [
+          ["@babel/plugin-proposal-decorators", { legacy: true }],
+          ["@babel/plugin-proposal-class-properties", { loose: true }],
+        ],
+      },
+    }),
     checker({
       typescript: true,
     }),

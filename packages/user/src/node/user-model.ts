@@ -1,6 +1,6 @@
 import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { v4 as uuidv4 } from 'uuid';
-import { User } from "@gepick/user/common"
+import { User } from "@gepick/user/common";
 
 @modelOptions({ schemaOptions: { collection: 'users' } })
 class UserClass extends User {
@@ -8,10 +8,10 @@ class UserClass extends User {
   public _id: string;
 
   @prop({ required: true })
-  public override name: string;
+  declare public name: string;
 
   @prop(({ }))
-  public override avatarUrl: string;
+  declare public avatarUrl: string;
 
   @prop()
   public provider?: string;

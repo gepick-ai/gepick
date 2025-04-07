@@ -9,6 +9,9 @@ import mongoose from 'mongoose';
 import { IContributionProvider, InjectableService, PostConstruct, createServiceDecorator } from '@gepick/core/common';
 import { IApplicationContribution, IApplicationContributionProvider } from './application-contribution';
 
+export const IApplication = createServiceDecorator<IApplication>("Application");
+export type IApplication = Application;
+
 export class Application extends InjectableService {
   private expressApp: ExpressApp = express();
   private expressRouter = express.Router();
@@ -130,6 +133,3 @@ export class Application extends InjectableService {
     log();
   }
 }
-
-export const IApplication = createServiceDecorator<IApplication>("Application");
-export type IApplication = Application;
