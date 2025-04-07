@@ -18,6 +18,22 @@
 @import url('font-awesome/css/font-awesome.min.css');
 
 /*-----------------------------------------------------------------------------
+| Import children style files
+|----------------------------------------------------------------------------*/
+
+@import './dockpanel.css';
+@import './dialog.css';
+@import './menus.css';
+@import './sidepanel.css';
+@import './tabs.css';
+@import './materialcolors.css';
+@import './scrollbars.css';
+@import './tree.css';
+@import './status-bar.css';
+@import './tree-decorators.css';
+@import './about.css';
+
+/*-----------------------------------------------------------------------------
 | General
 |----------------------------------------------------------------------------*/
 
@@ -142,19 +158,3 @@ button[disabled], .theia-button[disabled] {
   background-color: var(--theia-ui-button-color-disabled);
   cursor: default;
 }
-
-/*-----------------------------------------------------------------------------
-| Import children style files
-|----------------------------------------------------------------------------*/
-
-@import './dockpanel.css';
-@import './dialog.css';
-@import './menus.css';
-@import './sidepanel.css';
-@import './tabs.css';
-@import './materialcolors.css';
-@import './scrollbars.css';
-@import './tree.css';
-@import './status-bar.css';
-@import './tree-decorators.css';
-@import './about.css';

@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-@import url('~perfect-scrollbar/css/perfect-scrollbar.css');
+@import url('perfect-scrollbar/css/perfect-scrollbar.css');
 
 ::-webkit-scrollbar {
     height: var(--theia-scrollbar-width);
@@ -110,7 +110,7 @@
 /* Make horizontal scrollbar, decorations overview ruler and vertical scrollbar arrows opaque */
 .vs .monaco-scrollable-element > .scrollbar,
 .vs-dark .monaco-scrollable-element > .scrollbar,
-.decorationsOverviewRuler, {
+.decorationsOverviewRuler{
     background: var(--theia-scrollbar-rail-color);
 }
 
