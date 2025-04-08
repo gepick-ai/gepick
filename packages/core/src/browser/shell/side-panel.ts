@@ -475,6 +475,20 @@ export class SidePanelHandler {
   }
 
   /**
+   * Sets the size of the side panel.
+   *
+   * @param size the desired size (width) of the panel in pixels.
+   */
+  resize(size: number): void {
+    if (this.dockPanel.isHidden) {
+      this.state.lastPanelSize = size;
+    }
+    else {
+      this.setPanelSize(size);
+    }
+  }
+
+  /**
    * Handle the `widgetAdded` signal from the dock panel. The widget's title is inserted into the
    * tab bar according to the `rankProperty` value that may be attached to the widget.
    */
@@ -551,6 +565,18 @@ export class SidePanelHandler {
       // The promise is resolved when the drag has ended
       tab.classList.remove('p-mod-hidden');
     });
+  }
+
+  /**
+   * Add a widget and its title to the dock panel and side bar.
+   *
+   * If the widget is already added, it will be moved.
+   */
+  addWidget(widget: Widget, options: SidePanel.WidgetOptions): void {
+    if (options.rank) {
+      SidePanelHandler.rankProperty.set(widget, options.rank);
+    }
+    this.dockPanel.addWidget(widget);
   }
 }
 

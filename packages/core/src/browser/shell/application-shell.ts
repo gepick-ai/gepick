@@ -1,6 +1,51 @@
 import { PostConstruct, createServiceDecorator } from "@gepick/core/common";
-import { BoxLayout, BoxPanel, DockLayout, DockPanel, InjectableBaseWidget, Layout, SplitLayout, SplitPanel, Widget } from "../widgets";
-import { SidePanel, SidePanelHandler } from "./side-panel";
+import { Signal } from "@lumino/signaling";
+import { ArrayExt, find, toArray } from "@lumino/algorithm";
+import { BoxLayout, BoxPanel, DockLayout, DockPanel, FocusTracker, InjectableBaseWidget, Layout, SplitLayout, SplitPanel, TabBar, Widget } from "../widgets";
+import { GepickDockPanel, SidePanel, SidePanelHandler } from "./side-panel";
+import { ScrollableTabBar, TabBarRenderer } from "./tab-bars";
+
+/** The class name added to ApplicationShell instances. */
+const APPLICATION_SHELL_CLASS = 'theia-ApplicationShell';
+/** The class name added to the main and bottom area panels. */
+const MAIN_BOTTOM_AREA_CLASS = 'theia-app-centers';
+
+export type RecursivePartial<T> = {
+  [P in keyof T]?: RecursivePartial<T[P]>;
+};
+
+/**
+ * A renderer for dock panels that supports context menus on tabs.
+ */
+export class DockPanelRenderer implements DockLayout.IRenderer {
+  readonly tabBarClasses: string[] = [];
+
+  createTabBar(): TabBar<Widget> {
+    const renderer = new TabBarRenderer();
+    const tabBar = new ScrollableTabBar({
+      renderer,
+      // Scroll bar options
+      handlers: ['drag-thumb', 'keyboard', 'wheel', 'touch'],
+      useBothWheelAxes: true,
+      scrollXMarginOffset: 4,
+      suppressScrollY: true,
+    });
+    this.tabBarClasses.forEach(c => tabBar.addClass(c));
+    renderer.tabBar = tabBar;
+    tabBar.currentChanged.connect(this.onCurrentTabChanged, this);
+    return tabBar;
+  }
+
+  createHandle(): HTMLDivElement {
+    return DockPanel.defaultRenderer.createHandle();
+  }
+
+  protected onCurrentTabChanged(sender: ScrollableTabBar, { currentIndex }: TabBar.ICurrentChangedArgs<Widget>): void {
+    if (currentIndex >= 0) {
+      sender.revealTab(currentIndex);
+    }
+  }
+}
 
 /**
  * The namespace for `ApplicationShell` class statics.
@@ -88,34 +133,104 @@ export namespace ApplicationShell1 {
   }
 }
 
-export type RecursivePartial<T> = {
-  [P in keyof T]?: RecursivePartial<T[P]>;
-};
 export class ApplicationShell extends InjectableBaseWidget {
+  /**
+   * Handler for the left side panel. The primary application views go here, such as the
+   * file explorer and the git view.
+   */
+  leftPanelHandler: SidePanelHandler;
   leftPanel: BoxPanel;
   mainPanel: DockPanel;
-  options: ApplicationShell1.Options;
+  options: ApplicationShell1.Options = {
+    bottomPanel: {
+      ...ApplicationShell1.DEFAULT_OPTIONS.bottomPanel,
+    },
+    leftPanel: {
+      ...ApplicationShell1.DEFAULT_OPTIONS.leftPanel,
+    },
+    rightPanel: {
+      ...ApplicationShell1.DEFAULT_OPTIONS.rightPanel,
+    },
+  };
 
-  constructor() {
-    super();
+  private readonly tracker = new FocusTracker<Widget>();
+  /**
+   * A signal emitted whenever the `currentWidget` property is changed.
+   */
+  readonly currentChanged = new Signal<this, FocusTracker.IChangedArgs<Widget>>(this);
 
-    this.id = 'theia-app-shell';
-    this.options = {
-      bottomPanel: {
-        ...ApplicationShell1.DEFAULT_OPTIONS.bottomPanel,
-      },
-      leftPanel: {
-        ...ApplicationShell1.DEFAULT_OPTIONS.leftPanel,
-      },
-      rightPanel: {
-        ...ApplicationShell1.DEFAULT_OPTIONS.rightPanel,
-      },
-    };
+  /**
+   * A signal emitted whenever the `activeWidget` property is changed.
+   */
+  readonly activeChanged = new Signal<this, FocusTracker.IChangedArgs<Widget>>(this);
+
+  /**
+   * The current widget in the application shell. The current widget is the last widget that
+   * was active and not yet closed. See the remarks to `activeWidget` on what _active_ means.
+   */
+  get currentWidget(): Widget | undefined {
+    return this.tracker.currentWidget || undefined;
+  }
+
+  /**
+   * The active widget in the application shell. The active widget is the one that has focus
+   * (either the widget itself or any of its contents).
+   *
+   * _Note:_ Focus is taken by a widget through the `onActivateRequest` method. It is up to the
+   * widget implementation which DOM element will get the focus. The default implementation
+   * does not take any focus; in that case the widget is never returned by this property.
+   */
+  get activeWidget(): Widget | undefined {
+    return this.tracker.activeWidget || undefined;
+  }
+
+  /**
+   * The shell area name of the currently active tab, or undefined.
+   */
+  get currentTabArea(): ApplicationShell1.Area | undefined {
+    const currentWidget = this.currentWidget;
+    if (currentWidget) {
+      return this.getAreaFor(currentWidget);
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Return the tab bar that has the currently active widget, or undefined.
+   */
+  get currentTabBar(): TabBar<Widget> | undefined {
+    const currentWidget = this.currentWidget;
+    if (currentWidget) {
+      return this.getTabBarFor(currentWidget);
+    }
+
+    return undefined;
+  }
+
+  /**
+   * The tab bars contained in the main shell area. If there is no widget in the main area, the
+   * returned array is empty.
+   */
+  get mainAreaTabBars(): TabBar<Widget>[] {
+    return toArray(this.mainPanel.tabBars());
+  }
+
+  /**
+   * The tab bars contained in all shell areas.
+   */
+  get allTabBars(): TabBar<Widget>[] {
+    return [...this.mainAreaTabBars, this.leftPanelHandler.tabBar];
   }
 
   @PostConstruct()
   protected init(): void {
+    this.id = 'theia-app-shell';
+    this.addClass(APPLICATION_SHELL_CLASS);
     this.layout = this.createLayout();
+
+    this.tracker.currentChanged.connect(this.handleCurrentChanged, this);
+    this.tracker.activeChanged.connect(this.handleActiveChanged, this);
   }
 
   protected createLayout(): Layout {
@@ -126,10 +241,11 @@ export class ApplicationShell extends InjectableBaseWidget {
     this.mainPanel = this.createMainPanel();
 
     // 创建一个左中右分割布局面板
-    const leftCenterRightLayoutPanel = new SplitPanel({ layout: this.createSplitLayout([this.leftPanel, this.mainPanel], [1, 4], { orientation: 'horizontal', spacing: 0 }) });
+    const leftRightLayoutPanel = new SplitPanel({ layout: this.createSplitLayout([this.leftPanel, this.mainPanel], [1, 4], { orientation: 'horizontal', spacing: 0 }) });
+    leftRightLayoutPanel.id = 'theia-left-right-split-panel';
 
     // 创建一个从上到下的单列布局
-    const boxLayout = this.createBoxLayout([leftCenterRightLayoutPanel], [1], { direction: 'top-to-bottom', spacing: 0 });
+    const boxLayout = this.createBoxLayout([leftRightLayoutPanel], [1], { direction: 'top-to-bottom', spacing: 0 });
 
     return boxLayout;
   }
@@ -137,7 +253,7 @@ export class ApplicationShell extends InjectableBaseWidget {
   protected createSidePanel(): BoxPanel {
     const sidebarHandler = new SidePanelHandler();
     sidebarHandler.createSidePanel(this.options.leftPanel);
-
+    this.leftPanelHandler = sidebarHandler;
     return sidebarHandler.container;
   }
 
@@ -145,12 +261,17 @@ export class ApplicationShell extends InjectableBaseWidget {
    * Create the dock panel in the main shell area.
    */
   protected createMainPanel(): DockPanel {
-    const mainPanel = new DockPanel({
+    const renderer = new DockPanelRenderer();
+    renderer.tabBarClasses.push(MAIN_BOTTOM_AREA_CLASS);
+    const dockPanel = new GepickDockPanel({
       mode: 'multiple-document',
+      renderer,
       spacing: 0,
     });
 
-    return mainPanel;
+    dockPanel.id = 'theia-main-content-panel';
+
+    return dockPanel;
   }
 
   /**
@@ -185,6 +306,298 @@ export class ApplicationShell extends InjectableBaseWidget {
       splitLayout.addWidget(widgets[i]);
     }
     return splitLayout;
+  }
+
+  /**
+   * Track all widgets that are referenced by the given layout data.
+   */
+  protected registerWithFocusTracker(data: DockLayout.ITabAreaConfig | DockLayout.ISplitAreaConfig | SidePanel.LayoutData | null): void {
+    if (data) {
+      if (data.type === 'tab-area') {
+        for (const widget of data.widgets) {
+          if (widget) {
+            this.track(widget);
+          }
+        }
+      }
+      else if (data.type === 'split-area') {
+        for (const child of data.children) {
+          this.registerWithFocusTracker(child);
+        }
+      }
+      else if (data.type === 'sidepanel' && data.items) {
+        for (const item of data.items) {
+          if (item.widget) {
+            this.track(item.widget);
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Track the given widget so it is considered in the `current` and `active` state of the shell.
+   */
+  protected track(widget: Widget): void {
+    this.tracker.add(widget);
+  }
+
+  /**
+   * Handle a change to the current widget.
+   */
+  private handleCurrentChanged(sender: FocusTracker<Widget>, args: FocusTracker.IChangedArgs<Widget>): void {
+    this.currentChanged.emit(args);
+  }
+
+  /**
+   * Handle a change to the active widget.
+   */
+  private handleActiveChanged(sender: FocusTracker<Widget>, args: FocusTracker.IChangedArgs<Widget>): void {
+    const { newValue, oldValue } = args;
+    if (oldValue) {
+      // Remove the mark of the previously active widget
+      oldValue.title.className = oldValue.title.className.replace(' theia-mod-active', '');
+      // Reset the z-index to the default
+      // tslint:disable-next-line:no-null-keyword
+      this.setZIndex(oldValue.node, null);
+    }
+    if (newValue) {
+      // Mark the tab of the active widget
+      newValue.title.className += ' theia-mod-active';
+      // Reveal the title of the active widget in its tab bar
+      const tabBar = this.getTabBarFor(newValue);
+      if (tabBar instanceof ScrollableTabBar) {
+        const index = tabBar.titles.indexOf(newValue.title);
+        if (index >= 0) {
+          tabBar.revealTab(index);
+        }
+      }
+      // Set the z-index so elements with `position: fixed` contained in the active widget are displayed correctly
+      this.setZIndex(newValue.node, '1');
+    }
+    this.activeChanged.emit(args);
+  }
+
+  /**
+   * Set the z-index of the given element and its ancestors to the value `z`.
+   */
+  private setZIndex(element: any, z: string | null) {
+    element.style.zIndex = z;
+    const parent = element.parentElement;
+    if (parent && parent !== this.node) {
+      this.setZIndex(parent, z);
+    }
+  }
+
+  /**
+   * Return the tab bar in the given shell area, or the tab bar that has the given widget, or undefined.
+   */
+  getTabBarFor(widgetOrArea: Widget | ApplicationShell1.Area): TabBar<Widget> | undefined {
+    if (typeof widgetOrArea === 'string') {
+      switch (widgetOrArea) {
+        case 'left':
+          return this.leftPanelHandler.tabBar;
+        default:
+          throw new Error(`Illegal argument: ${widgetOrArea}`);
+      }
+    }
+    else if (widgetOrArea && widgetOrArea.isAttached) {
+      const widgetTitle = widgetOrArea.title;
+
+      const leftPanelTabBar = this.leftPanelHandler.tabBar;
+      if (ArrayExt.firstIndexOf(leftPanelTabBar.titles, widgetTitle) > -1) {
+        return leftPanelTabBar;
+      }
+
+      const mainPanelTabBar = find(this.mainPanel.tabBars(), bar => ArrayExt.firstIndexOf(bar.titles, widgetTitle) > -1);
+      if (mainPanelTabBar) {
+        return mainPanelTabBar;
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Add a widget to the application shell. The given widget must have a unique `id` property,
+   * which will be used as the DOM id.
+   *
+   * Widgets are removed from the shell by calling their `close` or `dispose` methods.
+   *
+   * Widgets added to the top area are not tracked regarding the _current_ and _active_ states.
+   */
+  addWidget(widget: Widget, options: ApplicationShell1.WidgetOptions) {
+    if (!widget.id) {
+      console.error('Widgets added to the application shell must have a unique id property.');
+      return;
+    }
+    switch (options.area) {
+      case 'main':
+        this.mainPanel.addWidget(widget, options);
+        break;
+      case 'left':
+        this.leftPanelHandler.addWidget(widget, options);
+        break;
+
+      default:
+        throw new Error(`Illegal argument: ${options.area}`);
+    }
+    this.track(widget);
+  }
+
+  /**
+   * The widgets contained in the given shell area.
+   */
+  getWidgets(area: ApplicationShell1.Area): Widget[] {
+    switch (area) {
+      case 'main':
+        return toArray(this.mainPanel.widgets());
+      case 'left':
+        return toArray(this.leftPanelHandler.dockPanel.widgets());
+      default:
+        throw new Error(`Illegal argument: ${area}`);
+    }
+  }
+
+  /**
+   * Activate a widget in the application shell. This makes the widget visible and usually
+   * also assigns focus to it.
+   *
+   * _Note:_ Focus is taken by a widget through the `onActivateRequest` method. It is up to the
+   * widget implementation which DOM element will get the focus. The default implementation
+   * does not take any focus.
+   *
+   * @returns the activated widget if it was found
+   */
+  activateWidget(id: string): Widget | undefined {
+    let widget = find(this.mainPanel.widgets(), w => w.id === id);
+    if (widget) {
+      this.mainPanel.activateWidget(widget);
+      return this.checkActivation(widget);
+    }
+
+    widget = this.leftPanelHandler.activate(id);
+    if (widget) {
+      return this.checkActivation(widget);
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Focus is taken by a widget through the `onActivateRequest` method. It is up to the
+   * widget implementation which DOM element will get the focus. The default implementation
+   * of Widget does not take any focus. This method can help finding such problems by logging
+   * a warning in case a widget was explicitly activated, but did not trigger a change of the
+   * `activeWidget` property.
+   */
+  private checkActivation(widget: Widget): Widget {
+    window.requestAnimationFrame(() => {
+      if (this.activeWidget !== widget) {
+        console.warn(`Widget was activated, but did not accept focus: ${widget.id}`);
+      }
+    });
+    return widget;
+  }
+
+  /**
+   * Reveal a widget in the application shell. This makes the widget visible,
+   * but does not activate it.
+   *
+   * @returns the revealed widget if it was found
+   */
+  revealWidget(id: string): Widget | undefined {
+    let widget = find(this.mainPanel.widgets(), w => w.id === id);
+
+    if (widget) {
+      const tabBar = this.getTabBarFor(widget);
+      if (tabBar) {
+        tabBar.currentTitle = widget.title;
+      }
+      return widget;
+    }
+    widget = this.leftPanelHandler.expand(id);
+    if (widget) {
+      return widget;
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Expand the named side panel area. This makes sure that the panel is visible, even if there
+   * are no widgets in it. If the panel is already visible, nothing happens. If the panel is currently
+   * collapsed (see `collapsePanel`) and it contains widgets, the widgets are revealed that were
+   * visible before it was collapsed.
+   */
+  expandPanel(area: ApplicationShell1.Area): void {
+    switch (area) {
+      case 'left':
+        this.leftPanelHandler.expand();
+        break;
+      default:
+        throw new Error(`Area cannot be expanded: ${area}`);
+    }
+  }
+
+  /**
+   * Adjusts the size of the given area in the application shell.
+   *
+   * @param size the desired size of the panel in pixels.
+   * @param area the area to resize.
+   */
+  resize(size: number, area: ApplicationShell1.Area): void {
+    switch (area) {
+      case 'left':
+        this.leftPanelHandler.resize(size);
+        break;
+      default:
+        throw new Error(`Area cannot be resized: ${area}`);
+    }
+  }
+
+  /**
+   * Collapse the named side panel area. This makes sure that the panel is hidden,
+   * increasing the space that is available for other shell areas.
+   */
+  collapsePanel(area: ApplicationShell1.Area): void {
+    switch (area) {
+      case 'left':
+        this.leftPanelHandler.collapse();
+        break;
+      default:
+        throw new Error(`Area cannot be collapsed: ${area}`);
+    }
+  }
+
+  /**
+   * Check whether the named side panel area is expanded (returns `true`) or collapsed (returns `false`).
+   */
+  isExpanded(area: ApplicationShell1.Area): boolean {
+    switch (area) {
+      case 'left':
+        return this.leftPanelHandler.state.expansion === SidePanel.ExpansionState.expanded;
+
+      default:
+        return true;
+    }
+  }
+
+  /**
+   * Determine the name of the shell area where the given widget resides. The result is
+   * undefined if the widget does not reside directly in the shell.
+   */
+  getAreaFor(widget: Widget): ApplicationShell1.Area | undefined {
+    const title = widget.title;
+    const mainPanelTabBar = find(this.mainPanel.tabBars(), bar => ArrayExt.firstIndexOf(bar.titles, title) > -1);
+    if (mainPanelTabBar) {
+      return 'main';
+    }
+
+    if (ArrayExt.firstIndexOf(this.leftPanelHandler.tabBar.titles, title) > -1) {
+      return 'left';
+    }
+
+    return undefined;
   }
 }
 
