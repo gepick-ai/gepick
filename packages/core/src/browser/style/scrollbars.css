@@ -11,128 +11,162 @@
  * with the GNU Classpath Exception which is available at
  * https://www.gnu.org/software/classpath/license.html.
  *
- * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
  ********************************************************************************/
 
-@import url('perfect-scrollbar/css/perfect-scrollbar.css');
+@import url("perfect-scrollbar/css/perfect-scrollbar.css");
 
 ::-webkit-scrollbar {
-    height: var(--theia-scrollbar-width);
-    width: var(--theia-scrollbar-width);
-    background: var(--theia-scrollbar-rail-color);
+  height: var(--theia-scrollbar-width);
+  width: var(--theia-scrollbar-width);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--theia-scrollbar-thumb-color);
+  background: var(--theia-scrollbarSlider-background);
 }
 
 ::-webkit-scrollbar:hover {
-    background: var(--theia-scrollbar-active-rail-color);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--theia-scrollbar-active-thumb-color);
+  background: var(--theia-scrollbarSlider-hoverBackground);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--theia-scrollbarSlider-activeBackground);
 }
 
 ::-webkit-scrollbar-corner {
-    background: transparent;
+  background: transparent;
 }
-
 
 /*-----------------------------------------------------------------------------
 | Perfect scrollbar
 |----------------------------------------------------------------------------*/
 
-.ps__rail-x {
-    height: var(--theia-scrollbar-rail-width);
-    background: var(--theia-scrollbar-rail-color);
+#theia-app-shell .ps__rail-x,
+#theia-dialog-shell .ps__rail-x,
+#theia-breadcrumbs-popups-overlay .ps__rail-x {
+  height: var(--theia-scrollbar-rail-width);
 }
 
-.ps__rail-x > .ps__thumb-x {
-    height: var(--theia-scrollbar-width);
-    bottom: calc((var(--theia-scrollbar-rail-width) - var(--theia-scrollbar-width)) / 2);
-    background: var(--theia-scrollbar-thumb-color);
-    border-radius: 0px;
+#theia-app-shell .ps__rail-x > .ps__thumb-x,
+#theia-dialog-shell .ps__rail-x > .ps__thumb-x,
+#theia-breadcrumbs-popups-overlay .ps__thumb-x {
+  height: var(--theia-scrollbar-width);
+  bottom: calc(
+    (var(--theia-scrollbar-rail-width) - var(--theia-scrollbar-width)) / 2
+  );
+  background: var(--theia-scrollbarSlider-background);
+  border-radius: 0px;
 }
 
-.ps__rail-x:hover,
-.ps__rail-x:focus {
-    height: var(--theia-scrollbar-rail-width);
-    background: var(--theia-scrollbar-active-rail-color);
+#theia-app-shell .ps__rail-x:hover,
+#theia-app-shell .ps__rail-x:focus,
+#theia-dialog-shell .ps__rail-x:hover,
+#theia-dialog-shell .ps__rail-x:focus,
+#theia-breadcrumbs-popups-overlay .ps__rail-x:hover,
+#theia-breadcrumbs-popups-overlay .ps__rail-x:focus {
+  height: var(--theia-scrollbar-rail-width);
 }
 
-.ps__rail-x:hover > .ps__thumb-x,
-.ps__rail-x:focus > .ps__thumb-x {
-    height: var(--theia-scrollbar-width);
-    bottom: calc((var(--theia-scrollbar-rail-width) - var(--theia-scrollbar-width)) / 2);
-    background: var(--theia-scrollbar-active-thumb-color);
+#theia-app-shell .ps__rail-x:hover > .ps__thumb-x,
+#theia-app-shell .ps__rail-x:focus > .ps__thumb-x,
+#theia-app-shell .ps__rail-x.ps--clicking .ps__thumb-x,
+#theia-dialog-shell .ps__rail-x:hover > .ps__thumb-x,
+#theia-dialog-shell .ps__rail-x:focus > .ps__thumb-x,
+#theia-dialog-shell .ps__rail-x.ps--clicking .ps__thumb-x,
+#theia-breadcrumbs-popups-overlay .ps__rail-x:hover > .ps__thumb-x,
+#theia-breadcrumbs-popups-overlay .ps__rail-x:focus > .ps__thumb-x,
+#theia-breadcrumbs-popups-overlay .ps__rail-x.ps--clicking .ps__thumb-x {
+  height: var(--theia-scrollbar-width);
 }
 
-.ps__rail-y {
-    width: var(--theia-scrollbar-rail-width);
-    background: var(--theia-scrollbar-rail-color);
+#theia-app-shell .ps__rail-y,
+#theia-dialog-shell .ps__rail-y,
+#theia-breadcrumbs-popups-overlay .ps__rail-y {
+  width: var(--theia-scrollbar-rail-width);
 }
 
-.ps__rail-y > .ps__thumb-y {
-    width: var(--theia-scrollbar-width);
-    right: calc((var(--theia-scrollbar-rail-width) - var(--theia-scrollbar-width)) / 2);
-    background: var(--theia-scrollbar-thumb-color);
-    border-radius: 0px;
+#theia-app-shell .ps__rail-y > .ps__thumb-y,
+#theia-dialog-shell .ps__rail-y > .ps__thumb-y,
+#theia-breadcrumbs-popups-overlay .ps__rail-y > .ps__thumb-y {
+  width: var(--theia-scrollbar-width);
+  right: calc(
+    (var(--theia-scrollbar-rail-width) - var(--theia-scrollbar-width)) / 2
+  );
+  background: var(--theia-scrollbarSlider-background);
+  border-radius: 0px;
 }
 
-.ps__rail-y:hover,
-.ps__rail-y:focus {
-    width: var(--theia-scrollbar-rail-width);
-    background: var(--theia-scrollbar-active-rail-color);
+#theia-app-shell .ps__rail-y:hover,
+#theia-app-shell .ps__rail-y:focus,
+#theia-dialog-shell .ps__rail-y:hover,
+#theia-dialog-shell .ps__rail-y:focus,
+#theia-breadcrumbs-popups-overlay .ps__rail-y:hover,
+#theia-breadcrumbs-popups-overlay .ps__rail-y:focus {
+  width: var(--theia-scrollbar-rail-width);
 }
 
-.ps__rail-y:hover > .ps__thumb-y,
-.ps__rail-y:focus > .ps__thumb-y {
-    width: var(--theia-scrollbar-width);
-    right: calc((var(--theia-scrollbar-rail-width) - var(--theia-scrollbar-width)) / 2);
-    background: var(--theia-scrollbar-active-thumb-color);
+#theia-app-shell .ps__rail-y:hover > .ps__thumb-y,
+#theia-app-shell .ps__rail-y:focus > .ps__thumb-y,
+#theia-app-shell .ps__rail-y.ps--clicking .ps__thumb-y,
+#theia-dialog-shell .ps__rail-y:hover > .ps__thumb-y,
+#theia-dialog-shell .ps__rail-y:focus > .ps__thumb-y,
+#theia-dialog-shell .ps__rail-y.ps--clicking .ps__thumb-y,
+#theia-breadcrumbs-popups-overlay .ps__rail-y:hover > .ps__thumb-y,
+#theia-breadcrumbs-popups-overlay .ps__rail-y:focus > .ps__thumb-y,
+#theia-breadcrumbs-popups-overlay .ps__rail-y.ps--clicking .ps__thumb-y {
+  right: calc(
+    (var(--theia-scrollbar-rail-width) - var(--theia-scrollbar-width)) / 2
+  );
+  width: var(--theia-scrollbar-width);
 }
 
-.ps:hover > .ps__rail-x,
-.ps:hover > .ps__rail-y,
-.ps--focus > .ps__rail-x,
-.ps--focus > .ps__rail-y,
-.ps--scrolling-x > .ps__rail-x,
-.ps--scrolling-y > .ps__rail-y {
-    opacity: 1;
+#theia-app-shell .ps [class^="ps__rail"].ps--clicking > [class^="ps__thumb"],
+#theia-dialog-shell .ps [class^="ps__rail"].ps--clicking > [class^="ps__thumb"],
+#theia-breadcrumbs-popups-overlay
+  .ps
+  [class^="ps__rail"].ps--clicking
+  > [class^="ps__thumb"] {
+  background-color: var(--theia-scrollbarSlider-activeBackground);
 }
 
-
-/*-----------------------------------------------------------------------------
-| Monaco
-|----------------------------------------------------------------------------*/
-
-/* Make horizontal scrollbar, decorations overview ruler and vertical scrollbar arrows opaque */
-.vs .monaco-scrollable-element > .scrollbar,
-.vs-dark .monaco-scrollable-element > .scrollbar,
-.decorationsOverviewRuler{
-    background: var(--theia-scrollbar-rail-color);
+#theia-app-shell .ps [class^="ps__rail"] > [class^="ps__thumb"]:hover,
+#theia-app-shell .ps [class^="ps__rail"] > [class^="ps__thumb"]:focus,
+#theia-dialog-shell .ps [class^="ps__rail"] > [class^="ps__thumb"]:hover,
+#theia-dialog-shell .ps [class^="ps__rail"] > [class^="ps__thumb"]:focus,
+#theia-breadcrumbs-popups-overlay
+  .ps
+  [class^="ps__rail"]
+  > [class^="ps__thumb"]:hover,
+#theia-breadcrumbs-popups-overlay
+  .ps
+  [class^="ps__rail"]
+  > [class^="ps__thumb"]:focus {
+  background: var(--theia-scrollbarSlider-hoverBackground);
 }
 
-.vs .monaco-scrollable-element > .scrollbar > .slider,
-.vs-dark .monaco-scrollable-element > .scrollbar > .slider {
-    background: var(--theia-scrollbar-thumb-color) !important;
+#theia-app-shell .ps [class^="ps__rail"] > [class^="ps__thumb"]:active,
+#theia-dialog-shell .ps [class^="ps__rail"] > [class^="ps__thumb"]:active,
+#theia-breadcrumbs-popups-overlay
+  .ps
+  [class^="ps__rail"]
+  > [class^="ps__thumb"]:active {
+  background: var(--theia-scrollbarSlider-activeBackground);
 }
 
-.vs .monaco-scrollable-element > .scrollbar:hover,
-.vs-dark .monaco-scrollable-element > .scrollbar:hover {
-    background: var(--theia-scrollbar-active-rail-color);
-}
-
-.vs .monaco-scrollable-element > .scrollbar:hover > .slider,
-.vs-dark .monaco-scrollable-element > .scrollbar:hover > .slider {
-    background: var(--theia-scrollbar-active-thumb-color) !important;
-}
-
-.monaco-scrollable-element > .scrollbar.vertical > .slider {
-    width: var(--theia-scrollbar-width) !important;
-}
-
-.monaco-scrollable-element > .scrollbar.horizontal > .slider {
-    height: var(--theia-scrollbar-width) !important;
+#theia-app-shell .ps:hover > [class^="ps__rail"],
+#theia-app-shell .ps--focus > [class^="ps__rail"],
+#theia-app-shell .ps--scrolling-y > [class^="ps__rail"],
+#theia-dialog-shell .ps:hover > [class^="ps__rail"],
+#theia-dialog-shell .ps--focus > [class^="ps__rail"],
+#theia-dialog-shell .ps--scrolling-y > [class^="ps__rail"],
+#theia-breadcrumbs-popups-overlay .ps:hover > [class^="ps__rail"],
+#theia-breadcrumbs-popups-overlay .ps--focus > [class^="ps__rail"],
+#theia-breadcrumbs-popups-overlay .ps--scrolling-y > [class^="ps__rail"] {
+  opacity: 1;
+  background: transparent;
 }

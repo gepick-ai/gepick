@@ -1,9 +1,20 @@
 import { PostConstruct, createServiceDecorator } from "@gepick/core/common";
 import { Signal } from "@lumino/signaling";
 import { ArrayExt, find, toArray } from "@lumino/algorithm";
-import { BoxLayout, BoxPanel, DockLayout, DockPanel, FocusTracker, InjectableBaseWidget, Layout, SplitLayout, SplitPanel, TabBar, Widget } from "../widgets";
+import { IDragEvent } from "@lumino/dragdrop";
+import { BaseWidget, BoxLayout, BoxPanel, DockLayout, DockPanel, FocusTracker, Layout, Message, SplitLayout, SplitPanel, TabBar, Widget } from "../widgets";
 import { GepickDockPanel, SidePanel, SidePanelHandler } from "./side-panel";
 import { ScrollableTabBar, TabBarRenderer } from "./tab-bars";
+
+/**
+ * Data stored while dragging widgets in the shell.
+ */
+interface WidgetDragState {
+  startTime: number;
+  leftExpanded: boolean;
+  lastDragOver?: IDragEvent;
+  leaveTimeout?: number;
+}
 
 /** The class name added to ApplicationShell instances. */
 const APPLICATION_SHELL_CLASS = 'theia-ApplicationShell';
@@ -32,7 +43,7 @@ export class DockPanelRenderer implements DockLayout.IRenderer {
     });
     this.tabBarClasses.forEach(c => tabBar.addClass(c));
     renderer.tabBar = tabBar;
-    tabBar.currentChanged.connect(this.onCurrentTabChanged, this);
+    tabBar.currentChanged.connect(this.handleCurrentTabChanged, this);
     return tabBar;
   }
 
@@ -40,7 +51,7 @@ export class DockPanelRenderer implements DockLayout.IRenderer {
     return DockPanel.defaultRenderer.createHandle();
   }
 
-  protected onCurrentTabChanged(sender: ScrollableTabBar, { currentIndex }: TabBar.ICurrentChangedArgs<Widget>): void {
+  protected handleCurrentTabChanged(sender: ScrollableTabBar, { currentIndex }: TabBar.ICurrentChangedArgs<Widget>): void {
     if (currentIndex >= 0) {
       sender.revealTab(currentIndex);
     }
@@ -54,14 +65,14 @@ export namespace ApplicationShell1 {
   /**
    * The areas of the application shell where widgets can reside.
    */
-  export type Area = 'main' | 'top' | 'left' | 'right' | 'bottom';
+  export type Area = 'main' | 'left';
 
   /**
    * The _side areas_ are those shell areas that can be collapsed and expanded,
    * i.e. `left`, `right`, and `bottom`.
    */
-  export function isSideArea(area?: Area): area is 'left' | 'right' | 'bottom' {
-    return area === 'left' || area === 'right' || area === 'bottom';
+  export function isSideArea(area?: Area): area is 'left' {
+    return area === 'left';
   }
 
   /**
@@ -133,7 +144,7 @@ export namespace ApplicationShell1 {
   }
 }
 
-export class ApplicationShell extends InjectableBaseWidget {
+export class ApplicationShell extends BaseWidget {
   /**
    * Handler for the left side panel. The primary application views go here, such as the
    * file explorer and the git view.
@@ -153,6 +164,7 @@ export class ApplicationShell extends InjectableBaseWidget {
     },
   };
 
+  private dragState?: WidgetDragState;
   private readonly tracker = new FocusTracker<Widget>();
   /**
    * A signal emitted whenever the `currentWidget` property is changed.
@@ -598,6 +610,124 @@ export class ApplicationShell extends InjectableBaseWidget {
     }
 
     return undefined;
+  }
+
+  protected override onBeforeAttach(_msg: Message): void {
+    document.addEventListener('p-dragenter', this, true);
+    document.addEventListener('p-dragover', this, true);
+    document.addEventListener('p-dragleave', this, true);
+    document.addEventListener('p-drop', this, true);
+  }
+
+  protected override onAfterDetach(_msg: Message): void {
+    document.removeEventListener('p-dragenter', this, true);
+    document.removeEventListener('p-dragover', this, true);
+    document.removeEventListener('p-dragleave', this, true);
+    document.removeEventListener('p-drop', this, true);
+  }
+
+  handleEvent(event: Event): void {
+    switch (event.type) {
+      case 'p-dragenter':
+        this.handleDragEnter(event as IDragEvent);
+        break;
+      case 'p-dragover':
+        this.handleDragOver(event as IDragEvent);
+        break;
+      case 'p-drop':
+        this.handleDrop();
+        break;
+      case 'p-dragleave':
+        this.handleDragLeave();
+        break;
+    }
+  }
+
+  protected handleDragEnter({ mimeData }: IDragEvent) {
+    if (!this.dragState) {
+      if (mimeData && mimeData.hasData('application/vnd.phosphor.widget-factory')) {
+        // The drag contains a widget, so we'll track it and expand side panels as needed
+        this.dragState = {
+          startTime: performance.now(),
+          leftExpanded: false,
+        };
+      }
+    }
+  }
+
+  protected handleDragOver(event: IDragEvent) {
+    const state = this.dragState;
+    if (state) {
+      state.lastDragOver = event;
+      if (state.leaveTimeout) {
+        window.clearTimeout(state.leaveTimeout);
+        state.leaveTimeout = undefined;
+      }
+      const { clientX } = event;
+      const { offsetLeft } = this.node;
+
+      // Don't expand any side panels right after the drag has started
+      const allowExpansion = performance.now() - state.startTime >= 500;
+      const expLeft = allowExpansion && clientX >= offsetLeft
+        && clientX <= offsetLeft + this.options.leftPanel.expandThreshold;
+
+      if (expLeft && !state.leftExpanded && this.leftPanelHandler.tabBar.currentTitle === null) {
+        // The mouse cursor is moved close to the left border
+        this.leftPanelHandler.expand();
+        this.leftPanelHandler.state.pendingUpdate.then(() => this.dispatchMouseMove());
+        state.leftExpanded = true;
+      }
+      else if (!expLeft && state.leftExpanded) {
+        // The mouse cursor is moved away from the left border
+        this.leftPanelHandler.collapse();
+        state.leftExpanded = false;
+      }
+    }
+  }
+
+  protected handleDrop() {
+    const state = this.dragState;
+    if (state) {
+      if (state.leaveTimeout) {
+        window.clearTimeout(state.leaveTimeout);
+      }
+      this.dragState = undefined;
+      window.requestAnimationFrame(() => {
+        // Clean up the side panel state in the next frame
+        if (this.leftPanelHandler.dockPanel.isEmpty) {
+          this.leftPanelHandler.collapse();
+        }
+      });
+    }
+  }
+
+  protected handleDragLeave() {
+    const state = this.dragState;
+    if (state) {
+      state.lastDragOver = undefined;
+      if (state.leaveTimeout) {
+        window.clearTimeout(state.leaveTimeout);
+      }
+      state.leaveTimeout = window.setTimeout(() => {
+        this.dragState = undefined;
+        if (state.leftExpanded || this.leftPanelHandler.dockPanel.isEmpty) {
+          this.leftPanelHandler.collapse();
+        }
+      }, 100);
+    }
+  }
+
+  /**
+   * This method is called after a side panel has been expanded while dragging a widget. It fires
+   * a `mousemove` event so that the drag overlay markers are updated correctly in all dock panels.
+   */
+  private dispatchMouseMove(): void {
+    if (this.dragState && this.dragState.lastDragOver) {
+      const { clientX, clientY } = this.dragState.lastDragOver;
+      const event = document.createEvent('MouseEvent');
+      event.initMouseEvent('mousemove', true, true, window, 0, 0, 0, clientX, clientY, false, false, false, false, 0, null);
+      document.dispatchEvent(event);
+    }
   }
 }
 

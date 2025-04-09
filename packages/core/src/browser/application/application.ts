@@ -1,6 +1,7 @@
 import { InjectableService, createServiceDecorator } from '@gepick/core/common';
 import { Widget } from '../widgets';
 import { IApplicationShell } from '../shell/application-shell';
+import { ISearchInWorkspaceFrontendContribution } from "../shell/view-contribution";
 
 export const IApplication = createServiceDecorator<IApplication>("Application");
 export type IApplication = Application;
@@ -8,6 +9,7 @@ export type IApplication = Application;
 export class Application extends InjectableService {
   constructor(
     @IApplicationShell private readonly applicationShell: IApplicationShell,
+    @ISearchInWorkspaceFrontendContribution private readonly searchInWorkspaceFrontendContribution: ISearchInWorkspaceFrontendContribution,
   ) {
     super();
   }
@@ -18,6 +20,8 @@ export class Application extends InjectableService {
     this.attachShell(host);
 
     await new Promise(resolve => requestAnimationFrame(resolve));
+
+    this.initializeLayout();
   }
 
   /**
@@ -51,6 +55,6 @@ export class Application extends InjectableService {
    * been stored, by creating the default layout.
    */
   protected async initializeLayout(): Promise<void> {
-
+    this.searchInWorkspaceFrontendContribution.initializeLayout();
   }
 }

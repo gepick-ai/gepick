@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (C) 2018 Ericsson and others.
+ * Copyright (C) 2024 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,23 +14,25 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
  ********************************************************************************/
 
-.theia-aboutDialog .about-details {
-  padding-left: 10px;
+.theia-split-widget > .p-SplitPanel {
+  height: 100%;
+  width: 100%;
+  outline: none;
 }
 
-.theia-aboutDialog .about-details a {
-  cursor: pointer;
+.theia-split-widget > .p-SplitPanel > .p-SplitPanel-child {
+  min-width: 50px;
+  min-height: var(--theia-content-line-height);
 }
 
-ul.theia-aboutDialog {
-  flex: 1 100%;
-  padding-bottom: calc(var(--theia-ui-padding) * 3);
+.theia-split-widget > .p-SplitPanel > .p-SplitPanel-handle {
+  box-sizing: border-box;
 }
 
-ul.theia-aboutExtensions {
-  height: 200px;
-  overflow: hidden;
-  overflow-y: scroll;
-  list-style-type: none;
-  padding: 0;
+.theia-split-widget > .p-SplitPanel[data-orientation="horizontal"] > .p-SplitPanel-handle {
+  border-left: var(--theia-border-width) solid var(--theia-sideBarSectionHeader-border);
+}
+
+.theia-split-widget > .p-SplitPanel[data-orientation="vertical"] > .p-SplitPanel-handle {
+  border-top: var(--theia-border-width) solid var(--theia-sideBarSectionHeader-border);
 }

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (C) 2018 Ericsson and others.
+ * Copyright (C) 2019 Red Hat, Inc. and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,23 +14,32 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
  ********************************************************************************/
 
-.theia-aboutDialog .about-details {
-  padding-left: 10px;
+.theia-quick-title-container {
+  display: flex;
+  padding: calc(var(--theia-ui-padding) / 2);
+  justify-content: space-between;
+  align-items: center;
+  background: var(--theia-titleBar-activeBackground);
 }
 
-.theia-aboutDialog .about-details a {
+.theia-quick-title-left-bar {
+  display: flex;
+  text-align: left;
+}
+
+.theia-quick-title-right-bar {
+  display: flex;
+  text-align: right;
+}
+
+.theia-quick-title-header {
+  text-align: center;
+}
+
+.theia-quick-title-button {
+  width: var(--theia-icon-size);
+  height: var(--theia-icon-size);
+  display: flex;
+  align-items: center;
   cursor: pointer;
-}
-
-ul.theia-aboutDialog {
-  flex: 1 100%;
-  padding-bottom: calc(var(--theia-ui-padding) * 3);
-}
-
-ul.theia-aboutExtensions {
-  height: 200px;
-  overflow: hidden;
-  overflow-y: scroll;
-  list-style-type: none;
-  padding: 0;
 }

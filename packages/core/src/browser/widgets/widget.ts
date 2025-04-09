@@ -1,5 +1,5 @@
 import { Mixin } from "ts-mixer";
-import { Widget as BaseWidget } from "@lumino/widgets";
+import { Widget } from "@lumino/widgets";
 import { Message } from "@lumino/messaging";
 import PerfectScrollbar from 'perfect-scrollbar';
 import { DisposableStore, IDisposable, InjectableService, toDisposable } from "@gepick/core/common";
@@ -8,9 +8,9 @@ import { KeyCode, KeysOrKeyCodes } from "../keys";
 export * from '@lumino/widgets';
 export * from '@lumino/messaging';
 
-export class InjectableBaseWidget extends Mixin(BaseWidget, InjectableService) {}
+export class BaseWidget extends Mixin(Widget, InjectableService) {}
 
-export class InjectableWidget extends InjectableBaseWidget {
+export class InjectableBaseWidget extends BaseWidget {
   protected readonly toDispose = new DisposableStore();
   protected readonly toDisposeOnDetach = new DisposableStore();
   protected scrollBar?: PerfectScrollbar;
@@ -67,7 +67,6 @@ export class InjectableWidget extends InjectableBaseWidget {
             this.scrollBar = undefined;
           }
 
-          // eslint-disable-next-line ts/ban-ts-comment
           // @ts-ignore
           // @ts-nocheck
           container.style.overflow = null;
