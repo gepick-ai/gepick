@@ -253,7 +253,7 @@ export class ApplicationShell extends BaseWidget {
     this.mainPanel = this.createMainPanel();
 
     // 创建一个左中右分割布局面板
-    const leftRightLayoutPanel = new SplitPanel({ layout: this.createSplitLayout([this.leftPanel, this.mainPanel], [1, 4], { orientation: 'horizontal', spacing: 0 }) });
+    const leftRightLayoutPanel = new SplitPanel({ layout: this.createSplitLayout([this.leftPanel, this.mainPanel], [1, 3], { orientation: 'horizontal', spacing: 0 }) });
     leftRightLayoutPanel.id = 'theia-left-right-split-panel';
 
     // 创建一个从上到下的单列布局
@@ -503,11 +503,12 @@ export class ApplicationShell extends BaseWidget {
    * `activeWidget` property.
    */
   private checkActivation(widget: Widget): Widget {
-    window.requestAnimationFrame(() => {
-      if (this.activeWidget !== widget) {
-        console.warn(`Widget was activated, but did not accept focus: ${widget.id}`);
-      }
-    });
+    // eslint-disable-next-line dot-notation
+    const onActivateRequest = widget['onActivateRequest'].bind(widget);
+    // eslint-disable-next-line dot-notation
+    widget['onActivateRequest'] = (msg: Message) => {
+      onActivateRequest(msg);
+    };
     return widget;
   }
 

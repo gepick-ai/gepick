@@ -1,6 +1,6 @@
 /* eslint-disable prefer-promise-reject-errors */
 import { Signal } from "@lumino/signaling";
-import { BoxLayout, BoxPanel, DockPanel, SplitLayout, SplitPanel, TabBar, Title, Widget } from "@lumino/widgets";
+import { BoxLayout, BoxPanel, DockPanel, Panel, PanelLayout, SplitLayout, SplitPanel, TabBar, Title, Widget } from "@lumino/widgets";
 import { find, map, some, toArray } from '@lumino/algorithm';
 import { AttachedProperty } from '@lumino/properties';
 import { MimeData } from '@lumino/coreutils';
@@ -167,14 +167,26 @@ export class SidePanelHandler {
     this.refresh();
   }
 
-  createContainer(): BoxPanel {
-    const boxLayout = new BoxLayout({ direction: "left-to-right", spacing: 0 });
-    BoxPanel.setStretch(this.tabBar, 1);
-    boxLayout.addWidget(this.tabBar);
-    BoxPanel.setStretch(this.dockPanel, 4);
-    boxLayout.addWidget(this.dockPanel);
-    const boxPanel = new BoxPanel({ layout: boxLayout });
-    boxPanel.id = `theia-left-content-panel`;
+  createContainer() {
+    const contentLayout = new BoxLayout({ direction: 'top-to-bottom', spacing: 0 });
+    contentLayout.addWidget(this.dockPanel);
+    const contentPanel = new BoxPanel({ layout: contentLayout });
+
+    const sidebarLayout = new PanelLayout();
+    sidebarLayout.addWidget(this.tabBar);
+    const sidebarPanel = new Panel({ layout: sidebarLayout });
+    sidebarPanel.addClass('theia-app-sidebar-container');
+
+    const containerLayout = new BoxLayout({ direction: 'left-to-right', spacing: 0 });
+    // 往container layout添加两个widget，分别是sidebarContainer和contentPanel
+    containerLayout.addWidget(sidebarPanel);
+    containerLayout.addWidget(contentPanel);
+
+    BoxPanel.setStretch(sidebarPanel, 0);
+    BoxPanel.setStretch(contentPanel, 1);
+    const boxPanel = new BoxPanel({ layout: containerLayout });
+    boxPanel.id = 'theia-left-content-panel';
+
     return boxPanel;
   }
 
@@ -217,6 +229,7 @@ export class SidePanelHandler {
       mode: 'single-document',
     });
     sidePanel.id = 'theia-left-side-panel';
+    sidePanel.addClass('theia-side-panel');
 
     sidePanel.widgetActivated.connect((sender, widget) => {
       this.tabBar.currentTitle = widget.title;

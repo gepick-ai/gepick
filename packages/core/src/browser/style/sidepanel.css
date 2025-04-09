@@ -26,6 +26,9 @@
   --theia-private-sidebar-scrollbar-rail-width: 7px;
   --theia-private-sidebar-scrollbar-width: 5px;
   --theia-private-sidebar-icon-size: 24px;
+  /* 下面是主题硬编码，有空再改 */
+  --theia-activityBar-background: #eeeeee;
+  --theia-sideBar-background: #f3f3f3;
 }
 
 /*-----------------------------------------------------------------------------
