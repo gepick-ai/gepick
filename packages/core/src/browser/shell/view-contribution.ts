@@ -14,7 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { interfaces } from "inversify";
 import { Widget } from '@lumino/widgets';
 import { h } from "@lumino/virtualdom";
 import {
@@ -27,7 +26,7 @@ import {
   createServiceDecorator,
 } from '../../common';
 import { IWidgetFactory, IWidgetManager, WidgetManager } from '../widgets/widget-manager';
-import { InjectableBaseWidget, Message, VirtualRenderer } from "../widgets";
+import { InjectableBaseWidget, Message, VirtualRenderer, codicon } from "../widgets";
 import { ApplicationShell1, IApplicationShell } from './application-shell';
 
 export interface OpenViewArguments extends ApplicationShell1.WidgetOptions {
@@ -109,6 +108,7 @@ export class SearchInWorkspaceWidget extends InjectableBaseWidget {
   init() {
     this.id = SearchInWorkspaceWidget.ID;
     this.title.label = SearchInWorkspaceWidget.LABEL;
+    this.title.iconClass = codicon('extensions');
     this.contentNode = document.createElement('div');
     this.contentNode.classList.add("t-siw-search-container");
     this.searchFormContainer = document.createElement('div');

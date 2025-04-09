@@ -36,6 +36,7 @@
     "@lumino/virtualdom": "^2.0.2",
     "@lumino/widgets": "2.5.0",
     "@node-rs/crc32": "^1.10.6",
+    "@vscode/codicons": "*",
     "ant-design-vue": "^4.2.5",
     "axios": "^1.6.7",
     "cors": "^2.8.5",

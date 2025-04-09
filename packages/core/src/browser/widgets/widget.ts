@@ -8,6 +8,18 @@ import { KeyCode, KeysOrKeyCodes } from "../keys";
 export * from '@lumino/widgets';
 export * from '@lumino/messaging';
 
+export const ACTION_ITEM = 'action-label';
+export function codiconArray(name: string, actionItem = false): string[] {
+  const array = ['codicon', `codicon-${name}`];
+  if (actionItem) {
+    array.push(ACTION_ITEM);
+  }
+  return array;
+}
+export function codicon(name: string, actionItem = false): string {
+  return `codicon codicon-${name}${actionItem ? ` ${ACTION_ITEM}` : ''}`;
+}
+
 export class BaseWidget extends Mixin(Widget, InjectableService) {}
 
 export class InjectableBaseWidget extends BaseWidget {

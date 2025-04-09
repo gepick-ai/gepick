@@ -2476,6 +2476,7 @@ __metadata:
     "@types/react": "npm:^18.0.15"
     "@types/react-dom": "npm:^18.0.6"
     "@types/ws": "npm:^3.0.2"
+    "@vscode/codicons": "npm:*"
     ant-design-vue: "npm:^4.2.5"
     axios: "npm:^1.6.7"
     cors: "npm:^2.8.5"
@@ -5958,6 +5959,13 @@ __metadata:
     "@volar/language-core": "npm:1.11.1"
     path-browserify: "npm:^1.0.1"
   checksum: 10/714eeb3472902617555b9b4959722a215b391160fe4fdf2f8f4abcb075edbd24a5a633db0c36acd175daeddac5f1b35c33f5fc8788e1e251d91385aad27deda9
+  languageName: node
+  linkType: hard
+
+"@vscode/codicons@npm:*":
+  version: 0.0.36
+  resolution: "@vscode/codicons@npm:0.0.36"
+  checksum: 10/c360387f6d550ddb5039f6ed92ecf08531ad247226a9340cf444d80264daba9771ebc6e1eaeac945b58932ca3795b3deab3a58964c035973adc509e912fb388a
   languageName: node
   linkType: hard
 

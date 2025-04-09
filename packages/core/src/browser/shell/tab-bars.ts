@@ -17,10 +17,16 @@
 import PerfectScrollbar from 'perfect-scrollbar';
 import { TabBar, Title, Widget } from '@lumino/widgets';
 import { ElementInlineStyle, VirtualDOM, VirtualElement, h } from '@lumino/virtualdom';
-import { Signal } from '@lumino/signaling';
+import { Signal, Slot } from '@lumino/signaling';
 import { Message } from '@lumino/messaging';
 import { ArrayExt } from '@lumino/algorithm';
 import { ElementExt } from '@lumino/domutils';
+import { DisposableStore, toDisposable } from '@gepick/core/common';
+import { WidgetDecoration } from '../widgets/widget-decoration';
+
+export function notEmpty<T>(arg: T | undefined | null): arg is T {
+  return arg !== undefined && arg !== null;
+}
 
 /** The class name added to hidden content nodes, which are required to render vertical side bars. */
 const HIDDEN_CONTENT_CLASS = 'theia-TabBar-hidden-content';
@@ -53,37 +59,84 @@ export interface SideBarRenderData extends TabBar.IRenderData<Widget> {
  * automatically.
  */
 export class TabBarRenderer extends TabBar.Renderer {
+  protected readonly toDispose = new DisposableStore();
+  protected readonly toDisposeOnTabBar = new DisposableStore();
+
+  protected _tabBar?: TabBar<Widget>;
+
   /**
    * A reference to the tab bar is required in order to activate it when a context menu
    * is requested.
    */
-  tabBar?: TabBar<Widget>;
+  set tabBar(tabBar: TabBar<Widget> | undefined) {
+    if (this.toDispose.isDisposed) {
+      throw new Error('disposed');
+    }
+    if (this._tabBar === tabBar) {
+      return;
+    }
+    this.toDisposeOnTabBar.dispose();
+    this.toDispose.add(this.toDisposeOnTabBar);
+    this._tabBar = tabBar;
+    if (tabBar) {
+      const listener: Slot<Widget, TabBar.ITabCloseRequestedArgs<Widget>> = (_, { title }) => this.resetDecorations(title);
+      tabBar.tabCloseRequested.connect(listener);
+      // this.toDisposeOnTabBar.add(toDisposable(() => tabBar.tabCloseRequested.disconnect(listener)));
+    }
+    this.resetDecorations();
+  }
+
+  get tabBar(): TabBar<Widget> | undefined {
+    return this._tabBar;
+  }
 
   constructor() {
     super();
   }
 
   /**
-   * Render tabs with the default DOM structure, but additionally register a context
-   * menu listener.
+   * Render tabs with the default DOM structure, but additionally register a context menu listener.
+   * @param {SideBarRenderData} data Data used to render the tab.
+   * @param {boolean} isInSidePanel An optional check which determines if the tab is in the side-panel.
+   * @param {boolean} isPartOfHiddenTabBar An optional check which determines if the tab is in the hidden horizontal tab bar.
+   * @returns {VirtualElement} The virtual element of the rendered tab.
    */
-  override renderTab(data: SideBarRenderData): VirtualElement {
+  override renderTab(data: SideBarRenderData, isInSidePanel?: boolean, isPartOfHiddenTabBar?: boolean): VirtualElement {
     const title = data.title;
+    const id = this.createTabId(title, isPartOfHiddenTabBar);
     const key = this.createTabKey(data);
     const style = this.createTabStyle(data);
     const className = this.createTabClass(data);
     const dataset = this.createTabDataset(data);
+    const closeIconTitle = 'Unpin';
+
+    const hover = {
+      onmouseenter: () => {},
+    };
+
     return h.li(
       {
+        ...hover,
         key,
         className,
-        title: title.caption,
+        id,
         style,
         dataset,
+        onauxclick: (e: MouseEvent) => {
+          // If user closes the tab using mouse wheel, nothing should be pasted to an active editor
+          e.preventDefault();
+        },
       },
-      this.renderIcon(data),
-      this.renderLabel(data),
-      this.renderCloseIcon(data),
+      h.div(
+        { className: 'theia-tab-icon-label' },
+        this.renderIcon(data, isInSidePanel),
+        // this.renderLabel(data, isInSidePanel),
+      ),
+      h.div({
+        className: 'p-TabBar-tabCloseIcon action-label',
+        title: closeIconTitle,
+        onclick: () => {},
+      }),
     );
   }
 
@@ -114,7 +167,7 @@ export class TabBarRenderer extends TabBar.Renderer {
    * If size information is available for the label, set it as inline style. Tab padding
    * and icon size are also considered in the `top` position.
    */
-  override renderLabel(data: SideBarRenderData): VirtualElement {
+  override renderLabel(data: SideBarRenderData, isInSidePanel?: boolean): VirtualElement {
     const labelSize = data.labelSize;
     const iconSize = data.iconSize;
     let width: string | undefined;
@@ -134,21 +187,209 @@ export class TabBarRenderer extends TabBar.Renderer {
       top = `${paddingTop + iconHeight}px`;
     }
     const style: ElementInlineStyle = { width, height, top };
+    // No need to check for duplicate labels if the tab is rendered in the side panel (title is not displayed),
+    // or if there are less than two files in the tab bar.
+    if (isInSidePanel || (this.tabBar && this.tabBar.titles.length < 2)) {
+      return h.div({ className: 'p-TabBar-tabLabel', style }, data.title.label);
+    }
+    const originalToDisplayedMap = this.findDuplicateLabels([...this.tabBar!.titles]);
+    const labelDetails: string | undefined = originalToDisplayedMap.get(data.title.caption);
+    if (labelDetails) {
+      return h.div({ className: 'p-TabBar-tabLabelWrapper' }, h.div({ className: 'p-TabBar-tabLabel', style }, data.title.label), h.div({ className: 'p-TabBar-tabLabelDetails', style }, labelDetails));
+    }
     return h.div({ className: 'p-TabBar-tabLabel', style }, data.title.label);
+  }
+
+  /**
+   * Find duplicate labels from the currently opened tabs in the tab bar.
+   * Return the appropriate partial paths that can distinguish the identical labels.
+   *
+   * E.g., a/p/index.ts => a/..., b/p/index.ts => b/...
+   *
+   * To prevent excessively long path displayed, show at maximum three levels from the end by default.
+   * @param {Title<Widget>[]} titles Array of titles in the current tab bar.
+   * @returns {Map<string, string>} A map from each tab's original path to its displayed partial path.
+   */
+  findDuplicateLabels(titles: Title<Widget>[]): Map<string, string> {
+    // Filter from all tabs to group them by the distinct label (file name).
+    // E.g., 'foo.js' => {0 (index) => 'a/b/foo.js', '2 => a/c/foo.js' },
+    //       'bar.js' => {1 => 'a/d/bar.js', ...}
+    const labelGroups = new Map<string, Map<number, string>>();
+    titles.forEach((title, index) => {
+      if (!labelGroups.has(title.label)) {
+        labelGroups.set(title.label, new Map<number, string>());
+      }
+      labelGroups.get(title.label)!.set(index, title.caption);
+    });
+
+    const originalToDisplayedMap = new Map<string, string>();
+    // Parse each group of editors with the same label.
+    labelGroups.forEach((labelGroup) => {
+      // Filter to get groups that have duplicates.
+      if (labelGroup.size > 1) {
+        const paths: string[][] = [];
+        let maxPathLength = 0;
+        labelGroup.forEach((pathStr, index) => {
+          const steps = pathStr.split('/');
+          maxPathLength = Math.max(maxPathLength, steps.length);
+          paths[index] = (steps.slice(0, steps.length - 1));
+          // By default, show at maximum three levels from the end.
+          let defaultDisplayedPath = steps.slice(-4, -1).join('/');
+          if (steps.length > 4) {
+            defaultDisplayedPath = `.../${defaultDisplayedPath}`;
+          }
+          originalToDisplayedMap.set(pathStr, defaultDisplayedPath);
+        });
+
+        // Iterate through the steps of the path from the left to find the step that can distinguish it.
+        // E.g., ['root', 'foo', 'c'], ['root', 'bar', 'd'] => 'foo', 'bar'
+        let i = 0;
+        while (i < maxPathLength - 1) {
+          // Store indexes of all paths that have the identical element in each step.
+          const stepOccurrences = new Map<string, number[]>();
+          // Compare the current step of all paths
+          paths.forEach((path, index) => {
+            const step = path[i];
+            if (path.length > 0) {
+              if (i > path.length - 1) {
+                paths[index] = [];
+              }
+              else if (!stepOccurrences.has(step)) {
+                stepOccurrences.set(step, [index]);
+              }
+              else {
+                stepOccurrences.get(step)!.push(index);
+              }
+            }
+          });
+          // Set the displayed path for each tab.
+          stepOccurrences.forEach((indexArr, displayedPath) => {
+            if (indexArr.length === 1) {
+              const originalPath = labelGroup.get(indexArr[0]);
+              if (originalPath) {
+                const originalElements = originalPath.split('/');
+                const displayedElements = displayedPath.split('/');
+                if (originalElements.slice(-2)[0] !== displayedElements.slice(-1)[0]) {
+                  displayedPath += '/...';
+                }
+                if (originalElements[0] !== displayedElements[0]) {
+                  displayedPath = `.../${displayedPath}`;
+                }
+                originalToDisplayedMap.set(originalPath, displayedPath);
+                paths[indexArr[0]] = [];
+              }
+            }
+          });
+          i++;
+        }
+      }
+    });
+    return originalToDisplayedMap;
   }
 
   /**
    * If size information is available for the icon, set it as inline style. Tab padding
    * is also considered in the `top` position.
+   * @param {SideBarRenderData} data Data used to render the tab icon.
+   * @param {boolean} isInSidePanel An optional check which determines if the tab is in the side-panel.
    */
-  override renderIcon(data: SideBarRenderData): VirtualElement {
+  override renderIcon(data: SideBarRenderData, isInSidePanel?: boolean): VirtualElement {
     let top: string | undefined;
     if (data.paddingTop) {
       top = `${data.paddingTop || 0}px`;
     }
-    const className = this.createIconClass(data);
     const style: ElementInlineStyle = { top };
-    return h.div({ className, style }, data.title.iconLabel);
+    const baseClassName = this.createIconClass(data);
+
+    const overlayIcons: VirtualElement[] = [];
+    const decorationData = this.getDecorationData(data.title, 'iconOverlay');
+
+    // Check if the tab has decoration markers to be rendered on top.
+    if (decorationData.length > 0) {
+      const baseIcon: VirtualElement = h.div({ className: baseClassName, style }, data.title.iconLabel);
+      const wrapperClassName: string = WidgetDecoration.Styles.ICON_WRAPPER_CLASS;
+      const decoratorSizeClassName: string = isInSidePanel ? WidgetDecoration.Styles.DECORATOR_SIDEBAR_SIZE_CLASS : WidgetDecoration.Styles.DECORATOR_SIZE_CLASS;
+
+      decorationData
+        .filter(notEmpty)
+        .map(overlay => [overlay.position, overlay] as [WidgetDecoration.IconOverlayPosition, WidgetDecoration.IconOverlay | WidgetDecoration.IconClassOverlay])
+        .forEach(([position, overlay]) => {
+          const iconAdditionalClasses: string[] = [decoratorSizeClassName, WidgetDecoration.IconOverlayPosition.getStyle(position, isInSidePanel)];
+          const overlayIconStyle = (color?: string) => {
+            if (color === undefined) {
+              return {};
+            }
+            return { color };
+          };
+          // Parse the optional background (if it exists) of the overlay icon.
+          if (overlay.background) {
+            const backgroundIconClassName = this.getIconClass(overlay.background.shape, iconAdditionalClasses);
+            overlayIcons.push(
+              h.div({ key: `${data.title.label}-background`, className: backgroundIconClassName, style: overlayIconStyle(overlay.background.color) }),
+            );
+          }
+          // Parse the overlay icon.
+          const overlayIcon = (overlay as WidgetDecoration.IconOverlay).icon || (overlay as WidgetDecoration.IconClassOverlay).iconClass;
+          const overlayIconClassName = this.getIconClass(overlayIcon, iconAdditionalClasses);
+          overlayIcons.push(
+            h.span({ key: data.title.label, className: overlayIconClassName, style: overlayIconStyle(overlay.color) }),
+          );
+        });
+      return h.div({ className: wrapperClassName, style }, [baseIcon, ...overlayIcons]);
+    }
+    return h.div({ className: baseClassName, style }, data.title.iconLabel);
+  }
+
+  /**
+   * Get the decoration data given the tab URI and the decoration data type.
+   * @param {string} title The title.
+   * @param {K} key The type of the decoration data.
+   */
+  protected getDecorationData<K extends keyof WidgetDecoration.Data>(title: Title<Widget>, key: K): WidgetDecoration.Data[K][] {
+    return this.getDecorations(title).filter(data => data[key] !== undefined).map(data => data[key]);
+  }
+
+  /**
+   * Get all available decorations of a given tab.
+   * @param {string} title The widget title.
+   */
+  protected getDecorations(_: Title<Widget>): WidgetDecoration.Data[] {
+    return [];
+  }
+
+  /**
+   * Get the class of an icon.
+   * @param {string | string[]} iconName The name of the icon.
+   * @param {string[]} additionalClasses Additional classes of the icon.
+   */
+  protected getIconClass(iconName: string | string[], additionalClasses: string[] = []): string {
+    const iconClass = (typeof iconName === 'string') ? ['a', 'fa', `fa-${iconName}`] : ['a'].concat(iconName);
+    return iconClass.concat(additionalClasses).join(' ');
+  }
+
+  /**
+   * Generate ID for an entry in the tab bar
+   * @param {Title<Widget>} title Title of the widget controlled by this tab bar
+   * @param {boolean} isPartOfHiddenTabBar Tells us if this entry is part of the hidden horizontal tab bar.
+   *      If yes, add a suffix to differentiate it's ID from the entry in the visible tab bar
+   * @returns {string} DOM element ID
+   */
+  createTabId(title: Title<Widget>, isPartOfHiddenTabBar: boolean = false): string {
+    return `shell-tab-${title.owner.id}${isPartOfHiddenTabBar ? '-hidden' : ''}`;
+  }
+
+  protected readonly decorations = new Map<Title<Widget>, WidgetDecoration.Data[]>();
+
+  protected resetDecorations(title?: Title<Widget>): void {
+    if (title) {
+      this.decorations.delete(title);
+    }
+    else {
+      this.decorations.clear();
+    }
+    if (this.tabBar) {
+      this.tabBar.update();
+    }
   }
 }
 

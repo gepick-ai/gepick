@@ -16,8 +16,6 @@
 
 @import url("@lumino/widgets/style/index.css");
 @import url("font-awesome/css/font-awesome.min.css");
-
-
 /*-----------------------------------------------------------------------------
 | Import children style files
 |----------------------------------------------------------------------------*/
@@ -249,11 +247,13 @@ blockquote {
     font-weight: 700;
 }
 
-.p-Widget {
+.lm-Widget {
     font-size: var(--theia-ui-font-size1);
+    /** We override the contain of lm-Widget to make sure Monaco autocomplete etc. is correctly applied */
+    contain: none !important;
 }
 
-.p-Widget.p-mod-hidden {
+.lm-Widget.lm-mod-hidden {
     display: none !important;
 }
 
@@ -353,3 +353,4 @@ button.secondary[disabled],
 .theia-cursor-no-drop:active {
     cursor: no-drop;
 }
+

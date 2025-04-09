@@ -207,6 +207,7 @@ export class SidePanelHandler {
       suppressScrollX: true,
     });
 
+    tabBarRenderer.tabBar = sideBar;
     sideBar.addClass('theia-app-left');
     sideBar.addClass('theia-app-sides');
 

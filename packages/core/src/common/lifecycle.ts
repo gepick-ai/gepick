@@ -3,7 +3,7 @@ import { once } from 'lodash-es';
 import { isIterable } from './iterator';
 
 export interface IDisposable {
-  dispose: () => void
+  dispose: () => void;
 }
 
 export class MultiDisposeError extends Error {
@@ -74,6 +74,10 @@ export class DisposableStore implements IDisposable {
   // 待销毁的对象集合
   private readonly _toDispose = new Set<IDisposable>();
   private _isDisposed = false;
+
+  get isDisposed() {
+    return this._isDisposed;
+  }
 
   // 添加disposable对象到待销毁的对象集合中
   add<T extends IDisposable>(disposable: T): T {
