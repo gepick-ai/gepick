@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2015",
-    "jsx": "react",
+    "jsx": "react-jsx",
     "lib": [
       "es2024",
       "dom"
@@ -41,6 +41,9 @@
       ],
       "@gepick/plugin-registry/*": [
         "./packages/plugin-registry/src/*"
+      ],
+      "@gepick/getting-started/*": [
+        "./packages/getting-started/src/*"
       ],
       // ============tools==============
       "@gepick/cli/*": [

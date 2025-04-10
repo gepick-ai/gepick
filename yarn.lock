@@ -2398,6 +2398,7 @@ __metadata:
     "@gepick/cli": "workspace:*"
     "@gepick/copilot": "workspace:*"
     "@gepick/core": "workspace:*"
+    "@gepick/getting-started": "workspace:*"
     "@gepick/logger": "workspace:*"
     "@gepick/plugin-system": "workspace:*"
     "@gepick/user": "workspace:*"
@@ -2496,6 +2497,15 @@ __metadata:
     vscode-jsonrpc: "npm:^8.2.1"
     vscode-uri: "npm:^2.1.1"
     ws: "npm:^3.0.0"
+  languageName: unknown
+  linkType: soft
+
+"@gepick/getting-started@workspace:*, @gepick/getting-started@workspace:packages/getting-started":
+  version: 0.0.0-use.local
+  resolution: "@gepick/getting-started@workspace:packages/getting-started"
+  dependencies:
+    "@gepick/cli": "workspace:*"
+    "@gepick/core": "workspace:*"
   languageName: unknown
   linkType: soft
 

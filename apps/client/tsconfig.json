@@ -23,6 +23,9 @@
     },
     {
       "path": "../../packages/plugin-system"
+    },
+    {
+      "path": "../../packages/getting-started"
     }
   ],
   "include": ["src"]

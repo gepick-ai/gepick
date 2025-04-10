@@ -90,7 +90,7 @@ export class TabBarRenderer extends TabBar.Renderer {
   get tabBar(): TabBar<Widget> | undefined {
     return this._tabBar;
   }
-  
+
   /**
    * Render tabs with the default DOM structure, but additionally register a context menu listener.
    * @param {SideBarRenderData} data Data used to render the tab.
@@ -105,7 +105,7 @@ export class TabBarRenderer extends TabBar.Renderer {
     const style = this.createTabStyle(data);
     const className = this.createTabClass(data);
     const dataset = this.createTabDataset(data);
-    const closeIconTitle = 'Unpin';
+    const closeIconTitle = data.title.className.includes('theia-mod-pinned') ? "Unpin" : "Close";
 
     return h.li(
       {
@@ -125,7 +125,7 @@ export class TabBarRenderer extends TabBar.Renderer {
         this.renderLabel(data, isInSidePanel),
       ),
       h.div({
-        className: 'p-TabBar-tabCloseIcon action-label',
+        className: 'lm-TabBar-tabCloseIcon action-label',
         title: closeIconTitle,
         onclick: () => {},
       }),

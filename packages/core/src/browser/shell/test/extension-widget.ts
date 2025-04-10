@@ -9,7 +9,7 @@ import {
   createServiceDecorator,
 } from '../../../common';
 import { BaseWidget, IWidgetFactory, Message, VirtualRenderer, codicon } from "../../widgets";
-import { AbstractViewContribution } from "../view-contribution";
+import { AbstractViewContribution, IViewContribution } from "../view-contribution";
 
 // ===========================测试Widget===========================
 
@@ -66,10 +66,9 @@ export class ExtensionWidgetFactory extends InjectableService {
   }
 }
 
-export const IExtensionFrontendContribution = createServiceDecorator<IExtensionFrontendContribution>("ExtensionFrontendContribution");
-export type IExtensionFrontendContribution = ExtensionFrontendContribution;
-
 // 连接到application shell
+
+@Contribution(IViewContribution)
 export class ExtensionFrontendContribution extends AbstractViewContribution<ExtensionWidget> {
   async initializeLayout(): Promise<void> {
     this.setupOptions({
@@ -82,6 +81,9 @@ export class ExtensionFrontendContribution extends AbstractViewContribution<Exte
     await this.openView({ activate: false });
   }
 }
+
+export const IExtensionFrontendContribution = createServiceDecorator<IExtensionFrontendContribution>(ExtensionFrontendContribution.name);
+export type IExtensionFrontendContribution = ExtensionFrontendContribution;
 
 @Module({
   services: [

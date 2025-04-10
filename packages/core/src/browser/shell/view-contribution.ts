@@ -17,6 +17,7 @@
 import { Widget } from '@lumino/widgets';
 import {
   InjectableService,
+  createContribution,
 } from '../../common';
 import { IWidgetManager } from '../widgets/widget-manager';
 import { ApplicationShell1, IApplicationShell } from './application-shell';
@@ -88,3 +89,5 @@ export abstract class AbstractViewContribution<T extends Widget> extends Injecta
   }
 }
 
+export const [IViewContribution, IViewContributionProvider] = createContribution<IViewContribution>("ViewContribution");
+export interface IViewContribution { initializeLayout: () => Promise<void> }

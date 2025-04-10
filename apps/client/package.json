@@ -12,6 +12,7 @@
     "@gepick/auth": "workspace:*",
     "@gepick/copilot": "workspace:*",
     "@gepick/core": "workspace:*",
+    "@gepick/getting-started": "workspace:*",
     "@gepick/logger": "workspace:*",
     "@gepick/plugin-system": "workspace:*",
     "@gepick/user": "workspace:*",

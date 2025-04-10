@@ -2,11 +2,12 @@ import "reflect-metadata";
 
 import { ServiceContainer } from "@gepick/core/common";
 import { ApplicationModule, ExtensionModule, SearchModule } from "@gepick/core/browser";
+import { GettingStartedModule } from "@gepick/getting-started/browser";
 
 export const { promise: moduleLoadReady, resolve, reject } = Promise.withResolvers<ServiceContainer>();
 
 try {
-  const container = new ServiceContainer([ApplicationModule, SearchModule, ExtensionModule]);
+  const container = new ServiceContainer([ApplicationModule, SearchModule, ExtensionModule, GettingStartedModule]);
 
   resolve(container);
 }

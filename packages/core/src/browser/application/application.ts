@@ -1,7 +1,7 @@
-import { InjectableService, createServiceDecorator } from '@gepick/core/common';
+import { IContributionProvider, InjectableService, createServiceDecorator } from '@gepick/core/common';
 import { Widget } from '../widgets';
 import { IApplicationShell } from '../shell/application-shell';
-import { IExtensionFrontendContribution, ISearchInWorkspaceFrontendContribution } from "../shell";
+import { IExtensionFrontendContribution, ISearchInWorkspaceFrontendContribution, IViewContribution, IViewContributionProvider } from "../shell";
 
 export const IApplication = createServiceDecorator<IApplication>("Application");
 export type IApplication = Application;
@@ -11,6 +11,7 @@ export class Application extends InjectableService {
     @IApplicationShell private readonly applicationShell: IApplicationShell,
     @ISearchInWorkspaceFrontendContribution private readonly searchInWorkspaceFrontendContribution: ISearchInWorkspaceFrontendContribution,
     @IExtensionFrontendContribution private readonly extensionFrontendContribution: IExtensionFrontendContribution,
+    @IViewContributionProvider private readonly viewContributionProvider: IContributionProvider<IViewContribution>,
   ) {
     super();
   }
@@ -56,7 +57,7 @@ export class Application extends InjectableService {
    * been stored, by creating the default layout.
    */
   protected async initializeLayout(): Promise<void> {
-    this.searchInWorkspaceFrontendContribution.initializeLayout();
-    this.extensionFrontendContribution.initializeLayout();
+    const viewContributions = this.viewContributionProvider.getContributions();
+    viewContributions.forEach(vc => vc.initializeLayout());
   }
 }
