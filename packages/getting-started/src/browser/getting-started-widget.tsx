@@ -1,5 +1,6 @@
 import { ReactWidget } from "@gepick/core/browser";
 import { PostConstruct, createServiceDecorator } from "@gepick/core/common";
+import "./style/index.css";
 
 export class GettingStartedWidget extends ReactWidget {
   /**
@@ -21,7 +22,7 @@ export class GettingStartedWidget extends ReactWidget {
   }
 
   protected override render(): React.ReactNode {
-    return <div className="gs-container">GS Container</div>;
+    return <div className="gs-container">Gepick Browser Example</div>;
   }
 }
 
