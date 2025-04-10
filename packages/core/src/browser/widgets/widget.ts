@@ -20,9 +20,9 @@ export function codicon(name: string, actionItem = false): string {
   return `codicon codicon-${name}${actionItem ? ` ${ACTION_ITEM}` : ''}`;
 }
 
-export class BaseWidget extends Mixin(Widget, InjectableService) {}
+export class InjectableBaseWidget extends Mixin(Widget, InjectableService) {}
 
-export class InjectableBaseWidget extends BaseWidget {
+export class BaseWidget extends InjectableBaseWidget {
   protected readonly toDispose = new DisposableStore();
   protected readonly toDisposeOnDetach = new DisposableStore();
   protected scrollBar?: PerfectScrollbar;

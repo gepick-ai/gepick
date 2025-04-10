@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Root, createRoot } from 'react-dom/client';
 import { toDisposable } from '@gepick/core/common';
-import { InjectableBaseWidget, Message } from './widget';
+import { BaseWidget, Message } from './widget';
 
-export abstract class InjectableReactWidget extends InjectableBaseWidget {
+export abstract class ReactWidget extends BaseWidget {
   protected nodeRoot: Root;
 
   constructor() {
