@@ -37,6 +37,9 @@ export class BaseWidget extends InjectableBaseWidget {
   }
 
   protected override onBeforeAttach(msg: Message): void {
+    if (this.title.iconClass === '') {
+      this.title.iconClass = 'no-icon';
+    }
     super.onBeforeAttach(msg);
   }
 
@@ -51,6 +54,9 @@ export class BaseWidget extends InjectableBaseWidget {
   }
 
   protected override onAfterDetach(msg: Message): void {
+    if (this.title.iconClass === 'no-icon') {
+      this.title.iconClass = '';
+    }
     super.onAfterDetach(msg);
   }
 

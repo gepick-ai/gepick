@@ -384,7 +384,7 @@ export class SidePanelHandler {
     if (parent instanceof SplitPanel && parent.isVisible) {
       const index = parent.widgets.indexOf(this.container);
       const handle = parent.handles[index];
-      if (!handle.classList.contains('p-mod-hidden')) {
+      if (!handle.classList.contains('lm-mod-hidden')) {
         return handle.offsetLeft;
       }
     }
@@ -559,7 +559,7 @@ export class SidePanelHandler {
     const clonedTab = tab.cloneNode(true) as any;
     clonedTab.style.width = null;
     clonedTab.style.height = null;
-    const label = clonedTab.getElementsByClassName('p-TabBar-tabLabel')[0] as any;
+    const label = clonedTab.getElementsByClassName('lm-TabBar-tabLabel')[0] as any;
     label.style.width = null;
     label.style.height = null;
     // tslint:enable:no-null-keyword
@@ -574,10 +574,10 @@ export class SidePanelHandler {
       supportedActions: 'move',
     });
 
-    tab.classList.add('p-mod-hidden');
+    tab.classList.add('lm-mod-hidden');
     drag.start(clientX, clientY).then(() => {
       // The promise is resolved when the drag has ended
-      tab.classList.remove('p-mod-hidden');
+      tab.classList.remove('lm-mod-hidden');
     });
   }
 

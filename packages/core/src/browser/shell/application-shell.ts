@@ -614,31 +614,31 @@ export class ApplicationShell extends InjectableBaseWidget {
   }
 
   protected override onBeforeAttach(_msg: Message): void {
-    document.addEventListener('p-dragenter', this, true);
-    document.addEventListener('p-dragover', this, true);
-    document.addEventListener('p-dragleave', this, true);
-    document.addEventListener('p-drop', this, true);
+    document.addEventListener('lm-dragenter', this, true);
+    document.addEventListener('lm-dragover', this, true);
+    document.addEventListener('lm-dragleave', this, true);
+    document.addEventListener('lm-drop', this, true);
   }
 
   protected override onAfterDetach(_msg: Message): void {
-    document.removeEventListener('p-dragenter', this, true);
-    document.removeEventListener('p-dragover', this, true);
-    document.removeEventListener('p-dragleave', this, true);
-    document.removeEventListener('p-drop', this, true);
+    document.removeEventListener('lm-dragenter', this, true);
+    document.removeEventListener('lm-dragover', this, true);
+    document.removeEventListener('lm-dragleave', this, true);
+    document.removeEventListener('lm-drop', this, true);
   }
 
   handleEvent(event: Event): void {
     switch (event.type) {
-      case 'p-dragenter':
+      case 'lm-dragenter':
         this.handleDragEnter(event as IDragEvent);
         break;
-      case 'p-dragover':
+      case 'lm-dragover':
         this.handleDragOver(event as IDragEvent);
         break;
-      case 'p-drop':
+      case 'lm-drop':
         this.handleDrop();
         break;
-      case 'p-dragleave':
+      case 'lm-dragleave':
         this.handleDragLeave();
         break;
     }

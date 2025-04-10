@@ -8,3 +8,6 @@ export * from "./messaging";
 export * from "./instantiation";
 export * from "./extended-promise";
 export * from "./os";
+export * from "./array-utils";
+export * from "./types";
+export * from "./prioritizeable";
