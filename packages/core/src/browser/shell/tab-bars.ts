@@ -49,6 +49,7 @@ export interface SideBarRenderData extends TabBar.IRenderData<Widget> {
   iconSize?: SizeData;
   paddingTop?: number;
   paddingBottom?: number;
+  visible?: boolean;
 }
 
 /**
@@ -89,11 +90,7 @@ export class TabBarRenderer extends TabBar.Renderer {
   get tabBar(): TabBar<Widget> | undefined {
     return this._tabBar;
   }
-
-  constructor() {
-    super();
-  }
-
+  
   /**
    * Render tabs with the default DOM structure, but additionally register a context menu listener.
    * @param {SideBarRenderData} data Data used to render the tab.
@@ -110,13 +107,8 @@ export class TabBarRenderer extends TabBar.Renderer {
     const dataset = this.createTabDataset(data);
     const closeIconTitle = 'Unpin';
 
-    const hover = {
-      onmouseenter: () => {},
-    };
-
     return h.li(
       {
-        ...hover,
         key,
         className,
         id,
@@ -130,7 +122,7 @@ export class TabBarRenderer extends TabBar.Renderer {
       h.div(
         { className: 'theia-tab-icon-label' },
         this.renderIcon(data, isInSidePanel),
-        // this.renderLabel(data, isInSidePanel),
+        this.renderLabel(data, isInSidePanel),
       ),
       h.div({
         className: 'p-TabBar-tabCloseIcon action-label',
@@ -163,9 +155,20 @@ export class TabBarRenderer extends TabBar.Renderer {
     return { zIndex, height };
   }
 
+  override createTabClass(data: SideBarRenderData): string {
+    let tabClass = super.createTabClass(data);
+    if (!(data.visible ?? true)) {
+      tabClass += ' lm-mod-invisible';
+    }
+    return tabClass;
+  }
+
   /**
-   * If size information is available for the label, set it as inline style. Tab padding
-   * and icon size are also considered in the `top` position.
+   * If size information is available for the label, set it as inline style.
+   * Tab padding and icon size are also considered in the `top` position.
+   * @param {SideBarRenderData} data Data used to render the tab.
+   * @param {boolean} isInSidePanel An optional check which determines if the tab is in the side-panel.
+   * @returns {VirtualElement} The virtual element of the rendered label.
    */
   override renderLabel(data: SideBarRenderData, isInSidePanel?: boolean): VirtualElement {
     const labelSize = data.labelSize;
@@ -190,14 +193,14 @@ export class TabBarRenderer extends TabBar.Renderer {
     // No need to check for duplicate labels if the tab is rendered in the side panel (title is not displayed),
     // or if there are less than two files in the tab bar.
     if (isInSidePanel || (this.tabBar && this.tabBar.titles.length < 2)) {
-      return h.div({ className: 'p-TabBar-tabLabel', style }, data.title.label);
+      return h.div({ className: 'lm-TabBar-tabLabel', style }, data.title.label);
     }
     const originalToDisplayedMap = this.findDuplicateLabels([...this.tabBar!.titles]);
     const labelDetails: string | undefined = originalToDisplayedMap.get(data.title.caption);
     if (labelDetails) {
-      return h.div({ className: 'p-TabBar-tabLabelWrapper' }, h.div({ className: 'p-TabBar-tabLabel', style }, data.title.label), h.div({ className: 'p-TabBar-tabLabelDetails', style }, labelDetails));
+      return h.div({ className: 'lm-TabBar-tabLabelWrapper' }, h.div({ className: 'lm-TabBar-tabLabel', style }, data.title.label), h.div({ className: 'lm-TabBar-tabLabelDetails', style }, labelDetails));
     }
-    return h.div({ className: 'p-TabBar-tabLabel', style }, data.title.label);
+    return h.div({ className: 'lm-TabBar-tabLabel', style }, data.title.label);
   }
 
   /**
@@ -294,6 +297,9 @@ export class TabBarRenderer extends TabBar.Renderer {
    * @param {boolean} isInSidePanel An optional check which determines if the tab is in the side-panel.
    */
   override renderIcon(data: SideBarRenderData, isInSidePanel?: boolean): VirtualElement {
+    // if (!isInSidePanel && this.iconThemeService && this.iconThemeService.current === 'none') {
+    //   return h.div();
+    // }
     let top: string | undefined;
     if (data.paddingTop) {
       top = `${data.paddingTop || 0}px`;

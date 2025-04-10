@@ -27,9 +27,8 @@ export class ExtensionWidget extends BaseWidget {
     this.title.iconClass = codicon('extensions');
 
     this.contentNode = document.createElement('div');
-    this.contentNode.classList.add("t-siw-search-container");
     this.searchFormContainer = document.createElement('div');
-    this.searchFormContainer.classList.add("searchHeader");
+    this.searchFormContainer.appendChild(document.createTextNode(ExtensionWidget.ID));
     this.contentNode.appendChild(this.searchFormContainer);
     this.node.appendChild(this.contentNode);
   }
@@ -80,7 +79,7 @@ export class ExtensionFrontendContribution extends AbstractViewContribution<Exte
         area: "left",
       },
     });
-    await this.openView({ activate: false, reveal: true });
+    await this.openView({ activate: false });
   }
 }
 

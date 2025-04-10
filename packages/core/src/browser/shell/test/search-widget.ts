@@ -30,6 +30,7 @@ export class SearchInWorkspaceWidget extends BaseWidget {
     this.contentNode.classList.add("t-siw-search-container");
     this.searchFormContainer = document.createElement('div');
     this.searchFormContainer.classList.add("searchHeader");
+    this.searchFormContainer.appendChild(document.createTextNode(SearchInWorkspaceWidget.ID));
     this.contentNode.appendChild(this.searchFormContainer);
     this.node.appendChild(this.contentNode);
   }
@@ -80,7 +81,7 @@ export class SearchInWorkspaceFrontendContribution extends AbstractViewContribut
         area: "left",
       },
     });
-    await this.openView({ activate: true, reveal: true });
+    await this.openView({ activate: false, reveal: true });
   }
 }
 
