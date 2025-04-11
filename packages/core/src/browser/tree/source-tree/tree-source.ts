@@ -16,7 +16,7 @@
 
 import { ReactNode } from 'react';
 import { unmanaged } from 'inversify';
-import { Emitter, Event, InjectableService, MaybePromise, isObject } from '../../../common';
+import { Emitter, Event, InjectableService, MaybePromise, isObject } from '@gepick/core/common';
 import { TreeWidget } from '../base-tree';
 
 export interface TreeElement {

@@ -2,8 +2,7 @@ import { Mixin } from "ts-mixer";
 import { Widget } from "@lumino/widgets";
 import { Message, MessageLoop } from "@lumino/messaging";
 import PerfectScrollbar from 'perfect-scrollbar';
-import { DisposableStore, Emitter, Event, IDisposable, InjectableService, MaybePromise, toDisposable } from "@gepick/core/common";
-import { KeyCode, KeysOrKeyCodes } from "../../common/keys";
+import { DisposableStore, Emitter, Event, IDisposable, InjectableService, KeyCode, KeysOrKeyCodes, MaybePromise, toDisposable } from "@gepick/core/common";
 
 export * from '@lumino/widgets';
 export * from '@lumino/messaging';

@@ -14,8 +14,8 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
+import { Emitter, Event, IServiceContainer, InjectableService, Key, KeyCode, createServiceDecorator } from '@gepick/core/common';
 import { BaseWidget, Message } from '../../widgets';
-import { Emitter, Event, Key, KeyCode } from '../../../common';
 import { SearchBoxDebounce, SearchBoxDebounceOptions } from './search-box-debounce';
 
 /**
@@ -349,3 +349,12 @@ export interface SearchBoxFactory {
   (props: SearchBoxProps): SearchBox;
 
 }
+
+export class SearchBoxFactoryImpl extends InjectableService {
+  createSearchBox(props: SearchBoxProps): SearchBox {
+    const debounce = new SearchBoxDebounce(props);
+    return new SearchBox(props, debounce);
+  }
+}
+export const ISearchBoxFactory = createServiceDecorator<ISearchBoxFactory>(SearchBoxFactoryImpl.name);
+export type ISearchBoxFactory = SearchBoxFactoryImpl;

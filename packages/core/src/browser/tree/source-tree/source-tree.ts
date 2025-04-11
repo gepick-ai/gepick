@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { MaybePromise } from '../../../common';
+import { MaybePromise } from '@gepick/core/common';
 import { CompositeTreeNode, ExpandableTreeNode, SelectableTreeNode, TreeImpl, TreeNode } from '../base-tree';
 import { CompositeTreeElement, TreeElement, TreeSource } from './tree-source';
 

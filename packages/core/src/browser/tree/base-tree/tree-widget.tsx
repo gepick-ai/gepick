@@ -21,8 +21,8 @@ import { Virtuoso, VirtuosoHandle, VirtuosoProps } from 'react-virtuoso';
 import { ElementExt } from '@lumino/domutils';
 import { useEffect } from 'react';
 import debounce from 'lodash.debounce';
-import { Key, KeyCode, KeyModifier, MaybePromise, MenuPath, PostConstruct, SelectionService, isOSX, notEmpty, toDisposable } from '../../../common';
-import { ContextMenuRenderer } from '../../context-menu';
+import { ISelectionService, InjectableService, Key, KeyCode, KeyModifier, MaybePromise, MenuPath, PostConstruct, createServiceDecorator, isOSX, notEmpty, toDisposable } from '@gepick/core/common';
+import { ContextMenuRenderer, IContextMenuRenderer } from '../../context-menu';
 import { StatefulWidget } from '../../shell';
 import {
   BUSY_CLASS,
@@ -36,17 +36,17 @@ import {
   UnsafeWidgetUtilities,
   Widget,
 } from '../../widgets';
-import { LabelProvider } from '../../label';
+import { ILabelProvider } from '../../label';
 import { CompositeTreeNode, TreeNode } from './tree';
-import { TreeModel } from './tree-model';
+import { ITreeModel, TreeModel } from './tree-model';
 import { ExpandableTreeNode } from './tree-expansion';
 import { SelectableTreeNode, TreeSelection } from './tree-selection';
-import { DecoratedTreeNode, TreeDecoration, TreeDecoratorService } from './tree-decorator';
+import { DecoratedTreeNode, INoopTreeDecoratorService, TreeDecoration } from './tree-decorator';
 import { TopDownTreeIterator } from './tree-iterator';
-import { SearchBox, SearchBoxFactory, SearchBoxProps } from './search-box';
-import { TreeSearch } from './tree-search';
+import { ISearchBoxFactory, SearchBox, SearchBoxProps } from './search-box';
+import { ITreeSearch } from './tree-search';
 import { TreeWidgetSelection } from './tree-widget-selection';
-import { TreeFocusService } from './tree-focus-service';
+import { ITreeFocusService } from './tree-focus-service';
 
 export const TREE_CLASS = 'theia-Tree';
 export const TREE_CONTAINER_CLASS = 'theia-TreeContainer';
@@ -137,6 +137,14 @@ export const defaultTreeProps: TreeProps = {
   expansionTogglePadding: 22,
 };
 
+export class DefaultTreeProps extends InjectableService {
+  leftPadding: 8;
+  expansionTogglePadding: 22;
+}
+
+export const ITreeProps = createServiceDecorator<ITreeProps>(DefaultTreeProps.name);
+export interface ITreeProps extends TreeProps {}
+
 export namespace TreeWidget {
 
   /**
@@ -162,35 +170,20 @@ export namespace TreeWidget {
 export class TreeWidget extends ReactWidget implements StatefulWidget {
   protected searchBox: SearchBox;
   protected searchHighlights: Map<string, TreeDecoration.CaptionHighlight>;
-
-  @inject(TreeDecoratorService)
-  protected readonly decoratorService: TreeDecoratorService;
-
-  @inject(TreeSearch)
-  protected readonly treeSearch: TreeSearch;
-
-  @inject(SearchBoxFactory)
-  protected readonly searchBoxFactory: SearchBoxFactory;
-
-  @inject(TreeFocusService)
-  protected readonly focusService: TreeFocusService;
-
+  protected shouldScrollToRow = true;
+  protected treeIndent: number = 8;
   protected decorations: Map<string, TreeDecoration.Data[]> = new Map();
 
-  @inject(SelectionService)
-  protected readonly selectionService: SelectionService;
-
-  @inject(LabelProvider)
-  protected readonly labelProvider: LabelProvider;
-
-  protected shouldScrollToRow = true;
-
-  protected treeIndent: number = 8;
-
   constructor(
-        @inject(TreeProps) readonly props: TreeProps,
-        @inject(TreeModel) readonly model: TreeModel,
-        @inject(ContextMenuRenderer) protected readonly contextMenuRenderer: ContextMenuRenderer,
+    @INoopTreeDecoratorService protected readonly decoratorService: INoopTreeDecoratorService,
+    @ITreeSearch protected readonly treeSearch: ITreeSearch,
+    @ITreeFocusService protected readonly focusService: ITreeFocusService,
+    @ISelectionService protected readonly selectionService: ISelectionService,
+    @ILabelProvider protected readonly labelProvider: ILabelProvider,
+    @ITreeModel readonly model: ITreeModel,
+    @ISearchBoxFactory protected readonly searchBoxFactory: ISearchBoxFactory,
+    @ITreeProps readonly props: ITreeProps,
+    @IContextMenuRenderer protected readonly contextMenuRenderer: IContextMenuRenderer,
   ) {
     super();
     this.scrollOptions = {
@@ -204,7 +197,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
   @PostConstruct()
   protected init(): void {
     if (this.props.search) {
-      this.searchBox = this.searchBoxFactory({ ...SearchBoxProps.DEFAULT, showButtons: true, showFilter: true });
+      this.searchBox = this.searchBoxFactory.createSearchBox({ ...SearchBoxProps.DEFAULT, showButtons: true, showFilter: true });
       this.searchBox.node.addEventListener('focus', () => {
         this.node.focus();
       });
@@ -383,7 +376,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
    */
   protected readonly updateDecorations = debounce(() => this.doUpdateDecorations(), 150);
   protected async doUpdateDecorations(): Promise<void> {
-    this.decorations = await this.decoratorService.getDecorations(this.model);
+    this.decorations = await this.decoratorService.getDecorations();
     this.update();
   }
 
@@ -1502,7 +1495,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
    * Store the tree state.
    */
   storeState(): object {
-    const decorations = this.decoratorService.deflateDecorators(this.decorations);
+    const decorations = this.decoratorService.deflateDecorators();
     let state: object = {
       decorations,
     };
@@ -1528,7 +1521,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
       this.model.root = this.inflateFromStorage(root);
     }
     if (decorations) {
-      this.decorations = this.decoratorService.inflateDecorators(decorations);
+      this.decorations = this.decoratorService.inflateDecorators();
     }
     if (model) {
       this.model.restoreState(model);

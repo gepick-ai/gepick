@@ -25,4 +25,7 @@ export * from './tree-view-welcome-widget';
 export * from './tree-container';
 export * from './tree-decorator';
 export * from './tree-search';
-export * from './tree-compression';
+export * from "./tree-focus-service";
+export * from "./tree-label-provider";
+export * from "./tree-selection-impl";
+export * from "./search-box";

@@ -14,8 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { injectable } from 'inversify';
-import { DisposableCollection, DisposableStore, IDisposable, MenuPath } from '../../common';
+import { DisposableCollection, DisposableStore, IDisposable, InjectableService, MenuPath } from '@gepick/core/common';
 import { ContextMatcher } from './context-key-service';
 
 export interface Coordinate { x: number; y: number }
@@ -45,8 +44,7 @@ export abstract class ContextMenuAccess implements IDisposable {
   }
 }
 
-@injectable()
-export abstract class ContextMenuRenderer {
+export abstract class ContextMenuRenderer extends InjectableService {
   protected _current: ContextMenuAccess | undefined;
   protected readonly toDisposeOnSetCurrent = new DisposableStore();
   /**

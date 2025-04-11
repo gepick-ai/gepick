@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { InjectableService } from '@gepick/core/common';
+import { InjectableService, createServiceDecorator } from '@gepick/core/common';
 import * as fuzzy from 'fuzzy';
 
 export class FuzzySearch extends InjectableService {
@@ -72,7 +72,8 @@ export class FuzzySearch extends InjectableService {
     return ranges;
   }
 }
-
+export const IFuzzySearch = createServiceDecorator<IFuzzySearch>(FuzzySearch.name);
+export type IFuzzySearch = FuzzySearch;
 /**
  * Fuzzy searcher.
  */

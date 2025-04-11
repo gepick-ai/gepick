@@ -16,7 +16,7 @@
 
 import * as React from 'react';
 import { Container, interfaces } from 'inversify';
-import { DisposableCollection, PostConstruct } from '../../../common';
+import { DisposableCollection, PostConstruct } from '@gepick/core/common';
 import { TREE_NODE_SEGMENT_GROW_CLASS, TreeModel, TreeNode, TreeProps, TreeWidget, createTreeContainer } from '../base-tree';
 import { TreeElement, TreeSource } from './tree-source';
 import { SourceTree, TreeElementNode, TreeSourceNode } from './source-tree';

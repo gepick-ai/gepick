@@ -26,4 +26,5 @@ export * from "./paths";
 export * from "./strings";
 export * from "./glob";
 export * from "./window";
-export * from "./command"
+export * from "./command";
+export * from "./common-module";

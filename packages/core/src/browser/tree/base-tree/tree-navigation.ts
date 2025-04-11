@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { InjectableService } from '@gepick/core/common';
+import { InjectableService, createServiceDecorator } from '@gepick/core/common';
 import { TreeNode } from './tree';
 
 export class TreeNavigationService extends InjectableService {
@@ -53,3 +53,5 @@ export class TreeNavigationService extends InjectableService {
     this.index = this.index + 1;
   }
 }
+export const ITreeNavigationService = createServiceDecorator<ITreeNavigationService>(TreeNavigationService.name);
+export type ITreeNavigationService = TreeNavigationService;

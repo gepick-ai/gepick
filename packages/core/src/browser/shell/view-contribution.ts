@@ -19,7 +19,7 @@ import {
   InjectableService,
   createContribution,
 } from '../../common';
-import { IWidgetManager } from '../widgets/widget-manager';
+import { IWidgetManager } from '../widgets';
 import { ApplicationShell1, IApplicationShell } from './application-shell';
 
 export interface OpenViewArguments extends ApplicationShell1.WidgetOptions {

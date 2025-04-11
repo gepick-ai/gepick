@@ -14,8 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { inject, injectable, named } from 'inversify';
-import { ContributionProvider, Disposable, Emitter, Event, IDisposable, InjectableService, MaybePromise, Prioritizeable, URI, match, toDisposable } from '../../common';
+import { Emitter, Event, IContributionProvider, IDisposable, InjectableService, MaybePromise, Optional, Prioritizeable, URI, createContribution, createServiceDecorator, match, toDisposable } from '@gepick/core/common';
 
 export interface OpenerOptions {
 }
@@ -100,6 +99,9 @@ export function getDefaultHandler(uri: URI, _preferenceService: any): string | u
 
 export const defaultHandlerPriority = 100_000;
 
+export const [IOpenHandler, IOpenHandlerProvider] = createContribution("OpenHandler");
+export type IOpenHandler = OpenHandler;
+
 export class DefaultOpenerService extends InjectableService implements OpenerService {
   // Collection of open-handlers for custom-editor contributions.
   protected readonly customEditorOpenHandlers: OpenHandler[] = [];
@@ -108,8 +110,7 @@ export class DefaultOpenerService extends InjectableService implements OpenerSer
   readonly onDidChangeOpeners = this.onDidChangeOpenersEmitter.event;
 
   constructor(
-        @inject(ContributionProvider) @named(OpenHandler)
-        protected readonly handlersProvider: ContributionProvider<OpenHandler>,
+      @Optional() @IOpenHandlerProvider protected readonly handlersProvider: IContributionProvider<IOpenHandler>,
   ) {
     super();
   }
@@ -159,3 +160,5 @@ export class DefaultOpenerService extends InjectableService implements OpenerSer
     ];
   }
 }
+export const IOpenerService = createServiceDecorator<IOpenerService>(DefaultOpenerService.name);
+export type IOpenerService = DefaultOpenerService;

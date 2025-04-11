@@ -14,15 +14,15 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { inject } from 'inversify';
-import { CancellationToken, DisposableStore, Emitter, Event, InjectableService, PostConstruct, SelectionProvider, WaitUntilEvent } from '../../../common';
-import { CompositeTreeNode, Tree, TreeNode } from './tree';
+import { CancellationToken, DisposableStore, Emitter, Event, InjectableService, PostConstruct, SelectionProvider, WaitUntilEvent, createServiceDecorator } from '@gepick/core/common';
+import { CompositeTreeNode, ITree, Tree, TreeNode } from './tree';
 import { SelectableTreeNode, TreeSelection, TreeSelectionService } from './tree-selection';
-import { ExpandableTreeNode, TreeExpansionService } from './tree-expansion';
-import { TreeNavigationService } from './tree-navigation';
+import { ExpandableTreeNode, ITreeExpansionService, TreeExpansionService } from './tree-expansion';
+import { ITreeNavigationService } from './tree-navigation';
 import { BottomUpTreeIterator, Iterators, TopDownTreeIterator, TreeIterator } from './tree-iterator';
-import { TreeSearch } from './tree-search';
-import { TreeFocusService } from './tree-focus-service';
+import { ITreeSearch, TreeSearch } from './tree-search';
+import { ITreeFocusService, TreeFocusService } from './tree-focus-service';
+import { ITreeSelectionService } from './tree-selection-impl';
 
 /**
  * The tree model.
@@ -159,16 +159,20 @@ export interface TreeModel extends Tree, TreeSelectionService, TreeExpansionServ
 }
 
 export class TreeModelImpl extends InjectableService implements TreeModel, SelectionProvider<ReadonlyArray<Readonly<SelectableTreeNode>>> {
-  @inject(Tree) protected readonly tree: Tree;
-  @inject(TreeSelectionService) protected readonly selectionService: TreeSelectionService;
-  @inject(TreeExpansionService) protected readonly expansionService: TreeExpansionService;
-  @inject(TreeNavigationService) protected readonly navigationService: TreeNavigationService;
-  @inject(TreeFocusService) protected readonly focusService: TreeFocusService;
-  @inject(TreeSearch) protected readonly treeSearch: TreeSearch;
-
   protected readonly onChangedEmitter = new Emitter<void>();
   protected readonly onOpenNodeEmitter = new Emitter<TreeNode>();
   protected readonly toDispose = new DisposableStore();
+
+  constructor(
+    @ITree protected readonly tree: ITree,
+    @ITreeExpansionService protected readonly expansionService: ITreeExpansionService,
+    @ITreeNavigationService protected readonly navigationService: ITreeNavigationService,
+    @ITreeFocusService protected readonly focusService: TreeFocusService,
+    @ITreeSearch protected readonly treeSearch: TreeSearch,
+    @ITreeSelectionService protected readonly selectionService: ITreeSelectionService,
+  ) {
+    super();
+  }
 
   @PostConstruct()
   protected init(): void {
@@ -548,6 +552,10 @@ export class TreeModelImpl extends InjectableService implements TreeModel, Selec
     this.tree.markAsChecked(node, checked);
   }
 }
+
+export const ITreeModel = createServiceDecorator<ITreeModel>(TreeModelImpl.name);
+export type ITreeModel = TreeModelImpl;
+
 export namespace TreeModelImpl {
   export interface State {
     selection: any;

@@ -15,11 +15,11 @@
 // *****************************************************************************
 
 import debounce from 'lodash.debounce';
-import { inject, injectable, named } from 'inversify';
+import { inject, named } from 'inversify';
 
-import { Contribution, ContributionProvider, Disposable, DisposableStore, Emitter, Event, IDisposable, InjectableService, MenuNode, MenuPath, createServiceDecorator, toDisposable } from '../../../common';
+import { ContributionProvider, DisposableStore, Emitter, Event, IContributionProvider, IDisposable, InjectableService, MenuPath, Optional, createContribution, createServiceDecorator, toDisposable } from '@gepick/core/common';
 import { Widget } from '../../widgets';
-import { ContextKeyService } from '../../context-menu';
+import { ContextKeyService, IContextKeyService } from '../../context-menu';
 import { MenuDelegate, ReactTabBarToolbarItem, RenderedToolbarItem, TabBarToolbarItem } from './tab-bar-toolbar-types';
 
 /**
@@ -40,6 +40,8 @@ export interface TabBarToolbarContribution {
 export function yes(): true { return true; }
 const menuDelegateSeparator = '=@=';
 
+export const [ITabBarToolbarContribution, ITabBarToolbarContributionProvider] = createContribution("TabBarToolbarContribution");
+export type ITabBarToolbarContribution = TabBarToolbarContribution;
 /**
  * Main, shared registry for tab-bar toolbar items.
  */
@@ -47,10 +49,9 @@ export class TabBarToolbarRegistry extends InjectableService {
   protected items = new Map<string, TabBarToolbarItem | ReactTabBarToolbarItem>();
   protected menuDelegates = new Map<string, MenuDelegate>();
 
-  @inject(ContextKeyService) protected readonly contextKeyService: ContextKeyService;
+  @IContextKeyService protected readonly contextKeyService: IContextKeyService;
 
-  @inject(ContributionProvider) @named(TabBarToolbarContribution)
-  protected readonly contributionProvider: ContributionProvider<TabBarToolbarContribution>;
+  @Optional() @ITabBarToolbarContributionProvider protected readonly contributionProvider: IContributionProvider<ITabBarToolbarContribution>;
 
   protected readonly onDidChangeEmitter = new Emitter<void>();
   readonly onDidChange: Event<void> = this.onDidChangeEmitter.event;

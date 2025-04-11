@@ -14,9 +14,8 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { inject } from 'inversify';
-import { Disposable, Emitter, Event, InjectableService, PostConstruct } from '../../../common';
-import { CompositeTreeNode, Tree, TreeNode } from './tree';
+import { Disposable, Emitter, Event, InjectableService, PostConstruct, createServiceDecorator } from '@gepick/core/common';
+import { CompositeTreeNode, ITree, TreeNode } from './tree';
 
 export const TreeExpansionService = Symbol('TreeExpansionService');
 
@@ -79,8 +78,13 @@ export namespace ExpandableTreeNode {
 }
 
 export class TreeExpansionServiceImpl extends InjectableService implements TreeExpansionService {
-  @inject(Tree) protected readonly tree: Tree;
   protected readonly onExpansionChangedEmitter = new Emitter<ExpandableTreeNode>();
+
+  constructor(
+    @ITree protected readonly tree: ITree,
+  ) {
+    super();
+  }
 
   @PostConstruct()
   protected init(): void {
@@ -162,3 +166,5 @@ export class TreeExpansionServiceImpl extends InjectableService implements TreeE
     }
   }
 }
+export const ITreeExpansionService = createServiceDecorator<ITreeExpansionService>(TreeExpansionServiceImpl.name);
+export type ITreeExpansionService = TreeExpansionServiceImpl;

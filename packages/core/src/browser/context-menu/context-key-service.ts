@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { injectable } from 'inversify';
-import { Emitter, Event, IDisposable } from '../../common';
+import { Emitter, Event, IDisposable, createServiceDecorator } from '../../common';
 
 export type ContextKeyValue = null | undefined | boolean | number | string
   | Array<null | undefined | boolean | number | string>
@@ -139,3 +139,5 @@ export class ContextKeyServiceDummyImpl implements ContextKeyService {
 
   dispose(): void { }
 }
+export const IContextKeyService = createServiceDecorator(ContextKeyServiceDummyImpl.name);
+export type IContextKeyService = ContextKeyServiceDummyImpl;

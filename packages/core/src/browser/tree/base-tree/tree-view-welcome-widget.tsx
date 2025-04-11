@@ -23,14 +23,12 @@
 // aligned the API and enablement behavior to https://github.com/microsoft/vscode/blob/c711bc9333ba339fde1a530de0094b3fa32f09de/src/vs/base/common/linkedText.ts
 
 import React from "react";
-import { inject } from 'inversify';
 import { URI as CodeUri } from 'vscode-uri';
-import { CommandRegistry, DisposableCollection, URI } from '../../../common';
-import { ContextKeyService } from '../../context-menu';
-import { LabelIcon, LabelParser } from '../../label';
-import { OpenerService, open } from '../../opener';
+import { DisposableCollection, ICommandRegistry, URI } from '@gepick/core/common';
+import { IContextKeyService } from '../../context-menu';
+import { ILabelParser, LabelIcon } from '../../label';
+import { IOpenerService, open } from '../../opener';
 import { codicon } from '../../widgets';
-import { WindowService } from '../../window';
 import { TreeModel } from './tree-model';
 import { TreeWidget } from './tree-widget';
 
@@ -56,20 +54,10 @@ export interface ILink {
 type LinkedTextItem = string | ILink;
 
 export class TreeViewWelcomeWidget extends TreeWidget {
-  @inject(CommandRegistry)
-  protected readonly commands: CommandRegistry;
-
-  @inject(ContextKeyService)
-  protected readonly contextService: ContextKeyService;
-
-  @inject(WindowService)
-  protected readonly windowService: WindowService;
-
-  @inject(LabelParser)
-  protected readonly labelParser: LabelParser;
-
-  @inject(OpenerService)
-  protected readonly openerService: OpenerService;
+  @ICommandRegistry protected readonly commands: ICommandRegistry;
+  @IContextKeyService protected readonly contextService: IContextKeyService;
+  @ILabelParser protected readonly labelParser: ILabelParser;
+  @IOpenerService protected readonly openerService: IOpenerService;
 
   protected readonly toDisposeBeforeUpdateViewWelcomeNodes = new DisposableCollection();
 
@@ -274,7 +262,7 @@ export class TreeViewWelcomeWidget extends TreeWidget {
       open(this.openerService, new URI(CodeUri.file(uri).toString()));
     }
     else {
-      this.windowService.openNewWindow(value, { external: true });
+      window.open(value, undefined, 'noopener');
     }
   };
 

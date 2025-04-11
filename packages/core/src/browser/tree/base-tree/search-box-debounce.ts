@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import debounce from 'lodash.debounce';
-import { DisposableCollection, Emitter, Event, IDisposable } from '../../../common';
+import { DisposableCollection, Emitter, Event, IDisposable } from '@gepick/core/common';
 
 /**
  * Options for the search term debounce.

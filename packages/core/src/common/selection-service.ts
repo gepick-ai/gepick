@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Emitter, Event, InjectableService } from '../common';
+import { Emitter, Event, InjectableService, createServiceDecorator } from '../common';
 
 /**
  * `SelectionProvider` is implemented by services to notify listeners about selection changes.
@@ -42,3 +42,5 @@ export class SelectionService extends InjectableService implements SelectionProv
     this.onSelectionChangedEmitter.fire(this.currentSelection);
   }
 }
+export const ISelectionService = createServiceDecorator<ISelectionService>(SelectionService.name);
+export type ISelectionService = SelectionService;

@@ -14,20 +14,23 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { inject } from 'inversify';
-import { Emitter, Event, InjectableService, PostConstruct } from '../../../common';
-import { Tree, TreeNode } from './tree';
+import { Emitter, Event, InjectableService, PostConstruct, createServiceDecorator } from '@gepick/core/common';
+import { ITree, TreeNode } from './tree';
 import { FocusableTreeSelection, TreeSelectionState } from './tree-selection-state';
 import { SelectableTreeNode, TreeSelection, TreeSelectionService } from './tree-selection';
-import { TreeFocusService } from './tree-focus-service';
+import { ITreeFocusService } from './tree-focus-service';
 
 export class TreeSelectionServiceImpl extends InjectableService implements TreeSelectionService {
-  @inject(Tree) protected readonly tree: Tree;
-  @inject(TreeFocusService) protected readonly focusService: TreeFocusService;
-
   protected readonly onSelectionChangedEmitter = new Emitter<ReadonlyArray<Readonly<SelectableTreeNode>>>();
 
   protected state: TreeSelectionState;
+
+  constructor(
+    @ITree protected readonly tree: ITree,
+    @ITreeFocusService protected readonly focusService: ITreeFocusService,
+  ) {
+    super();
+  }
 
   @PostConstruct()
   protected init(): void {
@@ -162,6 +165,9 @@ export class TreeSelectionServiceImpl extends InjectableService implements TreeS
     }
   }
 }
+
+export const ITreeSelectionService = createServiceDecorator<ITreeSelectionService>(TreeSelectionServiceImpl.name);
+export type ITreeSelectionService = TreeSelectionServiceImpl;
 export namespace TreeSelectionServiceImpl {
   export interface State {
     selectionStack: ReadonlyArray<FocusableTreeSelectionState>;

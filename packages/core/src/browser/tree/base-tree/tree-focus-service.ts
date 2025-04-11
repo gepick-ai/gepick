@@ -14,9 +14,8 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { inject } from 'inversify';
-import { Emitter, Event, InjectableService } from '../../../common';
-import { Tree, TreeNode } from './tree';
+import { Emitter, Event, InjectableService, createServiceDecorator } from '@gepick/core/common';
+import { ITree, TreeNode } from './tree';
 import { SelectableTreeNode } from './tree-selection';
 
 export interface TreeFocusService {
@@ -32,7 +31,7 @@ export class TreeFocusServiceImpl extends InjectableService implements TreeFocus
   protected onDidChangeFocusEmitter = new Emitter<SelectableTreeNode | undefined>();
   get onDidChangeFocus(): Event<SelectableTreeNode | undefined> { return this.onDidChangeFocusEmitter.event; }
 
-  @inject(Tree) protected readonly tree: Tree;
+  @ITree protected readonly tree: ITree;
 
   get focusedNode(): SelectableTreeNode | undefined {
     const candidate = this.tree.getNode(this.focusedId);
@@ -54,3 +53,5 @@ export class TreeFocusServiceImpl extends InjectableService implements TreeFocus
     return !!node && node?.id === this.focusedId;
   }
 }
+export const ITreeFocusService = createServiceDecorator<ITreeFocusService>(TreeFocusServiceImpl.name);
+export type ITreeFocusService = TreeFocusServiceImpl;

@@ -14,11 +14,10 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { inject, named } from 'inversify';
 import debounce from "p-debounce";
 import { Emitter, Event, WaitUntilEvent } from './event';
 import { isObject } from './types';
-import { ContributionProvider, InjectableService } from './instantiation';
+import { IContributionProvider, InjectableService, Optional, createContribution, createServiceDecorator } from './instantiation';
 import { DisposableStore, IDisposable, toDisposable } from './lifecycle';
 
 /**
@@ -61,9 +60,9 @@ export namespace Command {
   export function toLocalizedCommand(command: Command, _nlsLabelKey: string = command.id, _nlsCategoryKey?: string): Command {
     return {
       ...command,
-      label: command.label ,
+      label: command.label,
       originalLabel: command.label,
-      category:  command.category,
+      category: command.category,
       originalCategory: command.category,
     };
   }
@@ -71,9 +70,9 @@ export namespace Command {
   export function toDefaultLocalizedCommand(command: Command): Command {
     return {
       ...command,
-      label: command.label ,
+      label: command.label,
       originalLabel: command.label,
-      category: command.category ,
+      category: command.category,
       originalCategory: command.category,
     };
   }
@@ -178,10 +177,12 @@ export interface CommandService {
   readonly onDidExecuteCommand: Event<CommandEvent>;
 }
 
+export const [ICommandContribution, ICommandContributionProvider] = createContribution("CommandContribution");
+export type ICommandContribution = CommandContribution;
 /**
  * The command registry manages commands and handlers.
  */
-export class CommandRegistry  extends InjectableService implements CommandService {
+export class CommandRegistry extends InjectableService implements CommandService {
   protected readonly _commands: { [id: string]: Command } = {};
   protected readonly _handlers: { [id: string]: CommandHandler[] } = {};
 
@@ -200,10 +201,10 @@ export class CommandRegistry  extends InjectableService implements CommandServic
   readonly onCommandsChanged = this.onCommandsChangedEmitter.event;
 
   constructor(
-        @inject(ContributionProvider) @named(CommandContribution)
-        protected readonly contributionProvider: ContributionProvider<CommandContribution>,
-  ) { 
-    super()
+
+      @Optional() @ICommandContributionProvider protected readonly contributionProvider: IContributionProvider<ICommandContribution>,
+  ) {
+    super();
   }
 
   onStart(): void {
@@ -476,3 +477,5 @@ export class CommandRegistry  extends InjectableService implements CommandServic
     this.recent = [];
   }
 }
+export const ICommandRegistry = createServiceDecorator<ICommandRegistry>(CommandRegistry.name);
+export type ICommandRegistry = CommandRegistry;

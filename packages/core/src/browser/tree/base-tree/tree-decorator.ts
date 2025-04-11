@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { unmanaged } from 'inversify';
-import { Disposable, DisposableCollection, Emitter, Event, InjectableService, MaybePromise } from '../../../common';
+import { Disposable, DisposableCollection, Emitter, Event, InjectableService, MaybePromise, createServiceDecorator } from '@gepick/core/common';
 import { WidgetDecoration } from '../../widgets';
 import { Tree, TreeNode } from './tree';
 
@@ -154,6 +154,8 @@ export class NoopTreeDecoratorService extends InjectableService implements TreeD
     return new Map();
   }
 }
+export const INoopTreeDecoratorService = createServiceDecorator(NoopTreeDecoratorService.name);
+export type INoopTreeDecoratorService = NoopTreeDecoratorService;
 
 /**
  * Abstract decorator service implementation which emits events from all known tree decorators and caches the current state.

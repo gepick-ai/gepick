@@ -14,15 +14,15 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { inject, injectable, postConstruct } from 'inversify';
+import { postConstruct } from 'inversify';
 import * as React from 'react';
 import { ACTION_ITEM, ReactWidget, Widget, codicon } from '../../widgets';
 import { DisposableStore, IDisposable, MenuPath, createServiceDecorator, toDisposable } from '../../../common';
-import { Anchor, ContextKeyService, ContextMatcher, ContextMenuAccess, ContextMenuRenderer } from '../../context-menu';
+import { Anchor, ContextMatcher, ContextMenuAccess, IContextKeyService, IContextMenuRenderer } from '../../context-menu';
 
-import { LabelIcon, LabelParser } from '../../label';
+import { ILabelParser, LabelIcon } from '../../label';
 import { ReactTabBarToolbarItem, RenderedToolbarItem, TAB_BAR_TOOLBAR_CONTEXT_MENU, TabBarDelegator, TabBarToolbarItem } from './tab-bar-toolbar-types';
-import { TabBarToolbarRegistry } from './tab-bar-toolbar-registry';
+import { ITabBarToolbarRegistry } from './tab-bar-toolbar-registry';
 /**
  * Factory for instantiating tab-bar toolbars.
  */
@@ -50,10 +50,10 @@ export class TabBarToolbar extends ReactWidget {
 
   protected keybindingContextKeys = new Set<string>();
 
-  @inject(LabelParser) protected readonly labelParser: LabelParser;
-  @inject(ContextMenuRenderer) protected readonly contextMenuRenderer: ContextMenuRenderer;
-  @inject(TabBarToolbarRegistry) protected readonly toolbarRegistry: TabBarToolbarRegistry;
-  @inject(ContextKeyService) protected readonly contextKeyService: ContextKeyService;
+  @ILabelParser protected readonly labelParser: ILabelParser;
+  @IContextMenuRenderer protected readonly contextMenuRenderer: IContextMenuRenderer;
+  @ITabBarToolbarRegistry protected readonly toolbarRegistry: ITabBarToolbarRegistry;
+  @IContextKeyService protected readonly contextKeyService: IContextKeyService;
 
   constructor() {
     super();

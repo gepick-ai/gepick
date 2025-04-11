@@ -13,7 +13,7 @@
 //
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
-import { InjectableService, isObject, isString } from '../../common';
+import { InjectableService, createServiceDecorator, isObject, isString } from '../../common';
 
 export interface LabelIcon {
   name: string;
@@ -107,3 +107,5 @@ export class LabelParser extends InjectableService {
       .join(' ');
   }
 }
+export const ILabelParser = createServiceDecorator<ILabelParser>(LabelParser.name);
+export type ILabelParser = LabelParser;

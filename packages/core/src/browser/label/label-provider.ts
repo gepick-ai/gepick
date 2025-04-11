@@ -14,9 +14,8 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { inject, named } from 'inversify';
 import * as fileIcons from 'file-icons-js';
-import { Contribution, ContributionProvider, Emitter, Event, IDisposable, InjectableService, Path, Prioritizeable, ResourceLabelFormatter, ResourceLabelFormatting, URI, isObject, toDisposable } from '../../common';
+import { Contribution, Emitter, Event, IContributionProvider, IDisposable, InjectableService, Optional, Path, Prioritizeable, ResourceLabelFormatter, ResourceLabelFormatting, URI, createContribution, createServiceDecorator, isObject, toDisposable } from '@gepick/core/common';
 import { codicon } from '../widgets';
 import { IApplicationContribution } from '../application';
 
@@ -249,6 +248,9 @@ export class DefaultUriLabelProviderContribution extends InjectableService {
   }
 }
 
+export const [ILabelProviderContribution, ILabelProviderContributionProvider] = createContribution("LabelProviderContribution");
+export type ILabelProviderContribution = LabelProviderContribution;
+
 /**
  * The {@link LabelProvider} determines how elements/nodes are displayed in the workbench. For any element, it can determine a short label, a long label
  * and an icon. The {@link LabelProvider} is to be used in lists, trees and tables, but also view specific locations like headers.
@@ -263,8 +265,7 @@ export class DefaultUriLabelProviderContribution extends InjectableService {
 export class LabelProvider extends InjectableService implements IApplicationContribution {
   protected readonly onDidChangeEmitter = new Emitter<DidChangeLabelEvent>();
 
-  @inject(ContributionProvider) @named(LabelProviderContribution)
-  protected readonly contributionProvider: ContributionProvider<LabelProviderContribution>;
+  @Optional() @ILabelProviderContributionProvider protected readonly contributionProvider: IContributionProvider<ILabelProviderContribution>;
 
   /**
    * Start listening to contributions.
@@ -367,3 +368,5 @@ export class LabelProvider extends InjectableService implements IApplicationCont
       contrib.canHandle(element)).map(entry => entry.value);
   }
 }
+export const ILabelProvider = createServiceDecorator(LabelProvider.name);
+export type ILabelProvider = LabelProvider;
