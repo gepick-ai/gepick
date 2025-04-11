@@ -1,4 +1,3 @@
-import http from 'http';
 import { createContribution } from '@gepick/core/common';
 
 export const [IApplicationContribution, IApplicationContributionProvider] = createContribution<IApplicationContribution>('ApplicationContribution');

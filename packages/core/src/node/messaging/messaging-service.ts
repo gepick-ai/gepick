@@ -1,5 +1,5 @@
 import * as http from 'node:http';
-import { Contribution, IConnectionHandler, IContributionProvider, InjectableService, createServiceDecorator } from "@gepick/core/common";
+import { Contribution, IConnectionHandler, IContributionProvider, InjectableService } from "@gepick/core/common";
 import { createServerWebSocketConnection } from "@gepick/core/node";
 import { IApplicationContribution } from "../application/application-contribution";
 import { IConnectionHandlerContribution, IConnectionHandlerProvider, IMessagingService } from "./connection-handler-contribution";
