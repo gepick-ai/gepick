@@ -76,22 +76,22 @@ export function Contribution(contributionId: ContributionId) {
  * export interface ILocalService {
  *     onRpcServiceInit: () => void;
  * }
- * 
+ *
  * // 定义一个service为LocalService Contribution
  * @Contribution(ILocalService)
  * class CommandRegistryExt {}
- * 
+ *
  * // 获取所有ILocalService
  * class Application {
  *     constructor(@ILocalServiceProvider private readonly localServiceProvider: IContributionProvider<ILocalService>) {}
- * 
+ *
  *     getAllLocalServices() {
  *         const services = this.localServiceProvider.getContributions();
- * 
+ *
  *         services.forEach(s => s.onRpcServiceInit());
  *     }
  * }
- * 
+ *
  * ```
  */
 export function createContribution<T extends object>(contributionName: string): [ContributionId, ServiceDecorator<IContributionProvider<T>>] {

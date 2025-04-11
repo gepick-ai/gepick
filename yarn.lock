@@ -2474,6 +2474,8 @@ __metadata:
     "@types/express": "npm:^5.0.0"
     "@types/fs-extra": "npm:^11"
     "@types/lodash-es": "npm:^4.17.12"
+    "@types/lodash.debounce": "npm:4.0.3"
+    "@types/lodash.throttle": "npm:^4.1.3"
     "@types/react": "npm:^18.0.15"
     "@types/react-dom": "npm:^18.0.6"
     "@types/ws": "npm:^3.0.2"
@@ -2482,15 +2484,21 @@ __metadata:
     axios: "npm:^1.6.7"
     cors: "npm:^2.8.5"
     express: "npm:^4.21.1"
+    file-icons-js: "npm:~1.0.3"
     font-awesome: "npm:^4.7.0"
     fs-extra: "npm:^11.3.0"
+    fuzzy: "npm:^0.1.3"
     get-stream: "npm:^9.0.1"
     inversify: "npm:^6.2.2"
     lodash-es: "npm:^4.17.21"
+    lodash.debounce: "npm:^4.0.8"
+    lodash.throttle: "npm:^4.1.1"
     mongoose: "npm:^8.3.2"
+    p-debounce: "npm:^2.1.0"
     perfect-scrollbar: "npm:^1.5.6"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
+    react-virtuoso: "npm:^2.17.0"
     reconnecting-websocket: "npm:^4.4.0"
     reflect-metadata: "npm:^0.1.13"
     ts-mixer: "npm:^6.0.4"
@@ -2533,6 +2541,7 @@ __metadata:
   resolution: "@gepick/plugin-registry@workspace:packages/plugin-registry"
   dependencies:
     "@gepick/cli": "workspace:*"
+    "@gepick/core": "workspace:*"
     "@gepick/plugin-api": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -5414,6 +5423,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/lodash.debounce@npm:4.0.3":
+  version: 4.0.3
+  resolution: "@types/lodash.debounce@npm:4.0.3"
+  dependencies:
+    "@types/lodash": "npm:*"
+  checksum: 10/a51b648ef73dc6e2a45e45903f49452cdb8091d96416e86df267f5b2a273126874a680dfa12dc990ceed2384d9221fcf59a984683ce460ed6e94bc33e1325f73
+  languageName: node
+  linkType: hard
+
+"@types/lodash.throttle@npm:^4.1.3":
+  version: 4.1.9
+  resolution: "@types/lodash.throttle@npm:4.1.9"
+  dependencies:
+    "@types/lodash": "npm:*"
+  checksum: 10/6d330072387f062d408747f0dbe62869820ee3f3fbec43965f703ce9c9083e4ff9082faa4fe92aea000d6367b7645955e9c8db6a4e04e6bd769697fdd19c12b1
+  languageName: node
+  linkType: hard
+
 "@types/lodash@npm:*":
   version: 4.17.16
   resolution: "@types/lodash@npm:4.17.16"
@@ -5885,6 +5912,24 @@ __metadata:
   version: 2.1.0
   resolution: "@vavt/util@npm:2.1.0"
   checksum: 10/5fc88460a269efb0dd782fefc92f739f56f65d355845c04c758a7e9420be9a1cfe7610c718a2b3899659948aea47adc7eb344f4a98ed014a55fac5069c46477d
+  languageName: node
+  linkType: hard
+
+"@virtuoso.dev/react-urx@npm:^0.2.12":
+  version: 0.2.13
+  resolution: "@virtuoso.dev/react-urx@npm:0.2.13"
+  dependencies:
+    "@virtuoso.dev/urx": "npm:^0.2.13"
+  peerDependencies:
+    react: ">=16"
+  checksum: 10/75ec098a991807b6e963e642c16a9fb03fc25bdfb7e1d46d845f2f912362b2652ec5e22a79c563c9d77548b0345262eca4238585e8f9402077a909657208c933
+  languageName: node
+  linkType: hard
+
+"@virtuoso.dev/urx@npm:^0.2.12, @virtuoso.dev/urx@npm:^0.2.13":
+  version: 0.2.13
+  resolution: "@virtuoso.dev/urx@npm:0.2.13"
+  checksum: 10/9dec1fec47f8cc2eac95f6a2962e5c46468482fc333f8e85f779aef08fbbbedd298c30fe6647b4873df48cf7c85657c73e9f4e414cd78b832307ba901dbc5dfc
   languageName: node
   linkType: hard
 
@@ -9502,6 +9547,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"file-icons-js@npm:~1.0.3":
+  version: 1.0.3
+  resolution: "file-icons-js@npm:1.0.3"
+  checksum: 10/3bdd684cc5d176a46e3a841a033d148bea8dfceb5da52b3d9b1d724856cd03e23bc58ae739bbf8b1bbe97329d8b62cec7d0aa8162604cec052d90fa911cd1ed2
+  languageName: node
+  linkType: hard
+
 "filelist@npm:^1.0.4":
   version: 1.0.4
   resolution: "filelist@npm:1.0.4"
@@ -9790,6 +9842,13 @@ __metadata:
   version: 1.1.2
   resolution: "function-bind@npm:1.1.2"
   checksum: 10/185e20d20f10c8d661d59aac0f3b63b31132d492e1b11fcc2a93cb2c47257ebaee7407c38513efd2b35cafdf972d9beb2ea4593c1e0f3bf8f2744836928d7454
+  languageName: node
+  linkType: hard
+
+"fuzzy@npm:^0.1.3":
+  version: 0.1.3
+  resolution: "fuzzy@npm:0.1.3"
+  checksum: 10/3cf399457f3f9832af5d72bdbf354b287d977fca6bd800fb457579a9ccf8d8faa297f70ab7fada0147591e022d817532072ab07f69490b84f5dda96051e8c3ab
   languageName: node
   linkType: hard
 
@@ -11634,6 +11693,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash.debounce@npm:^4.0.8":
+  version: 4.0.8
+  resolution: "lodash.debounce@npm:4.0.8"
+  checksum: 10/cd0b2819786e6e80cb9f5cda26b1a8fc073daaf04e48d4cb462fa4663ec9adb3a5387aa22d7129e48eed1afa05b482e2a6b79bfc99b86886364449500cbb00fd
+  languageName: node
+  linkType: hard
+
 "lodash.get@npm:^4.4.2":
   version: 4.4.2
   resolution: "lodash.get@npm:4.4.2"
@@ -11743,6 +11809,13 @@ __metadata:
   version: 4.4.0
   resolution: "lodash.startcase@npm:4.4.0"
   checksum: 10/3091048a54a2f92bcf2c6441d2bd9a706fb133d5f461ae7c310d6dca1530338a06c91e9e42a5b14b12e875ddae1814d448050dc02afe2cec09b3995d8e836837
+  languageName: node
+  linkType: hard
+
+"lodash.throttle@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "lodash.throttle@npm:4.1.1"
+  checksum: 10/9be9fb2ffd686c20543167883305542f4564062a5f712a40e8c6f2f0d9fd8254a6e9d801c2470b1b24e0cdf2ae83c1277b55aa0fb4799a2db6daf545f53820e1
   languageName: node
   linkType: hard
 
@@ -13351,6 +13424,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"p-debounce@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "p-debounce@npm:2.1.0"
+  checksum: 10/a0f15041f41fbbc0ec26425f9f1e408958986558a4c6da0e8be1dd0005262cd3b79f30744e8392bce549613b830a0539bfd911874a6f1f621e65880a5ef71d04
+  languageName: node
+  linkType: hard
+
 "p-finally@npm:^1.0.0":
   version: 1.0.0
   resolution: "p-finally@npm:1.0.0"
@@ -14298,6 +14378,19 @@ __metadata:
   version: 0.14.2
   resolution: "react-refresh@npm:0.14.2"
   checksum: 10/512abf97271ab8623486061be04b608c39d932e3709f9af1720b41573415fa4993d0009fa5138b6705b60a98f4102f744d4e26c952b14f41a0e455521c6be4cc
+  languageName: node
+  linkType: hard
+
+"react-virtuoso@npm:^2.17.0":
+  version: 2.19.1
+  resolution: "react-virtuoso@npm:2.19.1"
+  dependencies:
+    "@virtuoso.dev/react-urx": "npm:^0.2.12"
+    "@virtuoso.dev/urx": "npm:^0.2.12"
+  peerDependencies:
+    react: ">=16 || >=17 || >= 18"
+    react-dom: ">=16 || >=17 || >= 18"
+  checksum: 10/fe601913b9d61cd97d80859124c5b4408238183f4354d2e2832df74ae01d52ce925f4aa2ce574c46b25239b607d191c86f3653d5481961bf3c133f9d962a7aef
   languageName: node
   linkType: hard
 

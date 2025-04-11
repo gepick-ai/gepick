@@ -1,9 +1,9 @@
 import { Mixin } from "ts-mixer";
 import { Widget } from "@lumino/widgets";
-import { Message } from "@lumino/messaging";
+import { Message, MessageLoop } from "@lumino/messaging";
 import PerfectScrollbar from 'perfect-scrollbar';
-import { DisposableStore, IDisposable, InjectableService, toDisposable } from "@gepick/core/common";
-import { KeyCode, KeysOrKeyCodes } from "../keys";
+import { DisposableStore, Emitter, Event, IDisposable, InjectableService, MaybePromise, toDisposable } from "@gepick/core/common";
+import { KeyCode, KeysOrKeyCodes } from "../../common/keys";
 
 export * from '@lumino/widgets';
 export * from '@lumino/messaging';
@@ -20,6 +20,53 @@ export function codicon(name: string, actionItem = false): string {
   return `codicon codicon-${name}${actionItem ? ` ${ACTION_ITEM}` : ''}`;
 }
 
+export const DISABLED_CLASS = 'theia-mod-disabled';
+export const EXPANSION_TOGGLE_CLASS = 'theia-ExpansionToggle';
+export const CODICON_TREE_ITEM_CLASSES = codiconArray('chevron-down');
+export const COLLAPSED_CLASS = 'theia-mod-collapsed';
+export const BUSY_CLASS = 'theia-mod-busy';
+export const CODICON_LOADING_CLASSES = codiconArray('loading');
+export const SELECTED_CLASS = 'theia-mod-selected';
+export const FOCUS_CLASS = 'theia-mod-focus';
+export const PINNED_CLASS = 'theia-mod-pinned';
+export const LOCKED_CLASS = 'theia-mod-locked';
+export const DEFAULT_SCROLL_OPTIONS: PerfectScrollbar.Options = {
+  suppressScrollX: true,
+  minScrollbarLength: 35,
+};
+
+/**
+ * At a number of places in the code, we have effectively reimplemented Lumino's Widget.attach and Widget.detach,
+ * but omitted the checks that Lumino expects to be performed for those operations. That is a bad idea, because it
+ * means that we are telling widgets that they are attached or detached when not all the conditions that should apply
+ * do apply. We should explicitly mark those locations so that we know where we should go fix them later.
+ */
+export namespace UnsafeWidgetUtilities {
+  /**
+   * Ordinarily, the following checks should be performed before detaching a widget:
+   * It should not be the child of another widget
+   * It should be attached and it should be a child of document.body
+   */
+  export function detach(widget: Widget): void {
+    MessageLoop.sendMessage(widget, Widget.Msg.BeforeDetach);
+    widget.node.remove();
+    MessageLoop.sendMessage(widget, Widget.Msg.AfterDetach);
+  };
+  /**
+   * @param ref The child of the host element to insert the widget before.
+   * Ordinarily the following checks should be performed:
+   * The widget should have no parent
+   * The widget should not be attached, and its node should not be a child of document.body
+   * The host should be a child of document.body
+   * We often violate the last condition.
+   */
+  export function attach(widget: Widget, host: HTMLElement, ref: HTMLElement | null = null): void {
+    MessageLoop.sendMessage(widget, Widget.Msg.BeforeAttach);
+    host.insertBefore(widget.node, ref);
+    MessageLoop.sendMessage(widget, Widget.Msg.AfterAttach);
+  };
+}
+
 export class InjectableBaseWidget extends Mixin(Widget, InjectableService) {}
 
 export class BaseWidget extends InjectableBaseWidget {
@@ -27,6 +74,15 @@ export class BaseWidget extends InjectableBaseWidget {
   protected readonly toDisposeOnDetach = new DisposableStore();
   protected scrollBar?: PerfectScrollbar;
   protected scrollOptions?: PerfectScrollbar.Options;
+
+  protected readonly onScrollYReachEndEmitter = new Emitter<void>();
+  readonly onScrollYReachEnd: Event<void> = this.onScrollYReachEndEmitter.event;
+  protected readonly onScrollUpEmitter = new Emitter<void>();
+  readonly onScrollUp: Event<void> = this.onScrollUpEmitter.event;
+  protected readonly onDidChangeVisibilityEmitter = new Emitter<boolean>();
+  readonly onDidChangeVisibility = this.onDidChangeVisibilityEmitter.event;
+  protected readonly onDidDisposeEmitter = new Emitter<void>();
+  readonly onDidDispose = this.onDidDisposeEmitter.event;
 
   override dispose(): void {
     if (this.isDisposed) {
@@ -99,7 +155,7 @@ export class BaseWidget extends InjectableBaseWidget {
     }
   }
 
-  protected getScrollContainer(): HTMLElement | Promise<HTMLElement> {
+  protected getScrollContainer(): MaybePromise<HTMLElement> {
     return this.node;
   }
 
@@ -215,4 +271,31 @@ export function addClipboardListener<K extends 'cut' | 'copy' | 'paste'>(element
   return toDisposable(() =>
     document.removeEventListener(type, documentListener),
   );
+}
+
+function waitForVisible(widget: Widget, visible: boolean, attached?: boolean): Promise<void> {
+  if ((typeof attached !== 'boolean' || widget.isAttached === attached)
+    && (widget.isVisible === visible || (widget.node.style.visibility !== 'hidden') === visible)
+  ) {
+    return new Promise(resolve => window.requestAnimationFrame(() => resolve()));
+  }
+  return new Promise((resolve) => {
+    const waitFor = () => window.requestAnimationFrame(() => {
+      if ((typeof attached !== 'boolean' || widget.isAttached === attached)
+        && (widget.isVisible === visible || (widget.node.style.visibility !== 'hidden') === visible)) {
+        window.requestAnimationFrame(() => resolve());
+      }
+      else {
+        waitFor();
+      }
+    });
+    waitFor();
+  });
+}
+
+/**
+ * Resolves when the given widget is attached and visible.
+ */
+export function waitForRevealed(widget: Widget): Promise<void> {
+  return waitForVisible(widget, true, true);
 }

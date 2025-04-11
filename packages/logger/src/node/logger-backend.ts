@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-import { Disposable, RpcConnectionHandler } from '@gepick/core/common';
+import { IDisposable, RpcConnectionHandler } from '@gepick/core/common';
 import { ILoggerClient, ILoggerServer, loggerPath } from "@gepick/logger/common";
 
-class ConsoleLogger extends Disposable implements ILoggerServer {
+class ConsoleLogger extends IDisposable implements ILoggerServer {
   /* Logger client to send notifications to.  */
   private client: ILoggerClient | undefined = undefined;
 

@@ -1,4 +1,3 @@
-/* eslint-disable prefer-promise-reject-errors */
 import { Signal } from "@lumino/signaling";
 import { BoxLayout, BoxPanel, DockPanel, Panel, PanelLayout, SplitLayout, SplitPanel, TabBar, Title, Widget } from "@lumino/widgets";
 import { find, map, some, toArray } from '@lumino/algorithm';
@@ -6,6 +5,7 @@ import { AttachedProperty } from '@lumino/properties';
 import { MimeData } from '@lumino/coreutils';
 import { Drag } from '@lumino/dragdrop';
 
+import { InjectableService, createServiceDecorator } from "@gepick/core/common";
 import { SideTabBar, TabBarRenderer } from "./tab-bars";
 
 export namespace SidePanel {
@@ -94,6 +94,13 @@ export namespace SidePanel {
     collapsing = 'collapsing',
   }
 }
+
+export const MAXIMIZED_CLASS = 'theia-maximized';
+export const ACTIVE_TABBAR_CLASS = 'theia-tabBar-active';
+export const VISIBLE_MENU_MAXIMIZED_CLASS = 'theia-visible-menu-maximized';
+
+export const MAIN_AREA_ID = 'theia-main-content-panel';
+export const BOTTOM_AREA_ID = 'theia-bottom-content-panel';
 
 export class GepickDockPanel extends DockPanel {
   /**
@@ -596,7 +603,7 @@ export class SidePanelHandler {
 
 export interface SplitPositionOptions {
   /** The side of the side panel that shall be resized. */
-  side: 'left' | 'right' | 'top' | 'bottom';
+  side?: 'left' | 'right' | 'top' | 'bottom';
   /** The duration in milliseconds, or 0 for no animation. */
   duration: number;
   /** When this widget is hidden, the animation is canceled. */
@@ -608,7 +615,7 @@ export interface MoveEntry extends SplitPositionOptions {
   index: number;
   started: boolean;
   ended: boolean;
-  targetSize: number;
+  targetSize?: number;
   targetPosition?: number;
   startPosition?: number;
   startTime?: number;
@@ -616,9 +623,26 @@ export interface MoveEntry extends SplitPositionOptions {
   reject?: (reason: string) => void;
 }
 
-export class SplitPositionHandler {
+export class SplitPositionHandler extends InjectableService {
   private readonly splitMoves: MoveEntry[] = [];
   private currentMoveIndex: number = 0;
+
+  /**
+   * Set the position of a split handle asynchronously. This function makes sure that such movements
+   * are performed one after another in order to prevent the movements from overriding each other.
+   * When resolved, the returned promise yields the final position of the split handle.
+   */
+  setSplitHandlePosition(parent: SplitPanel, index: number, targetPosition: number, options: SplitPositionOptions): Promise<number> {
+    const move: MoveEntry = {
+      ...options,
+      parent,
+      targetPosition,
+      index,
+      started: false,
+      ended: false,
+    };
+    return this.moveSplitPos(move);
+  }
 
   /**
    * Resize a side panel asynchronously. This function makes sure that such movements are performed
@@ -627,11 +651,11 @@ export class SplitPositionHandler {
    */
   setSidePanelSize(sidePanel: Widget, targetSize: number, options: SplitPositionOptions): Promise<number> {
     if (targetSize < 0) {
-      return Promise.reject('Cannot resize to negative value.');
+      return Promise.reject(new Error('Cannot resize to negative value.'));
     }
     const parent = sidePanel.parent;
     if (!(parent instanceof SplitPanel)) {
-      return Promise.reject('Widget must be contained in a SplitPanel.');
+      return Promise.reject(new Error('Widget must be contained in a SplitPanel.'));
     }
     let index = parent.widgets.indexOf(sidePanel);
     if (index > 0 && (options.side === 'right' || options.side === 'bottom')) {
@@ -653,13 +677,14 @@ export class SplitPositionHandler {
       move.resolve = resolve;
       move.reject = reject;
       if (this.splitMoves.length === 0) {
-        window.requestAnimationFrame(this.animationFrame.bind(this));
+        setTimeout(this.animationFrame.bind(this), 10);
       }
       this.splitMoves.push(move);
     });
   }
 
-  protected animationFrame(time: number): void {
+  protected animationFrame(): void {
+    const time = Date.now();
     const move = this.splitMoves[this.currentMoveIndex];
     let rejectedOrResolved = false;
     if (move.ended || move.referenceWidget && move.referenceWidget.isHidden) {
@@ -699,12 +724,12 @@ export class SplitPositionHandler {
       this.currentMoveIndex = 0;
     }
     if (this.splitMoves.length > 0) {
-      window.requestAnimationFrame(this.animationFrame.bind(this));
+      setTimeout(this.animationFrame.bind(this));
     }
   }
 
   protected startMove(move: MoveEntry, time: number): void {
-    if (move.targetPosition === undefined) {
+    if (move.targetPosition === undefined && move.targetSize !== undefined) {
       const { clientWidth, clientHeight } = move.parent.node;
       if (clientWidth && clientHeight) {
         switch (move.side) {
@@ -754,3 +779,5 @@ export class SplitPositionHandler {
     }
   }
 }
+export const ISplitPositionHandler = createServiceDecorator<ISplitPositionHandler>(SplitPositionHandler.name);
+export type ISplitPositionHandler = SplitPositionHandler;

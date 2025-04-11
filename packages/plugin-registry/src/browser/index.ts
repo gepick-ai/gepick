@@ -1,1 +1,1 @@
-export const browser = 'browser'
+export * from "./plugin-registry-view-contribution";

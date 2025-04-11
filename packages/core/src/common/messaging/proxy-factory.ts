@@ -1,7 +1,7 @@
-import { Disposable, Emitter, Event, IConnectionHandler, InjectableService } from "@gepick/core/common";
+import { IDisposable, Emitter, Event, IConnectionHandler, InjectableService } from "@gepick/core/common";
 import { MessageConnection } from "./vscode-ws-jsonrpc";
 
-export type RpcServer<Client> = Disposable & {
+export type RpcServer<Client> = IDisposable & {
   /**
    * If this server is a proxy to a remote server then
    * a client is used as a local object

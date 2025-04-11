@@ -19,7 +19,6 @@ export { Prioritizeable } from './prioritizeable';
 
 type UnknownObject<T extends object> = Record<string | number | symbol, unknown> & { [K in keyof T]: unknown };
 
-export type Deferred<T> = { [P in keyof T]: Promise<T[P]> };
 export type MaybeArray<T> = T | T[];
 export type MaybeNull<T> = { [P in keyof T]: T[P] | null };
 export type MaybePromise<T> = T | PromiseLike<T>;

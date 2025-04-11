@@ -1,13 +1,14 @@
 import { IContributionProvider, InjectableService, createServiceDecorator } from '@gepick/core/common';
 import { Widget } from '../widgets';
-import { IApplicationShell } from '../shell/application-shell';
-import { IExtensionFrontendContribution, ISearchInWorkspaceFrontendContribution, IViewContribution, IViewContributionProvider } from "../shell";
+import { IApplicationShell, IExtensionFrontendContribution, ISearchInWorkspaceFrontendContribution, IViewContribution, IViewContributionProvider } from "../shell";
+import { IApplicationContribution, IApplicationContributionProvider } from './application-contribution';
 
 export const IApplication = createServiceDecorator<IApplication>("Application");
 export type IApplication = Application;
 
 export class Application extends InjectableService {
   constructor(
+    @IApplicationContributionProvider private readonly applicationContributionProvider: IContributionProvider<IApplicationContribution>,
     @IApplicationShell private readonly applicationShell: IApplicationShell,
     @ISearchInWorkspaceFrontendContribution private readonly searchInWorkspaceFrontendContribution: ISearchInWorkspaceFrontendContribution,
     @IExtensionFrontendContribution private readonly extensionFrontendContribution: IExtensionFrontendContribution,
@@ -17,6 +18,12 @@ export class Application extends InjectableService {
   }
 
   async start() {
+    const applicationContributions = this.applicationContributionProvider.getContributions();
+
+    for (const contribution of applicationContributions) {
+      contribution.onApplicationInit?.();
+    }
+
     const host = await this.getHost();
 
     this.attachShell(host);

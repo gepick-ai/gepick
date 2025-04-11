@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { isOSX } from '../common/os';
+import { isOSX } from './os';
 
 /**
  * The key sequence for this binding. This key sequence should consist of one or more key strokes. Key strokes

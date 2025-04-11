@@ -2,7 +2,7 @@ import { PostConstruct, createServiceDecorator } from "@gepick/core/common";
 import { Signal } from "@lumino/signaling";
 import { ArrayExt, find, toArray } from "@lumino/algorithm";
 import { IDragEvent } from "@lumino/dragdrop";
-import { BoxLayout, BoxPanel, DockLayout, DockPanel, FocusTracker, InjectableBaseWidget, Layout, Message, SplitLayout, SplitPanel, TabBar, Widget } from "../widgets";
+import { BaseWidget, BoxLayout, BoxPanel, DockLayout, DockPanel, FocusTracker, Layout, Message, SplitLayout, SplitPanel, TabBar, Widget } from "../widgets";
 import { GepickDockPanel, SidePanel, SidePanelHandler } from "./side-panel";
 import { ScrollableTabBar, TabBarRenderer } from "./tab-bars";
 
@@ -144,7 +144,7 @@ export namespace ApplicationShell1 {
   }
 }
 
-export class ApplicationShell extends InjectableBaseWidget {
+export class ApplicationShell extends BaseWidget {
   /**
    * Handler for the left side panel. The primary application views go here, such as the
    * file explorer and the git view.
