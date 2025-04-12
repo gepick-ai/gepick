@@ -61,88 +61,6 @@ export class DockPanelRenderer implements DockLayout.IRenderer {
 /**
  * The namespace for `ApplicationShell` class statics.
  */
-export namespace ApplicationShell1 {
-  /**
-   * The areas of the application shell where widgets can reside.
-   */
-  export type Area = 'main' | 'left';
-
-  /**
-   * The _side areas_ are those shell areas that can be collapsed and expanded,
-   * i.e. `left`, `right`, and `bottom`.
-   */
-  export function isSideArea(area?: Area): area is 'left' {
-    return area === 'left';
-  }
-
-  /**
-   * General options for the application shell. These are passed on construction and can be modified
-   * through dependency injection (`ApplicationShellOptions` symbol).
-   */
-  export interface Options extends Widget.IOptions {
-    bottomPanel: BottomPanelOptions;
-    leftPanel: SidePanel.Options;
-    rightPanel: SidePanel.Options;
-  }
-
-  export interface BottomPanelOptions extends SidePanel.Options {
-  }
-
-  /**
-   * The default values for application shell options.
-   */
-  export const DEFAULT_OPTIONS = Object.freeze(<Options>{
-    bottomPanel: Object.freeze(<BottomPanelOptions>{
-      emptySize: 140,
-      expandThreshold: 160,
-      expandDuration: 150,
-      initialSizeRatio: 0.382,
-    }),
-    leftPanel: Object.freeze(<SidePanel.Options>{
-      emptySize: 140,
-      expandThreshold: 140,
-      expandDuration: 150,
-      initialSizeRatio: 0.191,
-    }),
-    rightPanel: Object.freeze(<SidePanel.Options>{
-      emptySize: 140,
-      expandThreshold: 140,
-      expandDuration: 150,
-      initialSizeRatio: 0.191,
-    }),
-  });
-
-  /**
-   * Options for adding a widget to the application shell.
-   */
-  export interface WidgetOptions extends DockLayout.IAddOptions, SidePanel.WidgetOptions {
-    /**
-     * The area of the application shell where the widget will reside.
-     */
-    area: Area;
-  }
-
-  /**
-   * Data to save and load the application shell layout.
-   */
-  export interface LayoutData {
-    version?: string;
-    mainPanel?: DockPanel.ILayoutConfig;
-    bottomPanel?: BottomPanelLayoutData;
-    leftPanel?: SidePanel.LayoutData;
-    rightPanel?: SidePanel.LayoutData;
-    activeWidgetId?: string;
-  }
-
-  /**
-   * Data to save and load the bottom panel layout.
-   */
-  export interface BottomPanelLayoutData {
-    config?: DockPanel.ILayoutConfig;
-    size?: number;
-    expanded?: boolean;
-  }
-}
 
 export class ApplicationShell extends BaseWidget {
   /**
@@ -152,15 +70,15 @@ export class ApplicationShell extends BaseWidget {
   leftPanelHandler: SidePanelHandler;
   leftPanel: BoxPanel;
   mainPanel: DockPanel;
-  options: ApplicationShell1.Options = {
+  options: ApplicationShell.Options = {
     bottomPanel: {
-      ...ApplicationShell1.DEFAULT_OPTIONS.bottomPanel,
+      ...ApplicationShell.DEFAULT_OPTIONS.bottomPanel,
     },
     leftPanel: {
-      ...ApplicationShell1.DEFAULT_OPTIONS.leftPanel,
+      ...ApplicationShell.DEFAULT_OPTIONS.leftPanel,
     },
     rightPanel: {
-      ...ApplicationShell1.DEFAULT_OPTIONS.rightPanel,
+      ...ApplicationShell.DEFAULT_OPTIONS.rightPanel,
     },
   };
 
@@ -199,7 +117,7 @@ export class ApplicationShell extends BaseWidget {
   /**
    * The shell area name of the currently active tab, or undefined.
    */
-  get currentTabArea(): ApplicationShell1.Area | undefined {
+  get currentTabArea(): ApplicationShell.Area | undefined {
     const currentWidget = this.currentWidget;
     if (currentWidget) {
       return this.getAreaFor(currentWidget);
@@ -404,7 +322,7 @@ export class ApplicationShell extends BaseWidget {
   /**
    * Return the tab bar in the given shell area, or the tab bar that has the given widget, or undefined.
    */
-  getTabBarFor(widgetOrArea: Widget | ApplicationShell1.Area): TabBar<Widget> | undefined {
+  getTabBarFor(widgetOrArea: Widget | ApplicationShell.Area): TabBar<Widget> | undefined {
     if (typeof widgetOrArea === 'string') {
       switch (widgetOrArea) {
         case 'left':
@@ -437,7 +355,7 @@ export class ApplicationShell extends BaseWidget {
    *
    * Widgets added to the top area are not tracked regarding the _current_ and _active_ states.
    */
-  addWidget(widget: Widget, options: ApplicationShell1.WidgetOptions) {
+  addWidget(widget: Widget, options: ApplicationShell.WidgetOptions) {
     if (!widget.id) {
       console.error('Widgets added to the application shell must have a unique id property.');
       return;
@@ -459,7 +377,7 @@ export class ApplicationShell extends BaseWidget {
   /**
    * The widgets contained in the given shell area.
    */
-  getWidgets(area: ApplicationShell1.Area): Widget[] {
+  getWidgets(area: ApplicationShell.Area): Widget[] {
     switch (area) {
       case 'main':
         return toArray(this.mainPanel.widgets());
@@ -542,7 +460,7 @@ export class ApplicationShell extends BaseWidget {
    * collapsed (see `collapsePanel`) and it contains widgets, the widgets are revealed that were
    * visible before it was collapsed.
    */
-  expandPanel(area: ApplicationShell1.Area): void {
+  expandPanel(area: ApplicationShell.Area): void {
     switch (area) {
       case 'left':
         this.leftPanelHandler.expand();
@@ -558,7 +476,7 @@ export class ApplicationShell extends BaseWidget {
    * @param size the desired size of the panel in pixels.
    * @param area the area to resize.
    */
-  resize(size: number, area: ApplicationShell1.Area): void {
+  resize(size: number, area: ApplicationShell.Area): void {
     switch (area) {
       case 'left':
         this.leftPanelHandler.resize(size);
@@ -572,7 +490,7 @@ export class ApplicationShell extends BaseWidget {
    * Collapse the named side panel area. This makes sure that the panel is hidden,
    * increasing the space that is available for other shell areas.
    */
-  collapsePanel(area: ApplicationShell1.Area): void {
+  collapsePanel(area: ApplicationShell.Area): void {
     switch (area) {
       case 'left':
         this.leftPanelHandler.collapse();
@@ -585,7 +503,7 @@ export class ApplicationShell extends BaseWidget {
   /**
    * Check whether the named side panel area is expanded (returns `true`) or collapsed (returns `false`).
    */
-  isExpanded(area: ApplicationShell1.Area): boolean {
+  isExpanded(area: ApplicationShell.Area): boolean {
     switch (area) {
       case 'left':
         return this.leftPanelHandler.state.expansion === SidePanel.ExpansionState.expanded;
@@ -599,7 +517,7 @@ export class ApplicationShell extends BaseWidget {
    * Determine the name of the shell area where the given widget resides. The result is
    * undefined if the widget does not reside directly in the shell.
    */
-  getAreaFor(widget: Widget): ApplicationShell1.Area | undefined {
+  getAreaFor(widget: Widget): ApplicationShell.Area | undefined {
     const title = widget.title;
     const mainPanelTabBar = find(this.mainPanel.tabBars(), bar => ArrayExt.firstIndexOf(bar.titles, title) > -1);
     if (mainPanelTabBar) {
@@ -729,6 +647,89 @@ export class ApplicationShell extends BaseWidget {
       event.initMouseEvent('mousemove', true, true, window, 0, 0, 0, clientX, clientY, false, false, false, false, 0, null);
       document.dispatchEvent(event);
     }
+  }
+}
+
+export namespace ApplicationShell {
+  /**
+   * The areas of the application shell where widgets can reside.
+   */
+  export type Area = 'main' | 'left';
+
+  /**
+   * The _side areas_ are those shell areas that can be collapsed and expanded,
+   * i.e. `left`, `right`, and `bottom`.
+   */
+  export function isSideArea(area?: Area): area is 'left' {
+    return area === 'left';
+  }
+
+  /**
+   * General options for the application shell. These are passed on construction and can be modified
+   * through dependency injection (`ApplicationShellOptions` symbol).
+   */
+  export interface Options extends Widget.IOptions {
+    bottomPanel: BottomPanelOptions;
+    leftPanel: SidePanel.Options;
+    rightPanel: SidePanel.Options;
+  }
+
+  export interface BottomPanelOptions extends SidePanel.Options {
+  }
+
+  /**
+   * The default values for application shell options.
+   */
+  export const DEFAULT_OPTIONS = Object.freeze(<Options>{
+    bottomPanel: Object.freeze(<BottomPanelOptions>{
+      emptySize: 140,
+      expandThreshold: 160,
+      expandDuration: 150,
+      initialSizeRatio: 0.382,
+    }),
+    leftPanel: Object.freeze(<SidePanel.Options>{
+      emptySize: 140,
+      expandThreshold: 140,
+      expandDuration: 150,
+      initialSizeRatio: 0.191,
+    }),
+    rightPanel: Object.freeze(<SidePanel.Options>{
+      emptySize: 140,
+      expandThreshold: 140,
+      expandDuration: 150,
+      initialSizeRatio: 0.191,
+    }),
+  });
+
+  /**
+   * Options for adding a widget to the application shell.
+   */
+  export interface WidgetOptions extends DockLayout.IAddOptions, SidePanel.WidgetOptions {
+    /**
+     * The area of the application shell where the widget will reside.
+     */
+    area: Area;
+  }
+
+  /**
+   * Data to save and load the application shell layout.
+   */
+  export interface LayoutData {
+    version?: string;
+    mainPanel?: DockPanel.ILayoutConfig;
+    bottomPanel?: BottomPanelLayoutData;
+    leftPanel?: SidePanel.LayoutData;
+    rightPanel?: SidePanel.LayoutData;
+    activeWidgetId?: string;
+  }
+
+  /**
+   * Data to save and load the bottom panel layout.
+   */
+  export interface BottomPanelLayoutData {
+    config?: DockPanel.ILayoutConfig;
+    size?: number;
+    expanded?: boolean;
   }
 }
 

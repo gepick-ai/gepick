@@ -1,6 +1,23 @@
 import { Module, ServiceModule } from "@gepick/core/common";
+import { PluginRegistryViewContribution } from "./plugin-registry-view-contribution";
+import { PluginsViewContainer } from "./plugin/plugin-view-container";
+import { PluginsWidget } from "./plugin/plugin-widget";
+import { PluginRegistrySearchModel } from "./search/plugin-registry-search-model";
+import { PluginRegistrySearchBar } from "./search/plugin-registry-search-bar";
+import { PluginsSource, PluginsSourceOptions } from "./plugin/plugin-source";
+import { PluginEditor } from "./editor/plugin-editor";
+import "./style/index.css";
 
 @Module({
-  services: [],
+  services: [
+    PluginEditor,
+    PluginsSourceOptions,
+    PluginsSource,
+    PluginRegistrySearchBar,
+    PluginRegistrySearchModel,
+    PluginsWidget,
+    PluginsViewContainer,
+    PluginRegistryViewContribution,
+  ],
 })
 export class PluginRegistryModule extends ServiceModule {}

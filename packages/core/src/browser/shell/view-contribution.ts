@@ -20,9 +20,9 @@ import {
   createContribution,
 } from '../../common';
 import { IWidgetManager } from '../widgets';
-import { ApplicationShell1, IApplicationShell } from './shell';
+import { ApplicationShell, IApplicationShell } from './shell';
 
-export interface OpenViewArguments extends ApplicationShell1.WidgetOptions {
+export interface OpenViewArguments extends ApplicationShell.WidgetOptions {
   toggle?: boolean;
   activate?: boolean;
   reveal?: boolean;
@@ -31,7 +31,7 @@ export interface OpenViewArguments extends ApplicationShell1.WidgetOptions {
 export interface ViewContributionOptions {
   widgetId: string;
   widgetName: string;
-  defaultWidgetOptions: ApplicationShell1.WidgetOptions;
+  defaultWidgetOptions: ApplicationShell.WidgetOptions;
   toggleCommandId?: string;
   toggleKeybinding?: string;
 }
@@ -40,12 +40,10 @@ export interface ViewContributionOptions {
  * An abstract superclass for frontend contributions that add a view to the application shell.
  */
 export abstract class AbstractViewContribution<T extends Widget> extends InjectableService {
-  options: ViewContributionOptions;
+  @IWidgetManager protected readonly widgetManager: IWidgetManager;
+  @IApplicationShell protected readonly shell: IApplicationShell;
 
-  constructor(
-    @IWidgetManager protected readonly widgetManager: IWidgetManager,
-    @IApplicationShell protected readonly shell: IApplicationShell,
-  ) {
+  constructor(protected options: ViewContributionOptions) {
     super();
   }
 

@@ -93,35 +93,6 @@ export namespace DynamicToolbarWidget {
 // ====DynamicToolbarWidget end====
 
 // ====ViewContainerPart start====
-export namespace ViewContainerPart1 {
-
-  /**
-   * Make sure to adjust the `line-height` of the `.theia-view-container .part > .header` CSS class when modifying this, and vice versa.
-   */
-  export const HEADER_HEIGHT = 22;
-
-  export interface State {
-    widget?: Widget;
-    partId: string;
-    collapsed: boolean;
-    hidden: boolean;
-    relativeSize?: number;
-    description?: string;
-    /** The original container to which this part belongs */
-    originalContainerId: string;
-    originalContainerTitle?: ViewContainerTitleOptions;
-  }
-
-  export function closestPart(element: Element | EventTarget | null, selector: string = 'div.part'): Element | undefined {
-    if (element instanceof Element) {
-      const part = element.closest(selector);
-      if (part instanceof Element) {
-        return part;
-      }
-    }
-    return undefined;
-  }
-}
 
 /**
  * Wrapper around a widget held by a view container. Adds a header to display the
@@ -163,7 +134,7 @@ export class ViewContainerPart extends BaseWidget {
     readonly originalContainerTitle: ViewContainerTitleOptions | undefined,
     protected readonly toolbarRegistry: TabBarToolbarRegistry,
     protected readonly toolbarFactory: TabBarToolbarFactory,
-    readonly options: ViewContainer1.Factory.WidgetOptions = {},
+    readonly options: ViewContainer.Factory.WidgetOptions = {},
   ) {
     super();
     wrapped.parent = this;
@@ -243,8 +214,8 @@ export class ViewContainerPart extends BaseWidget {
 
   set collapsed(collapsed: boolean) {
     // Cannot collapse/expand if the orientation of the container is `horizontal`.
-    // eslint-disable-next-line ts/no-use-before-define
-    const orientation = ViewContainer1.getOrientation(this.node);
+
+    const orientation = ViewContainer.getOrientation(this.node);
     if (this._collapsed === collapsed || (orientation === 'horizontal' && collapsed)) {
       return;
     }
@@ -294,8 +265,8 @@ export class ViewContainerPart extends BaseWidget {
 
   get minSize(): number {
     const style = getComputedStyle(this.body);
-    // eslint-disable-next-line ts/no-use-before-define
-    if (ViewContainer1.getOrientation(this.node) === 'horizontal') {
+
+    if (ViewContainer.getOrientation(this.node) === 'horizontal') {
       return parseCssMagnitude(style.minWidth, 0);
     }
     else {
@@ -534,51 +505,38 @@ export class ViewContainerPart extends BaseWidget {
   }
 }
 
+export namespace ViewContainerPart {
+
+  /**
+   * Make sure to adjust the `line-height` of the `.theia-view-container .part > .header` CSS class when modifying this, and vice versa.
+   */
+  export const HEADER_HEIGHT = 22;
+
+  export interface State {
+    widget?: Widget;
+    partId: string;
+    collapsed: boolean;
+    hidden: boolean;
+    relativeSize?: number;
+    description?: string;
+    /** The original container to which this part belongs */
+    originalContainerId: string;
+    originalContainerTitle?: ViewContainerTitleOptions;
+  }
+
+  export function closestPart(element: Element | EventTarget | null, selector: string = 'div.part'): Element | undefined {
+    if (element instanceof Element) {
+      const part = element.closest(selector);
+      if (part instanceof Element) {
+        return part;
+      }
+    }
+    return undefined;
+  }
+}
 // ====ViewContainerPart end====
 
 // ====ViewContainer start====
-export namespace ViewContainer1 {
-
-  export const Factory = Symbol('ViewContainerFactory');
-  export interface Factory {
-    (options: ViewContainerIdentifier): ViewContainer;
-  }
-
-  export namespace Factory {
-
-    export interface WidgetOptions {
-      readonly order?: number;
-      readonly weight?: number;
-      readonly initiallyCollapsed?: boolean;
-      readonly canHide?: boolean;
-      readonly initiallyHidden?: boolean;
-      /**
-       * Disable dragging this part from its original container to other containers,
-       * But allow dropping parts from other containers on it,
-       * This option only applies to the `ViewContainerPart` and has no effect on the ViewContainer.
-       */
-      readonly disableDraggingToOtherContainers?: boolean;
-    }
-
-    export interface WidgetDescriptor {
-      readonly widget: Widget | interfaces.ServiceIdentifier<Widget>;
-      readonly options?: WidgetOptions;
-    }
-
-  }
-
-  export interface State {
-    title?: ViewContainerTitleOptions;
-    parts: ViewContainerPart1.State[];
-  }
-
-  export function getOrientation(node: HTMLElement): 'horizontal' | 'vertical' {
-    if (node.closest(`#${MAIN_AREA_ID}`)) {
-      return 'horizontal';
-    }
-    return 'vertical';
-  }
-}
 export class ViewContainer extends BaseWidget {
   protected panel: SplitPanel;
 
@@ -586,7 +544,7 @@ export class ViewContainer extends BaseWidget {
 
   protected titleOptions: ViewContainerTitleOptions | undefined;
 
-  protected lastVisibleState: ViewContainer1.State | undefined;
+  protected lastVisibleState: ViewContainer.State | undefined;
 
   protected _tabBarDelegate: Widget = this;
 
@@ -613,7 +571,7 @@ export class ViewContainer extends BaseWidget {
   }
 
   protected get orientation(): SplitLayout.Orientation {
-    return ViewContainer1.getOrientation(this.node);
+    return ViewContainer.getOrientation(this.node);
   }
 
   get containerLayout(): ViewContainerLayout {
@@ -639,7 +597,7 @@ export class ViewContainer extends BaseWidget {
         renderer: SplitPanel.defaultRenderer,
         orientation: this.orientation,
         spacing: 2,
-        headerSize: ViewContainerPart1.HEADER_HEIGHT,
+        headerSize: ViewContainerPart.HEADER_HEIGHT,
         animationDuration: 200,
       }, this.splitPositionHandler),
     });
@@ -786,7 +744,7 @@ export class ViewContainer extends BaseWidget {
 
   protected registerToolbarItem(_commandId: string, _options?: any): void {}
 
-  addWidget(widget: Widget, options?: ViewContainer1.Factory.WidgetOptions, originalContainerId?: string, originalContainerTitle?: ViewContainerTitleOptions): IDisposable {
+  addWidget(widget: Widget, options?: ViewContainer.Factory.WidgetOptions, originalContainerId?: string, originalContainerTitle?: ViewContainerTitleOptions): IDisposable {
     const existing = this.toRemoveWidgets.get(widget.id);
     if (existing) {
       return existing;
@@ -801,7 +759,7 @@ export class ViewContainer extends BaseWidget {
     return widget.id || JSON.stringify(description);
   }
 
-  protected createPart(widget: Widget, partId: string, originalContainerId: string, originalContainerTitle?: ViewContainerTitleOptions, options?: ViewContainer1.Factory.WidgetOptions): ViewContainerPart {
+  protected createPart(widget: Widget, partId: string, originalContainerId: string, originalContainerTitle?: ViewContainerTitleOptions, options?: ViewContainer.Factory.WidgetOptions): ViewContainerPart {
     return new ViewContainerPart(widget, partId, this.id, originalContainerId, originalContainerTitle, this.toolbarRegistry, this.toolbarFactory, options);
   }
 
@@ -966,23 +924,23 @@ export class ViewContainer extends BaseWidget {
     // this.menuRegistry.unregisterMenuAction(commandId);
   }
 
-  storeState(): ViewContainer1.State {
+  storeState(): ViewContainer.State {
     if (!this.isVisible && this.lastVisibleState) {
       return this.lastVisibleState;
     }
     return this.doStoreState();
   }
 
-  protected doStoreState(): ViewContainer1.State {
+  protected doStoreState(): ViewContainer.State {
     const parts = this.getParts();
     const availableSize = this.containerLayout.getAvailableSize();
     const orientation = this.orientation;
     const partStates = parts.map((part) => {
       let size = this.containerLayout.getPartSize(part);
-      if (size && size > ViewContainerPart1.HEADER_HEIGHT && orientation === 'vertical') {
-        size -= ViewContainerPart1.HEADER_HEIGHT;
+      if (size && size > ViewContainerPart.HEADER_HEIGHT && orientation === 'vertical') {
+        size -= ViewContainerPart.HEADER_HEIGHT;
       }
-      return <ViewContainerPart1.State>{
+      return <ViewContainerPart.State>{
         widget: part.wrapped,
         partId: part.partId,
         collapsed: part.collapsed,
@@ -1041,7 +999,7 @@ export class ViewContainer extends BaseWidget {
     return this.getParts().map(w => w.wrapped);
   }
 
-  protected doRestoreState(state: ViewContainer1.State): void {
+  protected doRestoreState(state: ViewContainer.State): void {
     this.setTitleOptions(state.title);
     // restore widgets
     for (const part of state.parts) {
@@ -1082,29 +1040,59 @@ export class ViewContainer extends BaseWidget {
     });
   }
 }
+
+export namespace ViewContainer {
+
+  export const Factory = Symbol('ViewContainerFactory');
+  export interface Factory {
+    (options: ViewContainerIdentifier): ViewContainer;
+  }
+
+  export namespace Factory {
+
+    export interface WidgetOptions {
+      readonly order?: number;
+      readonly weight?: number;
+      readonly initiallyCollapsed?: boolean;
+      readonly canHide?: boolean;
+      readonly initiallyHidden?: boolean;
+      /**
+       * Disable dragging this part from its original container to other containers,
+       * But allow dropping parts from other containers on it,
+       * This option only applies to the `ViewContainerPart` and has no effect on the ViewContainer.
+       */
+      readonly disableDraggingToOtherContainers?: boolean;
+    }
+
+    export interface WidgetDescriptor {
+      readonly widget: Widget | interfaces.ServiceIdentifier<Widget>;
+      readonly options?: WidgetOptions;
+    }
+
+  }
+
+  export interface State {
+    title?: ViewContainerTitleOptions;
+    parts: ViewContainerPart.State[];
+  }
+
+  export function getOrientation(node: HTMLElement): 'horizontal' | 'vertical' {
+    if (node.closest(`#${MAIN_AREA_ID}`)) {
+      return 'horizontal';
+    }
+    return 'vertical';
+  }
+}
 // ====ViewContainer end====
 
 // ====ViewContainerLayout start====
-export namespace ViewContainerLayout1 {
-
-  export interface Options extends SplitLayout.IOptions {
-    headerSize: number;
-    animationDuration: number;
-  }
-
-  export interface Item {
-    readonly widget: ViewContainerPart;
-  }
-
-}
-
 export class ViewContainerLayout extends SplitLayout {
-  constructor(protected options: ViewContainerLayout1.Options, protected readonly splitPositionHandler: SplitPositionHandler) {
+  constructor(protected options: ViewContainerLayout.Options, protected readonly splitPositionHandler: SplitPositionHandler) {
     super(options);
   }
 
-  protected get items(): ReadonlyArray<LayoutItem & ViewContainerLayout1.Item> {
-    return (this as any)._items as Array<LayoutItem & ViewContainerLayout1.Item>;
+  protected get items(): ReadonlyArray<LayoutItem & ViewContainerLayout.Item> {
+    return (this as any)._items as Array<LayoutItem & ViewContainerLayout.Item>;
   }
 
   iter(): IterableIterator<ViewContainerPart> {
@@ -1378,5 +1366,18 @@ export class ViewContainerLayout extends SplitLayout {
     };
     return this.splitPositionHandler.setSplitHandlePosition(this.parent as SplitPanel, index, position, options) as Promise<any>;
   }
+}
+
+export namespace ViewContainerLayout {
+
+  export interface Options extends SplitLayout.IOptions {
+    headerSize: number;
+    animationDuration: number;
+  }
+
+  export interface Item {
+    readonly widget: ViewContainerPart;
+  }
+
 }
 // ====ViewContainerLayout end====
