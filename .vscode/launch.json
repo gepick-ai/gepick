@@ -1,10 +1,24 @@
 {
   "configurations": [
+
     {
       "name": "Debug-Server",
       "request": "launch",
       "runtimeArgs": [
         "dev:server"
+      ],
+      "runtimeExecutable": "yarn",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "sourceMaps": true
+    },
+    {
+      "name": "Debug-Client",
+      "request": "launch",
+      "runtimeArgs": [
+        "dev:client"
       ],
       "runtimeExecutable": "yarn",
       "skipFiles": [

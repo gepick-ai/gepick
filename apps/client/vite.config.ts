@@ -21,9 +21,9 @@ function staticSavePath(type?: string, ext?: string): string {
 
 export default defineConfig({
   plugins: [
-    tsconfigPaths({
-      projects: ["./tsconfig.json"],
-    }),
+    // tsconfigPaths({
+    //   projects: ["./tsconfig.json"],
+    // }),
     react({
       babel: {
         plugins: [

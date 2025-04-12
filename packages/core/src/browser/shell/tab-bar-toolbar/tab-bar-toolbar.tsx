@@ -23,18 +23,21 @@ import { Anchor, ContextMatcher, ContextMenuAccess, IContextKeyService, IContext
 import { ILabelParser, LabelIcon } from '../../label';
 import { ReactTabBarToolbarItem, RenderedToolbarItem, TAB_BAR_TOOLBAR_CONTEXT_MENU, TabBarDelegator, TabBarToolbarItem } from './tab-bar-toolbar-types';
 import { ITabBarToolbarRegistry } from './tab-bar-toolbar-registry';
-/**
- * Factory for instantiating tab-bar toolbars.
- */
-export const TabBarToolbarFactory = Symbol('TabBarToolbarFactory');
-export interface TabBarToolbarFactory {
-  (): TabBarToolbar;
-}
 
 /**
  * Class name indicating rendering of a toolbar item without an icon but instead with a text label.
  */
 const NO_ICON_CLASS = 'no-icon';
+
+export namespace TabBarToolbar1 {
+
+  export namespace Styles {
+
+    export const TAB_BAR_TOOLBAR = 'lm-TabBar-toolbar';
+    export const TAB_BAR_TOOLBAR_ITEM = 'item';
+
+  }
+}
 
 /**
  * Tab-bar toolbar widget representing the active [tab-bar toolbar items](TabBarToolbarItem).
@@ -57,7 +60,7 @@ export class TabBarToolbar extends ReactWidget {
 
   constructor() {
     super();
-    this.addClass(TabBarToolbar.Styles.TAB_BAR_TOOLBAR);
+    this.addClass(TabBarToolbar1.Styles.TAB_BAR_TOOLBAR);
     this.hide();
   }
 
@@ -215,7 +218,7 @@ export class TabBarToolbar extends ReactWidget {
   }
 
   protected getToolbarItemClassNames(item: TabBarToolbarItem): string[] {
-    const classNames = [TabBarToolbar.Styles.TAB_BAR_TOOLBAR_ITEM];
+    const classNames = [TabBarToolbar1.Styles.TAB_BAR_TOOLBAR_ITEM];
     if (item.command) {
       if (this.isEnabled(item)) {
         classNames.push('enabled');
@@ -231,7 +234,7 @@ export class TabBarToolbar extends ReactWidget {
 
   protected renderMore(): React.ReactNode {
     return !!this.more.size && (
-      <div key="__more__" className={`${TabBarToolbar.Styles.TAB_BAR_TOOLBAR_ITEM} enabled`}>
+      <div key="__more__" className={`${TabBarToolbar1.Styles.TAB_BAR_TOOLBAR_ITEM} enabled`}>
         <div
           id="__more__"
           className={codicon('ellipsis', true)}
@@ -250,7 +253,7 @@ export class TabBarToolbar extends ReactWidget {
   };
 
   protected toAnchor(event: React.MouseEvent): Anchor {
-    const itemBox = event.currentTarget.closest(`.${TabBarToolbar.Styles.TAB_BAR_TOOLBAR_ITEM}`)?.getBoundingClientRect();
+    const itemBox = event.currentTarget.closest(`.${TabBarToolbar1.Styles.TAB_BAR_TOOLBAR_ITEM}`)?.getBoundingClientRect();
     return itemBox ? { y: itemBox.bottom, x: itemBox.left } : event.nativeEvent;
   }
 
@@ -313,7 +316,7 @@ export class TabBarToolbar extends ReactWidget {
     return (
       <div
         key={item.id}
-        className={`${TabBarToolbar.Styles.TAB_BAR_TOOLBAR_ITEM} enabled menu`}
+        className={`${TabBarToolbar1.Styles.TAB_BAR_TOOLBAR_ITEM} enabled menu`}
       >
         <div
           className={codicon(icon, true)}
@@ -406,12 +409,10 @@ export class TabBarToolbar extends ReactWidget {
 export const ITabBarToolbar = createServiceDecorator(TabBarToolbar.name);
 export type ITabBarToolbar = TabBarToolbar;
 
-export namespace TabBarToolbar {
-
-  export namespace Styles {
-
-    export const TAB_BAR_TOOLBAR = 'lm-TabBar-toolbar';
-    export const TAB_BAR_TOOLBAR_ITEM = 'item';
-
-  }
+/**
+ * Factory for instantiating tab-bar toolbars.
+ */
+export const TabBarToolbarFactory = Symbol('TabBarToolbarFactory');
+export interface TabBarToolbarFactory {
+  (): TabBarToolbar;
 }

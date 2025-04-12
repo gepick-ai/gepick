@@ -7,7 +7,7 @@ import { MimeData } from "@lumino/coreutils";
 import { Drag } from "@lumino/dragdrop";
 import { BaseWidget, CODICON_TREE_ITEM_CLASSES, COLLAPSED_CLASS, EXPANSION_TOGGLE_CLASS, IWidgetManager, Message, MessageLoop, PINNED_CLASS, UnsafeWidgetUtilities, addEventListener, addKeyListener, waitForRevealed } from "../widgets";
 import { ISplitPositionHandler, MAIN_AREA_ID, SplitPositionHandler, SplitPositionOptions } from "./side-panel";
-import { IApplicationShell } from "./application-shell";
+import { IApplicationShell } from "./shell";
 import { ITabBarToolbarRegistry, TabBarToolbar, TabBarToolbarFactory, TabBarToolbarRegistry } from "./tab-bar-toolbar";
 
 /**
@@ -92,7 +92,493 @@ export namespace DynamicToolbarWidget {
 }
 // ====DynamicToolbarWidget end====
 
+// ====ViewContainerPart start====
+export namespace ViewContainerPart1 {
+
+  /**
+   * Make sure to adjust the `line-height` of the `.theia-view-container .part > .header` CSS class when modifying this, and vice versa.
+   */
+  export const HEADER_HEIGHT = 22;
+
+  export interface State {
+    widget?: Widget;
+    partId: string;
+    collapsed: boolean;
+    hidden: boolean;
+    relativeSize?: number;
+    description?: string;
+    /** The original container to which this part belongs */
+    originalContainerId: string;
+    originalContainerTitle?: ViewContainerTitleOptions;
+  }
+
+  export function closestPart(element: Element | EventTarget | null, selector: string = 'div.part'): Element | undefined {
+    if (element instanceof Element) {
+      const part = element.closest(selector);
+      if (part instanceof Element) {
+        return part;
+      }
+    }
+    return undefined;
+  }
+}
+
+/**
+ * Wrapper around a widget held by a view container. Adds a header to display the
+ * title, toolbar, and collapse / expand handle.
+ */
+export class ViewContainerPart extends BaseWidget {
+  protected readonly header: HTMLElement;
+  protected readonly body: HTMLElement;
+  protected readonly collapsedEmitter = new Emitter<boolean>();
+  protected readonly contextMenuEmitter = new Emitter<MouseEvent>();
+
+  protected readonly onTitleChangedEmitter = new Emitter<void>();
+  readonly onTitleChanged = this.onTitleChangedEmitter.event;
+  protected readonly onDidFocusEmitter = new Emitter<this>();
+  readonly onDidFocus = this.onDidFocusEmitter.event;
+  protected readonly onPartMovedEmitter = new Emitter<ViewContainer>();
+  readonly onDidMove = this.onPartMovedEmitter.event;
+  protected readonly onDidChangeDescriptionEmitter = new Emitter<void>();
+  readonly onDidChangeDescription = this.onDidChangeDescriptionEmitter.event;
+  protected readonly onDidChangeBadgeEmitter = new Emitter<void>();
+  readonly onDidChangeBadge = this.onDidChangeBadgeEmitter.event;
+  protected readonly onDidChangeBadgeTooltipEmitter = new Emitter<void>();
+  readonly onDidChangeBadgeTooltip = this.onDidChangeBadgeTooltipEmitter.event;
+
+  protected readonly toolbar: TabBarToolbar;
+
+  protected _collapsed: boolean;
+
+  uncollapsedSize: number | undefined;
+  animatedSize: number | undefined;
+
+  protected readonly toNoDisposeWrapped: IDisposable;
+
+  constructor(
+    readonly wrapped: Widget,
+    readonly partId: string,
+    protected currentContainerId: string,
+    readonly originalContainerId: string,
+    readonly originalContainerTitle: ViewContainerTitleOptions | undefined,
+    protected readonly toolbarRegistry: TabBarToolbarRegistry,
+    protected readonly toolbarFactory: TabBarToolbarFactory,
+    readonly options: ViewContainer1.Factory.WidgetOptions = {},
+  ) {
+    super();
+    wrapped.parent = this;
+    wrapped.disposed.connect(() => this.dispose());
+    this.id = `${originalContainerId}--${wrapped.id}`;
+    this.addClass('part');
+
+    const fireTitleChanged = () => this.onTitleChangedEmitter.fire(undefined);
+    this.wrapped.title.changed.connect(fireTitleChanged);
+    this.toDispose.add(toDisposable(() => this.wrapped.title.changed.disconnect(fireTitleChanged)));
+
+    if (DescriptionWidget.is(this.wrapped)) {
+      this.wrapped?.onDidChangeDescription(() => this.onDidChangeDescriptionEmitter.fire(), undefined, this.toDispose);
+    }
+
+    if (BadgeWidget.is(this.wrapped)) {
+      this.wrapped.onDidChangeBadge(() => this.onDidChangeBadgeEmitter.fire(), undefined, this.toDispose);
+      this.wrapped.onDidChangeBadgeTooltip(() => this.onDidChangeBadgeTooltipEmitter.fire(), undefined, this.toDispose);
+    }
+
+    if (DynamicToolbarWidget.is(this.wrapped)) {
+      this.wrapped.onDidChangeToolbarItems(() => {
+        this.toolbar.updateTarget(this.wrapped);
+        this.viewContainer?.update();
+      });
+    }
+
+    const { header, body, disposable } = this.createContent();
+    this.header = header;
+    this.body = body;
+
+    this.toNoDisposeWrapped = this.toDispose.add(wrapped);
+    this.toolbar = this.toolbarFactory();
+    this.toolbar.addClass('theia-view-container-part-title');
+
+    [
+      disposable,
+      this.toolbar,
+      this.toolbarRegistry.onDidChange(() => this.toolbar.updateTarget(this.wrapped)),
+      this.collapsedEmitter,
+      this.contextMenuEmitter,
+      this.onTitleChangedEmitter,
+      this.onDidChangeDescriptionEmitter,
+      this.onDidChangeBadgeEmitter,
+      this.onDidChangeBadgeTooltipEmitter,
+      this.registerContextMenu(),
+      this.onDidFocusEmitter,
+      // focus event does not bubble, capture it
+      addEventListener(this.node, 'focus', () => this.onDidFocusEmitter.fire(this), true),
+    ].forEach(d => this.toDispose.add(d));
+
+    this.scrollOptions = {
+      suppressScrollX: true,
+      minScrollbarLength: 35,
+    };
+    this.collapsed = !!options.initiallyCollapsed;
+    if (options.initiallyHidden && this.canHide) {
+      this.hide();
+    }
+  }
+
+  get viewContainer(): ViewContainer | undefined {
+    return this.parent ? this.parent.parent as ViewContainer : undefined;
+  }
+
+  get currentViewContainerId(): string {
+    return this.currentContainerId;
+  }
+
+  get headerElement(): HTMLElement {
+    return this.header;
+  }
+
+  get collapsed(): boolean {
+    return this._collapsed;
+  }
+
+  set collapsed(collapsed: boolean) {
+    // Cannot collapse/expand if the orientation of the container is `horizontal`.
+    // eslint-disable-next-line ts/no-use-before-define
+    const orientation = ViewContainer1.getOrientation(this.node);
+    if (this._collapsed === collapsed || (orientation === 'horizontal' && collapsed)) {
+      return;
+    }
+    this._collapsed = collapsed;
+    this.node.classList.toggle('collapsed', collapsed);
+
+    if (collapsed && this.wrapped.node.contains(document.activeElement)) {
+      this.header.focus();
+    }
+    this.wrapped.setHidden(collapsed);
+    const toggleIcon = this.header.querySelector(`span.${EXPANSION_TOGGLE_CLASS}`);
+    if (toggleIcon) {
+      if (collapsed) {
+        toggleIcon.classList.add(COLLAPSED_CLASS);
+      }
+      else {
+        toggleIcon.classList.remove(COLLAPSED_CLASS);
+      }
+    }
+    this.update();
+    this.collapsedEmitter.fire(collapsed);
+  }
+
+  onPartMoved(newContainer: ViewContainer): void {
+    this.currentContainerId = newContainer.id;
+    this.onPartMovedEmitter.fire(newContainer);
+  }
+
+  override setHidden(hidden: boolean): void {
+    if (!this.canHide) {
+      return;
+    }
+    super.setHidden(hidden);
+  }
+
+  get canHide(): boolean {
+    return this.options.canHide === undefined || this.options.canHide;
+  }
+
+  get onCollapsed(): Event<boolean> {
+    return this.collapsedEmitter.event;
+  }
+
+  get onContextMenu(): Event<MouseEvent> {
+    return this.contextMenuEmitter.event;
+  }
+
+  get minSize(): number {
+    const style = getComputedStyle(this.body);
+    // eslint-disable-next-line ts/no-use-before-define
+    if (ViewContainer1.getOrientation(this.node) === 'horizontal') {
+      return parseCssMagnitude(style.minWidth, 0);
+    }
+    else {
+      return parseCssMagnitude(style.minHeight, 0);
+    }
+  }
+
+  protected readonly toShowHeader = new DisposableStore();
+  showTitle(): void {
+    this.toShowHeader.dispose();
+  }
+
+  hideTitle(): void {
+    if (this.titleHidden) {
+      return;
+    }
+    const display = this.header.style.display;
+    const height = this.body.style.height;
+    this.body.style.height = '100%';
+    this.header.style.display = 'none';
+    this.toShowHeader.add(toDisposable(() => {
+      this.header.style.display = display;
+      this.body.style.height = height;
+    }));
+  }
+
+  get titleHidden(): boolean {
+    return !this.toShowHeader.isDisposed || this.collapsed;
+  }
+
+  protected override getScrollContainer(): HTMLElement {
+    return this.body;
+  }
+
+  protected registerContextMenu(): IDisposable {
+    const disposableStore = new DisposableStore();
+
+    disposableStore.add(addEventListener(this.header, 'contextmenu', (event) => {
+      this.contextMenuEmitter.fire(event);
+    }));
+
+    return disposableStore;
+  }
+
+  protected createContent(): { header: HTMLElement; body: HTMLElement; disposable: IDisposable } {
+    const disposable = new DisposableStore();
+    const { header, disposable: headerDisposable } = this.createHeader();
+    const body = document.createElement('div');
+    body.classList.add('body');
+    this.node.appendChild(header);
+    this.node.appendChild(body);
+    disposable.add(headerDisposable);
+    return {
+      header,
+      body,
+      disposable,
+    };
+  }
+
+  protected createHeader(): { header: HTMLElement; disposable: IDisposable } {
+    const disposable = new DisposableStore();
+    const header = document.createElement('div');
+    header.tabIndex = 0;
+    header.classList.add('theia-header', 'header', 'theia-view-container-part-header');
+    disposable.add(addEventListener(header, 'click', (event) => {
+      if (this.toolbar && this.toolbar.shouldHandleMouseEvent(event)) {
+        return;
+      }
+      this.collapsed = !this.collapsed;
+    }));
+    disposable.add(addKeyListener(header, Key.ARROW_LEFT, () => this.collapsed = true));
+    disposable.add(addKeyListener(header, Key.ARROW_RIGHT, () => this.collapsed = false));
+    disposable.add(addKeyListener(header, Key.ENTER, () => this.collapsed = !this.collapsed));
+
+    const toggleIcon = document.createElement('span');
+    toggleIcon.classList.add(EXPANSION_TOGGLE_CLASS, ...CODICON_TREE_ITEM_CLASSES);
+    if (this.collapsed) {
+      toggleIcon.classList.add(COLLAPSED_CLASS);
+    }
+    header.appendChild(toggleIcon);
+
+    const title = document.createElement('span');
+    title.classList.add('label', 'noselect');
+
+    const description = document.createElement('span');
+    description.classList.add('description');
+
+    const badgeSpan = document.createElement('span');
+    badgeSpan.classList.add('notification-count');
+
+    const badgeContainer = document.createElement('div');
+    badgeContainer.classList.add('notification-count-container');
+    badgeContainer.appendChild(badgeSpan);
+    const badgeContainerDisplay = badgeContainer.style.display;
+
+    const updateTitle = () => {
+      if (this.currentContainerId !== this.originalContainerId && this.originalContainerTitle?.label) {
+        // Creating a title in format: <original_container_title>: <part_title>.
+        title.textContent = `${this.originalContainerTitle.label}: ${this.wrapped.title.label}`;
+      }
+      else {
+        title.textContent = this.wrapped.title.label;
+      }
+    };
+    const updateCaption = () => title.title = this.wrapped.title.caption || this.wrapped.title.label;
+    const updateDescription = () => {
+      description.textContent = DescriptionWidget.is(this.wrapped) && !this.collapsed && this.wrapped.description || '';
+    };
+    const updateBadge = () => {
+      if (BadgeWidget.is(this.wrapped)) {
+        const visibleToolBarItems = this.toolbarRegistry.visibleItems(this.wrapped).length > 0;
+        const badge = this.wrapped.badge;
+        if (badge && !visibleToolBarItems) {
+          badgeSpan.textContent = badge.toString();
+          badgeSpan.title = this.wrapped.badgeTooltip || '';
+          badgeContainer.style.display = badgeContainerDisplay;
+          return;
+        }
+      }
+      badgeContainer.style.display = 'none';
+    };
+
+    updateTitle();
+    updateCaption();
+    updateDescription();
+    updateBadge();
+
+    [
+      this.onTitleChanged(updateTitle),
+      this.onTitleChanged(updateCaption),
+      this.onDidMove(updateTitle),
+      this.onDidChangeDescription(updateDescription),
+      this.onDidChangeBadge(updateBadge),
+      this.onDidChangeBadgeTooltip(updateBadge),
+      this.onCollapsed(updateDescription),
+    ].forEach(d => disposable.add(d))
+
+    ;
+    header.appendChild(title);
+    header.appendChild(description);
+    header.appendChild(badgeContainer);
+
+    return {
+      header,
+      disposable,
+    };
+  }
+
+  protected handleResize(): void {
+    const handleMouseEnter = () => {
+      this.node?.classList.add('no-pointer-events');
+      setTimeout(() => {
+        this.node?.classList.remove('no-pointer-events');
+        this.node?.removeEventListener('mouseenter', handleMouseEnter);
+      }, 100);
+    };
+    this.node?.addEventListener('mouseenter', handleMouseEnter);
+  }
+
+  protected override onResize(msg: Widget.ResizeMessage): void {
+    this.handleResize();
+    if (this.wrapped.isAttached && !this.collapsed) {
+      MessageLoop.sendMessage(this.wrapped, Widget.ResizeMessage.UnknownSize);
+    }
+    super.onResize(msg);
+  }
+
+  protected override onUpdateRequest(msg: Message): void {
+    if (this.wrapped.isAttached && !this.collapsed) {
+      MessageLoop.sendMessage(this.wrapped, msg);
+    }
+    super.onUpdateRequest(msg);
+  }
+
+  protected override onAfterAttach(msg: Message): void {
+    if (!this.wrapped.isAttached) {
+      UnsafeWidgetUtilities.attach(this.wrapped, this.body);
+    }
+    UnsafeWidgetUtilities.attach(this.toolbar, this.header);
+    super.onAfterAttach(msg);
+  }
+
+  protected override onBeforeDetach(msg: Message): void {
+    super.onBeforeDetach(msg);
+    if (this.toolbar.isAttached) {
+      Widget.detach(this.toolbar);
+    }
+    if (this.wrapped.isAttached) {
+      UnsafeWidgetUtilities.detach(this.wrapped);
+    }
+  }
+
+  protected override onBeforeShow(msg: Message): void {
+    if (this.wrapped.isAttached && !this.collapsed) {
+      MessageLoop.sendMessage(this.wrapped, msg);
+    }
+    super.onBeforeShow(msg);
+  }
+
+  protected override onAfterShow(msg: Message): void {
+    super.onAfterShow(msg);
+    if (this.wrapped.isAttached && !this.collapsed) {
+      MessageLoop.sendMessage(this.wrapped, msg);
+    }
+  }
+
+  protected override onBeforeHide(msg: Message): void {
+    if (this.wrapped.isAttached && !this.collapsed) {
+      MessageLoop.sendMessage(this.wrapped, msg);
+    }
+    super.onBeforeShow(msg);
+  }
+
+  protected override onAfterHide(msg: Message): void {
+    super.onAfterHide(msg);
+    if (this.wrapped.isAttached && !this.collapsed) {
+      MessageLoop.sendMessage(this.wrapped, msg);
+    }
+  }
+
+  protected override onChildRemoved(msg: Widget.ChildMessage): void {
+    super.onChildRemoved(msg);
+    // if wrapped is not disposed, but detached then we should not dispose it, but only get rid of this part
+    this.toNoDisposeWrapped.dispose();
+    this.dispose();
+  }
+
+  protected override onActivateRequest(msg: Message): void {
+    super.onActivateRequest(msg);
+    if (this.collapsed) {
+      this.header.focus();
+    }
+    else {
+      this.wrapped.activate();
+    }
+  }
+}
+
+// ====ViewContainerPart end====
+
 // ====ViewContainer start====
+export namespace ViewContainer1 {
+
+  export const Factory = Symbol('ViewContainerFactory');
+  export interface Factory {
+    (options: ViewContainerIdentifier): ViewContainer;
+  }
+
+  export namespace Factory {
+
+    export interface WidgetOptions {
+      readonly order?: number;
+      readonly weight?: number;
+      readonly initiallyCollapsed?: boolean;
+      readonly canHide?: boolean;
+      readonly initiallyHidden?: boolean;
+      /**
+       * Disable dragging this part from its original container to other containers,
+       * But allow dropping parts from other containers on it,
+       * This option only applies to the `ViewContainerPart` and has no effect on the ViewContainer.
+       */
+      readonly disableDraggingToOtherContainers?: boolean;
+    }
+
+    export interface WidgetDescriptor {
+      readonly widget: Widget | interfaces.ServiceIdentifier<Widget>;
+      readonly options?: WidgetOptions;
+    }
+
+  }
+
+  export interface State {
+    title?: ViewContainerTitleOptions;
+    parts: ViewContainerPart1.State[];
+  }
+
+  export function getOrientation(node: HTMLElement): 'horizontal' | 'vertical' {
+    if (node.closest(`#${MAIN_AREA_ID}`)) {
+      return 'horizontal';
+    }
+    return 'vertical';
+  }
+}
 export class ViewContainer extends BaseWidget {
   protected panel: SplitPanel;
 
@@ -100,7 +586,7 @@ export class ViewContainer extends BaseWidget {
 
   protected titleOptions: ViewContainerTitleOptions | undefined;
 
-  protected lastVisibleState: ViewContainer.State | undefined;
+  protected lastVisibleState: ViewContainer1.State | undefined;
 
   protected _tabBarDelegate: Widget = this;
 
@@ -127,7 +613,7 @@ export class ViewContainer extends BaseWidget {
   }
 
   protected get orientation(): SplitLayout.Orientation {
-    return ViewContainer.getOrientation(this.node);
+    return ViewContainer1.getOrientation(this.node);
   }
 
   get containerLayout(): ViewContainerLayout {
@@ -153,7 +639,7 @@ export class ViewContainer extends BaseWidget {
         renderer: SplitPanel.defaultRenderer,
         orientation: this.orientation,
         spacing: 2,
-        headerSize: ViewContainerPart.HEADER_HEIGHT,
+        headerSize: ViewContainerPart1.HEADER_HEIGHT,
         animationDuration: 200,
       }, this.splitPositionHandler),
     });
@@ -300,7 +786,7 @@ export class ViewContainer extends BaseWidget {
 
   protected registerToolbarItem(_commandId: string, _options?: any): void {}
 
-  addWidget(widget: Widget, options?: ViewContainer.Factory.WidgetOptions, originalContainerId?: string, originalContainerTitle?: ViewContainerTitleOptions): IDisposable {
+  addWidget(widget: Widget, options?: ViewContainer1.Factory.WidgetOptions, originalContainerId?: string, originalContainerTitle?: ViewContainerTitleOptions): IDisposable {
     const existing = this.toRemoveWidgets.get(widget.id);
     if (existing) {
       return existing;
@@ -315,7 +801,7 @@ export class ViewContainer extends BaseWidget {
     return widget.id || JSON.stringify(description);
   }
 
-  protected createPart(widget: Widget, partId: string, originalContainerId: string, originalContainerTitle?: ViewContainerTitleOptions, options?: ViewContainer.Factory.WidgetOptions): ViewContainerPart {
+  protected createPart(widget: Widget, partId: string, originalContainerId: string, originalContainerTitle?: ViewContainerTitleOptions, options?: ViewContainer1.Factory.WidgetOptions): ViewContainerPart {
     return new ViewContainerPart(widget, partId, this.id, originalContainerId, originalContainerTitle, this.toolbarRegistry, this.toolbarFactory, options);
   }
 
@@ -480,23 +966,23 @@ export class ViewContainer extends BaseWidget {
     // this.menuRegistry.unregisterMenuAction(commandId);
   }
 
-  storeState(): ViewContainer.State {
+  storeState(): ViewContainer1.State {
     if (!this.isVisible && this.lastVisibleState) {
       return this.lastVisibleState;
     }
     return this.doStoreState();
   }
 
-  protected doStoreState(): ViewContainer.State {
+  protected doStoreState(): ViewContainer1.State {
     const parts = this.getParts();
     const availableSize = this.containerLayout.getAvailableSize();
     const orientation = this.orientation;
     const partStates = parts.map((part) => {
       let size = this.containerLayout.getPartSize(part);
-      if (size && size > ViewContainerPart.HEADER_HEIGHT && orientation === 'vertical') {
-        size -= ViewContainerPart.HEADER_HEIGHT;
+      if (size && size > ViewContainerPart1.HEADER_HEIGHT && orientation === 'vertical') {
+        size -= ViewContainerPart1.HEADER_HEIGHT;
       }
-      return <ViewContainerPart.State>{
+      return <ViewContainerPart1.State>{
         widget: part.wrapped,
         partId: part.partId,
         collapsed: part.collapsed,
@@ -555,7 +1041,7 @@ export class ViewContainer extends BaseWidget {
     return this.getParts().map(w => w.wrapped);
   }
 
-  protected doRestoreState(state: ViewContainer.State): void {
+  protected doRestoreState(state: ViewContainer1.State): void {
     this.setTitleOptions(state.title);
     // restore widgets
     for (const part of state.parts) {
@@ -596,59 +1082,29 @@ export class ViewContainer extends BaseWidget {
     });
   }
 }
-
-export namespace ViewContainer {
-
-  export const Factory = Symbol('ViewContainerFactory');
-  export interface Factory {
-    (options: ViewContainerIdentifier): ViewContainer;
-  }
-
-  export namespace Factory {
-
-    export interface WidgetOptions {
-      readonly order?: number;
-      readonly weight?: number;
-      readonly initiallyCollapsed?: boolean;
-      readonly canHide?: boolean;
-      readonly initiallyHidden?: boolean;
-      /**
-       * Disable dragging this part from its original container to other containers,
-       * But allow dropping parts from other containers on it,
-       * This option only applies to the `ViewContainerPart` and has no effect on the ViewContainer.
-       */
-      readonly disableDraggingToOtherContainers?: boolean;
-    }
-
-    export interface WidgetDescriptor {
-      readonly widget: Widget | interfaces.ServiceIdentifier<Widget>;
-      readonly options?: WidgetOptions;
-    }
-
-  }
-
-  export interface State {
-    title?: ViewContainerTitleOptions;
-    parts: ViewContainerPart.State[];
-  }
-
-  export function getOrientation(node: HTMLElement): 'horizontal' | 'vertical' {
-    if (node.closest(`#${MAIN_AREA_ID}`)) {
-      return 'horizontal';
-    }
-    return 'vertical';
-  }
-}
 // ====ViewContainer end====
 
 // ====ViewContainerLayout start====
+export namespace ViewContainerLayout1 {
+
+  export interface Options extends SplitLayout.IOptions {
+    headerSize: number;
+    animationDuration: number;
+  }
+
+  export interface Item {
+    readonly widget: ViewContainerPart;
+  }
+
+}
+
 export class ViewContainerLayout extends SplitLayout {
-  constructor(protected options: ViewContainerLayout.Options, protected readonly splitPositionHandler: SplitPositionHandler) {
+  constructor(protected options: ViewContainerLayout1.Options, protected readonly splitPositionHandler: SplitPositionHandler) {
     super(options);
   }
 
-  protected get items(): ReadonlyArray<LayoutItem & ViewContainerLayout.Item> {
-    return (this as any)._items as Array<LayoutItem & ViewContainerLayout.Item>;
+  protected get items(): ReadonlyArray<LayoutItem & ViewContainerLayout1.Item> {
+    return (this as any)._items as Array<LayoutItem & ViewContainerLayout1.Item>;
   }
 
   iter(): IterableIterator<ViewContainerPart> {
@@ -923,458 +1379,4 @@ export class ViewContainerLayout extends SplitLayout {
     return this.splitPositionHandler.setSplitHandlePosition(this.parent as SplitPanel, index, position, options) as Promise<any>;
   }
 }
-
-export namespace ViewContainerLayout {
-
-  export interface Options extends SplitLayout.IOptions {
-    headerSize: number;
-    animationDuration: number;
-  }
-
-  export interface Item {
-    readonly widget: ViewContainerPart;
-  }
-
-}
 // ====ViewContainerLayout end====
-
-// ====ViewContainerPart start====
-/**
- * Wrapper around a widget held by a view container. Adds a header to display the
- * title, toolbar, and collapse / expand handle.
- */
-export class ViewContainerPart extends BaseWidget {
-  protected readonly header: HTMLElement;
-  protected readonly body: HTMLElement;
-  protected readonly collapsedEmitter = new Emitter<boolean>();
-  protected readonly contextMenuEmitter = new Emitter<MouseEvent>();
-
-  protected readonly onTitleChangedEmitter = new Emitter<void>();
-  readonly onTitleChanged = this.onTitleChangedEmitter.event;
-  protected readonly onDidFocusEmitter = new Emitter<this>();
-  readonly onDidFocus = this.onDidFocusEmitter.event;
-  protected readonly onPartMovedEmitter = new Emitter<ViewContainer>();
-  readonly onDidMove = this.onPartMovedEmitter.event;
-  protected readonly onDidChangeDescriptionEmitter = new Emitter<void>();
-  readonly onDidChangeDescription = this.onDidChangeDescriptionEmitter.event;
-  protected readonly onDidChangeBadgeEmitter = new Emitter<void>();
-  readonly onDidChangeBadge = this.onDidChangeBadgeEmitter.event;
-  protected readonly onDidChangeBadgeTooltipEmitter = new Emitter<void>();
-  readonly onDidChangeBadgeTooltip = this.onDidChangeBadgeTooltipEmitter.event;
-
-  protected readonly toolbar: TabBarToolbar;
-
-  protected _collapsed: boolean;
-
-  uncollapsedSize: number | undefined;
-  animatedSize: number | undefined;
-
-  protected readonly toNoDisposeWrapped: IDisposable;
-
-  constructor(
-    readonly wrapped: Widget,
-    readonly partId: string,
-    protected currentContainerId: string,
-    readonly originalContainerId: string,
-    readonly originalContainerTitle: ViewContainerTitleOptions | undefined,
-    protected readonly toolbarRegistry: TabBarToolbarRegistry,
-    protected readonly toolbarFactory: TabBarToolbarFactory,
-    readonly options: ViewContainer.Factory.WidgetOptions = {},
-  ) {
-    super();
-    wrapped.parent = this;
-    wrapped.disposed.connect(() => this.dispose());
-    this.id = `${originalContainerId}--${wrapped.id}`;
-    this.addClass('part');
-
-    const fireTitleChanged = () => this.onTitleChangedEmitter.fire(undefined);
-    this.wrapped.title.changed.connect(fireTitleChanged);
-    this.toDispose.add(toDisposable(() => this.wrapped.title.changed.disconnect(fireTitleChanged)));
-
-    if (DescriptionWidget.is(this.wrapped)) {
-      this.wrapped?.onDidChangeDescription(() => this.onDidChangeDescriptionEmitter.fire(), undefined, this.toDispose);
-    }
-
-    if (BadgeWidget.is(this.wrapped)) {
-      this.wrapped.onDidChangeBadge(() => this.onDidChangeBadgeEmitter.fire(), undefined, this.toDispose);
-      this.wrapped.onDidChangeBadgeTooltip(() => this.onDidChangeBadgeTooltipEmitter.fire(), undefined, this.toDispose);
-    }
-
-    if (DynamicToolbarWidget.is(this.wrapped)) {
-      this.wrapped.onDidChangeToolbarItems(() => {
-        this.toolbar.updateTarget(this.wrapped);
-        this.viewContainer?.update();
-      });
-    }
-
-    const { header, body, disposable } = this.createContent();
-    this.header = header;
-    this.body = body;
-
-    this.toNoDisposeWrapped = this.toDispose.add(wrapped);
-    this.toolbar = this.toolbarFactory();
-    this.toolbar.addClass('theia-view-container-part-title');
-
-    [
-      disposable,
-      this.toolbar,
-      this.toolbarRegistry.onDidChange(() => this.toolbar.updateTarget(this.wrapped)),
-      this.collapsedEmitter,
-      this.contextMenuEmitter,
-      this.onTitleChangedEmitter,
-      this.onDidChangeDescriptionEmitter,
-      this.onDidChangeBadgeEmitter,
-      this.onDidChangeBadgeTooltipEmitter,
-      this.registerContextMenu(),
-      this.onDidFocusEmitter,
-      // focus event does not bubble, capture it
-      addEventListener(this.node, 'focus', () => this.onDidFocusEmitter.fire(this), true),
-    ].forEach(d => this.toDispose.add(d));
-
-    this.scrollOptions = {
-      suppressScrollX: true,
-      minScrollbarLength: 35,
-    };
-    this.collapsed = !!options.initiallyCollapsed;
-    if (options.initiallyHidden && this.canHide) {
-      this.hide();
-    }
-  }
-
-  get viewContainer(): ViewContainer | undefined {
-    return this.parent ? this.parent.parent as ViewContainer : undefined;
-  }
-
-  get currentViewContainerId(): string {
-    return this.currentContainerId;
-  }
-
-  get headerElement(): HTMLElement {
-    return this.header;
-  }
-
-  get collapsed(): boolean {
-    return this._collapsed;
-  }
-
-  set collapsed(collapsed: boolean) {
-    // Cannot collapse/expand if the orientation of the container is `horizontal`.
-    const orientation = ViewContainer.getOrientation(this.node);
-    if (this._collapsed === collapsed || (orientation === 'horizontal' && collapsed)) {
-      return;
-    }
-    this._collapsed = collapsed;
-    this.node.classList.toggle('collapsed', collapsed);
-
-    if (collapsed && this.wrapped.node.contains(document.activeElement)) {
-      this.header.focus();
-    }
-    this.wrapped.setHidden(collapsed);
-    const toggleIcon = this.header.querySelector(`span.${EXPANSION_TOGGLE_CLASS}`);
-    if (toggleIcon) {
-      if (collapsed) {
-        toggleIcon.classList.add(COLLAPSED_CLASS);
-      }
-      else {
-        toggleIcon.classList.remove(COLLAPSED_CLASS);
-      }
-    }
-    this.update();
-    this.collapsedEmitter.fire(collapsed);
-  }
-
-  onPartMoved(newContainer: ViewContainer): void {
-    this.currentContainerId = newContainer.id;
-    this.onPartMovedEmitter.fire(newContainer);
-  }
-
-  override setHidden(hidden: boolean): void {
-    if (!this.canHide) {
-      return;
-    }
-    super.setHidden(hidden);
-  }
-
-  get canHide(): boolean {
-    return this.options.canHide === undefined || this.options.canHide;
-  }
-
-  get onCollapsed(): Event<boolean> {
-    return this.collapsedEmitter.event;
-  }
-
-  get onContextMenu(): Event<MouseEvent> {
-    return this.contextMenuEmitter.event;
-  }
-
-  get minSize(): number {
-    const style = getComputedStyle(this.body);
-    if (ViewContainer.getOrientation(this.node) === 'horizontal') {
-      return parseCssMagnitude(style.minWidth, 0);
-    }
-    else {
-      return parseCssMagnitude(style.minHeight, 0);
-    }
-  }
-
-  protected readonly toShowHeader = new DisposableStore();
-  showTitle(): void {
-    this.toShowHeader.dispose();
-  }
-
-  hideTitle(): void {
-    if (this.titleHidden) {
-      return;
-    }
-    const display = this.header.style.display;
-    const height = this.body.style.height;
-    this.body.style.height = '100%';
-    this.header.style.display = 'none';
-    this.toShowHeader.add(toDisposable(() => {
-      this.header.style.display = display;
-      this.body.style.height = height;
-    }));
-  }
-
-  get titleHidden(): boolean {
-    return !this.toShowHeader.isDisposed || this.collapsed;
-  }
-
-  protected override getScrollContainer(): HTMLElement {
-    return this.body;
-  }
-
-  protected registerContextMenu(): IDisposable {
-    const disposableStore = new DisposableStore();
-
-    disposableStore.add(addEventListener(this.header, 'contextmenu', (event) => {
-      this.contextMenuEmitter.fire(event);
-    }));
-
-    return disposableStore;
-  }
-
-  protected createContent(): { header: HTMLElement; body: HTMLElement; disposable: IDisposable } {
-    const disposable = new DisposableStore();
-    const { header, disposable: headerDisposable } = this.createHeader();
-    const body = document.createElement('div');
-    body.classList.add('body');
-    this.node.appendChild(header);
-    this.node.appendChild(body);
-    disposable.add(headerDisposable);
-    return {
-      header,
-      body,
-      disposable,
-    };
-  }
-
-  protected createHeader(): { header: HTMLElement; disposable: IDisposable } {
-    const disposable = new DisposableStore();
-    const header = document.createElement('div');
-    header.tabIndex = 0;
-    header.classList.add('theia-header', 'header', 'theia-view-container-part-header');
-    disposable.add(addEventListener(header, 'click', (event) => {
-      if (this.toolbar && this.toolbar.shouldHandleMouseEvent(event)) {
-        return;
-      }
-      this.collapsed = !this.collapsed;
-    }));
-    disposable.add(addKeyListener(header, Key.ARROW_LEFT, () => this.collapsed = true));
-    disposable.add(addKeyListener(header, Key.ARROW_RIGHT, () => this.collapsed = false));
-    disposable.add(addKeyListener(header, Key.ENTER, () => this.collapsed = !this.collapsed));
-
-    const toggleIcon = document.createElement('span');
-    toggleIcon.classList.add(EXPANSION_TOGGLE_CLASS, ...CODICON_TREE_ITEM_CLASSES);
-    if (this.collapsed) {
-      toggleIcon.classList.add(COLLAPSED_CLASS);
-    }
-    header.appendChild(toggleIcon);
-
-    const title = document.createElement('span');
-    title.classList.add('label', 'noselect');
-
-    const description = document.createElement('span');
-    description.classList.add('description');
-
-    const badgeSpan = document.createElement('span');
-    badgeSpan.classList.add('notification-count');
-
-    const badgeContainer = document.createElement('div');
-    badgeContainer.classList.add('notification-count-container');
-    badgeContainer.appendChild(badgeSpan);
-    const badgeContainerDisplay = badgeContainer.style.display;
-
-    const updateTitle = () => {
-      if (this.currentContainerId !== this.originalContainerId && this.originalContainerTitle?.label) {
-        // Creating a title in format: <original_container_title>: <part_title>.
-        title.textContent = `${this.originalContainerTitle.label}: ${this.wrapped.title.label}`;
-      }
-      else {
-        title.textContent = this.wrapped.title.label;
-      }
-    };
-    const updateCaption = () => title.title = this.wrapped.title.caption || this.wrapped.title.label;
-    const updateDescription = () => {
-      description.textContent = DescriptionWidget.is(this.wrapped) && !this.collapsed && this.wrapped.description || '';
-    };
-    const updateBadge = () => {
-      if (BadgeWidget.is(this.wrapped)) {
-        const visibleToolBarItems = this.toolbarRegistry.visibleItems(this.wrapped).length > 0;
-        const badge = this.wrapped.badge;
-        if (badge && !visibleToolBarItems) {
-          badgeSpan.textContent = badge.toString();
-          badgeSpan.title = this.wrapped.badgeTooltip || '';
-          badgeContainer.style.display = badgeContainerDisplay;
-          return;
-        }
-      }
-      badgeContainer.style.display = 'none';
-    };
-
-    updateTitle();
-    updateCaption();
-    updateDescription();
-    updateBadge();
-
-    [
-      this.onTitleChanged(updateTitle),
-      this.onTitleChanged(updateCaption),
-      this.onDidMove(updateTitle),
-      this.onDidChangeDescription(updateDescription),
-      this.onDidChangeBadge(updateBadge),
-      this.onDidChangeBadgeTooltip(updateBadge),
-      this.onCollapsed(updateDescription),
-    ].forEach(d => disposable.add(d))
-
-    ;
-    header.appendChild(title);
-    header.appendChild(description);
-    header.appendChild(badgeContainer);
-
-    return {
-      header,
-      disposable,
-    };
-  }
-
-  protected handleResize(): void {
-    const handleMouseEnter = () => {
-      this.node?.classList.add('no-pointer-events');
-      setTimeout(() => {
-        this.node?.classList.remove('no-pointer-events');
-        this.node?.removeEventListener('mouseenter', handleMouseEnter);
-      }, 100);
-    };
-    this.node?.addEventListener('mouseenter', handleMouseEnter);
-  }
-
-  protected override onResize(msg: Widget.ResizeMessage): void {
-    this.handleResize();
-    if (this.wrapped.isAttached && !this.collapsed) {
-      MessageLoop.sendMessage(this.wrapped, Widget.ResizeMessage.UnknownSize);
-    }
-    super.onResize(msg);
-  }
-
-  protected override onUpdateRequest(msg: Message): void {
-    if (this.wrapped.isAttached && !this.collapsed) {
-      MessageLoop.sendMessage(this.wrapped, msg);
-    }
-    super.onUpdateRequest(msg);
-  }
-
-  protected override onAfterAttach(msg: Message): void {
-    if (!this.wrapped.isAttached) {
-      UnsafeWidgetUtilities.attach(this.wrapped, this.body);
-    }
-    UnsafeWidgetUtilities.attach(this.toolbar, this.header);
-    super.onAfterAttach(msg);
-  }
-
-  protected override onBeforeDetach(msg: Message): void {
-    super.onBeforeDetach(msg);
-    if (this.toolbar.isAttached) {
-      Widget.detach(this.toolbar);
-    }
-    if (this.wrapped.isAttached) {
-      UnsafeWidgetUtilities.detach(this.wrapped);
-    }
-  }
-
-  protected override onBeforeShow(msg: Message): void {
-    if (this.wrapped.isAttached && !this.collapsed) {
-      MessageLoop.sendMessage(this.wrapped, msg);
-    }
-    super.onBeforeShow(msg);
-  }
-
-  protected override onAfterShow(msg: Message): void {
-    super.onAfterShow(msg);
-    if (this.wrapped.isAttached && !this.collapsed) {
-      MessageLoop.sendMessage(this.wrapped, msg);
-    }
-  }
-
-  protected override onBeforeHide(msg: Message): void {
-    if (this.wrapped.isAttached && !this.collapsed) {
-      MessageLoop.sendMessage(this.wrapped, msg);
-    }
-    super.onBeforeShow(msg);
-  }
-
-  protected override onAfterHide(msg: Message): void {
-    super.onAfterHide(msg);
-    if (this.wrapped.isAttached && !this.collapsed) {
-      MessageLoop.sendMessage(this.wrapped, msg);
-    }
-  }
-
-  protected override onChildRemoved(msg: Widget.ChildMessage): void {
-    super.onChildRemoved(msg);
-    // if wrapped is not disposed, but detached then we should not dispose it, but only get rid of this part
-    this.toNoDisposeWrapped.dispose();
-    this.dispose();
-  }
-
-  protected override onActivateRequest(msg: Message): void {
-    super.onActivateRequest(msg);
-    if (this.collapsed) {
-      this.header.focus();
-    }
-    else {
-      this.wrapped.activate();
-    }
-  }
-}
-
-export namespace ViewContainerPart {
-
-  /**
-   * Make sure to adjust the `line-height` of the `.theia-view-container .part > .header` CSS class when modifying this, and vice versa.
-   */
-  export const HEADER_HEIGHT = 22;
-
-  export interface State {
-    widget?: Widget;
-    partId: string;
-    collapsed: boolean;
-    hidden: boolean;
-    relativeSize?: number;
-    description?: string;
-    /** The original container to which this part belongs */
-    originalContainerId: string;
-    originalContainerTitle?: ViewContainerTitleOptions;
-  }
-
-  export function closestPart(element: Element | EventTarget | null, selector: string = 'div.part'): Element | undefined {
-    if (element instanceof Element) {
-      const part = element.closest(selector);
-      if (part instanceof Element) {
-        return part;
-      }
-    }
-    return undefined;
-  }
-}
-// ====ViewContainerPart end====

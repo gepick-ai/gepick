@@ -44,6 +44,34 @@ export namespace SearchBoxProps {
 
 }
 
+export namespace SearchBox1 {
+
+  /**
+   * CSS classes for the search box widget.
+   */
+  export namespace Styles {
+
+    export const SEARCH_BOX = 'theia-search-box';
+    export const SEARCH_INPUT = 'theia-search-input';
+    export const SEARCH_BUTTONS_WRAPPER = 'theia-search-buttons-wrapper';
+    export const BUTTON = 'theia-search-button';
+    export const FILTER = ['codicon', 'codicon-filter'];
+    export const FILTER_ON = 'filter-active';
+    export const BUTTON_PREVIOUS = 'theia-search-button-previous';
+    export const BUTTON_NEXT = 'theia-search-button-next';
+    export const BUTTON_CLOSE = 'theia-search-button-close';
+    export const NON_SELECTABLE = 'theia-non-selectable';
+    export const NO_MATCH = 'no-match';
+  }
+
+  export interface HighlightInfo {
+    filterText: string | undefined;
+    matched: number;
+    total: number;
+  }
+
+}
+
 /**
  * The search box widget.
  */
@@ -133,10 +161,10 @@ export class SearchBox extends BaseWidget {
   protected doFireFilterToggle(toggleTo: boolean = !this._isFiltering): void {
     if (this.filter) {
       if (toggleTo) {
-        this.filter.classList.add(SearchBox.Styles.FILTER_ON);
+        this.filter.classList.add(SearchBox1.Styles.FILTER_ON);
       }
       else {
-        this.filter.classList.remove(SearchBox.Styles.FILTER_ON);
+        this.filter.classList.remove(SearchBox1.Styles.FILTER_ON);
       }
       this._isFiltering = toggleTo;
       this.filterToggleEmitter.fire(toggleTo);
@@ -167,7 +195,7 @@ export class SearchBox extends BaseWidget {
   }
 
   override onBeforeHide(): void {
-    this.removeClass(SearchBox.Styles.NO_MATCH);
+    this.removeClass(SearchBox1.Styles.NO_MATCH);
     this.doFireFilterToggle(false);
     this.debounce.append(undefined);
     this.fireClose();
@@ -216,13 +244,13 @@ export class SearchBox extends BaseWidget {
     return false;
   }
 
-  updateHighlightInfo(info: SearchBox.HighlightInfo): void {
+  updateHighlightInfo(info: SearchBox1.HighlightInfo): void {
     if (info.filterText && info.filterText.length > 0) {
       if (info.matched === 0) {
-        this.addClass(SearchBox.Styles.NO_MATCH);
+        this.addClass(SearchBox1.Styles.NO_MATCH);
       }
       else {
-        this.removeClass(SearchBox.Styles.NO_MATCH);
+        this.removeClass(SearchBox1.Styles.NO_MATCH);
       }
     }
   }
@@ -236,22 +264,22 @@ export class SearchBox extends BaseWidget {
     close: HTMLElement | undefined;
   } {
     this.node.setAttribute('tabIndex', '0');
-    this.addClass(SearchBox.Styles.SEARCH_BOX);
+    this.addClass(SearchBox1.Styles.SEARCH_BOX);
 
     const input = document.createElement('span');
-    input.classList.add(SearchBox.Styles.SEARCH_INPUT);
+    input.classList.add(SearchBox1.Styles.SEARCH_INPUT);
     this.node.appendChild(input);
 
     const buttons = document.createElement('div');
-    buttons.classList.add(SearchBox.Styles.SEARCH_BUTTONS_WRAPPER);
+    buttons.classList.add(SearchBox1.Styles.SEARCH_BUTTONS_WRAPPER);
     this.node.appendChild(buttons);
 
     let filter: HTMLElement | undefined;
     if (this.props.showFilter) {
       filter = document.createElement('div');
       filter.classList.add(
-        SearchBox.Styles.BUTTON,
-        ...SearchBox.Styles.FILTER,
+        SearchBox1.Styles.BUTTON,
+        ...SearchBox1.Styles.FILTER,
       );
       filter.title = 'Filter on Type';
       buttons.appendChild(filter);
@@ -265,8 +293,8 @@ export class SearchBox extends BaseWidget {
     if (this.props.showButtons) {
       previous = document.createElement('div');
       previous.classList.add(
-        SearchBox.Styles.BUTTON,
-        SearchBox.Styles.BUTTON_PREVIOUS,
+        SearchBox1.Styles.BUTTON,
+        SearchBox1.Styles.BUTTON_PREVIOUS,
       );
       previous.title = 'Previous (Up)';
       buttons.appendChild(previous);
@@ -274,8 +302,8 @@ export class SearchBox extends BaseWidget {
 
       next = document.createElement('div');
       next.classList.add(
-        SearchBox.Styles.BUTTON,
-        SearchBox.Styles.BUTTON_NEXT,
+        SearchBox1.Styles.BUTTON,
+        SearchBox1.Styles.BUTTON_NEXT,
       );
       next.title = 'Next (Down)';
       buttons.appendChild(next);
@@ -285,8 +313,8 @@ export class SearchBox extends BaseWidget {
     if (this.props.showButtons || this.props.showFilter) {
       close = document.createElement('div');
       close.classList.add(
-        SearchBox.Styles.BUTTON,
-        SearchBox.Styles.BUTTON_CLOSE,
+        SearchBox1.Styles.BUTTON,
+        SearchBox1.Styles.BUTTON_CLOSE,
       );
       close.title = 'Close (Escape)';
       buttons.appendChild(close);
@@ -307,34 +335,6 @@ export class SearchBox extends BaseWidget {
     super.onAfterAttach(msg);
     this.addEventListener(this.input, 'selectstart' as any, () => false);
   }
-}
-
-export namespace SearchBox {
-
-  /**
-   * CSS classes for the search box widget.
-   */
-  export namespace Styles {
-
-    export const SEARCH_BOX = 'theia-search-box';
-    export const SEARCH_INPUT = 'theia-search-input';
-    export const SEARCH_BUTTONS_WRAPPER = 'theia-search-buttons-wrapper';
-    export const BUTTON = 'theia-search-button';
-    export const FILTER = ['codicon', 'codicon-filter'];
-    export const FILTER_ON = 'filter-active';
-    export const BUTTON_PREVIOUS = 'theia-search-button-previous';
-    export const BUTTON_NEXT = 'theia-search-button-next';
-    export const BUTTON_CLOSE = 'theia-search-button-close';
-    export const NON_SELECTABLE = 'theia-non-selectable';
-    export const NO_MATCH = 'no-match';
-  }
-
-  export interface HighlightInfo {
-    filterText: string | undefined;
-    matched: number;
-    total: number;
-  }
-
 }
 
 /**

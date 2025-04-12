@@ -261,7 +261,7 @@ export type ILabelProviderContribution = LabelProviderContribution;
  * elements/nodes are rendered, use a {@link LabelProviderContribution} rather than adapting or sub classing the {@link LabelProvider}. This way, your adaptation
  * is applied to all views in Theia that use the {@link LabelProvider}
  */
-@Contribution(IApplicationContribution)
+// @Contribution(IApplicationContribution)
 export class LabelProvider extends InjectableService implements IApplicationContribution {
   protected readonly onDidChangeEmitter = new Emitter<DidChangeLabelEvent>();
 

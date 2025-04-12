@@ -20,7 +20,7 @@ import {
   createContribution,
 } from '../../common';
 import { IWidgetManager } from '../widgets';
-import { ApplicationShell1, IApplicationShell } from './application-shell';
+import { ApplicationShell1, IApplicationShell } from './shell';
 
 export interface OpenViewArguments extends ApplicationShell1.WidgetOptions {
   toggle?: boolean;

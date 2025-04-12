@@ -1,25 +1,13 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "jsx": "preserve",
+    "experimentalDecorators": true,
     "rootDir": "src",
     "outDir": "dist"
   },
   "references": [
     {
       "path": "../../packages/core"
-    },
-    {
-      "path": "../../packages/auth"
-    },
-    {
-      "path": "../../packages/user"
-    },
-    {
-      "path": "../../packages/copilot"
-    },
-    {
-      "path": "../../packages/logger"
     },
     {
       "path": "../../packages/plugin-system"

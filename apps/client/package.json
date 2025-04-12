@@ -14,7 +14,6 @@
     "@gepick/core": "workspace:*",
     "@gepick/getting-started": "workspace:*",
     "@gepick/logger": "workspace:*",
-    "@gepick/plugin-system": "workspace:*",
     "@gepick/user": "workspace:*",
     "ant-design-vue": "^4.2.5",
     "axios": "^1.6.7",

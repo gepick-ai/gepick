@@ -2400,7 +2400,6 @@ __metadata:
     "@gepick/core": "workspace:*"
     "@gepick/getting-started": "workspace:*"
     "@gepick/logger": "workspace:*"
-    "@gepick/plugin-system": "workspace:*"
     "@gepick/user": "workspace:*"
     "@types/lodash-es": "npm:^4.17.12"
     "@vitejs/plugin-react": "npm:^4.3.4"

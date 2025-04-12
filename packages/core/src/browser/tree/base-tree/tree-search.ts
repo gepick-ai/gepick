@@ -17,7 +17,7 @@
 import { Disposable, DisposableStore, Emitter, Event, InjectableService, PostConstruct, createServiceDecorator } from '@gepick/core/common';
 import { ITree, Tree, TreeNode } from './tree';
 import { TreeDecoration } from './tree-decorator';
-import { FuzzySearch, IFuzzySearch } from './fuzzy-search';
+import { FuzzySearch, FuzzySearch1, IFuzzySearch } from './fuzzy-search';
 import { TopDownTreeIterator } from './tree-iterator';
 
 export class TreeSearch extends InjectableService implements Disposable {
@@ -26,13 +26,13 @@ export class TreeSearch extends InjectableService implements Disposable {
   protected readonly disposables = new DisposableStore();
   protected readonly filteredNodesEmitter = new Emitter<ReadonlyArray<Readonly<TreeNode>>>();
 
-  protected _filterResult: FuzzySearch.Match<TreeNode>[] = [];
+  protected _filterResult: FuzzySearch1.Match<TreeNode>[] = [];
   protected _filteredNodes: ReadonlyArray<Readonly<TreeNode>> = [];
   protected _filteredNodesAndParents: Set<string> = new Set();
 
   constructor(
     @ITree protected readonly tree: Tree,
-    @IFuzzySearch protected readonly fuzzySearch: FuzzySearch,
+    @IFuzzySearch protected readonly fuzzySearch: IFuzzySearch,
   ) {
     super();
   }
@@ -108,13 +108,13 @@ export class TreeSearch extends InjectableService implements Disposable {
     this.filteredNodesEmitter.fire(nodes);
   }
 
-  protected toCaptionHighlight(match: FuzzySearch.Match<TreeNode>): TreeDecoration.CaptionHighlight {
+  protected toCaptionHighlight(match: FuzzySearch1.Match<TreeNode>): TreeDecoration.CaptionHighlight {
     return {
       ranges: match.ranges.map(this.mapRange.bind(this)),
     };
   }
 
-  protected mapRange(range: FuzzySearch.Range): TreeDecoration.CaptionHighlight.Range {
+  protected mapRange(range: FuzzySearch1.Range): TreeDecoration.CaptionHighlight.Range {
     const { offset, length } = range;
     return {
       offset,

@@ -1,16 +1,16 @@
-import "reflect-metadata";
+import { IApplication } from "@gepick/core/browser";
+import { moduleLoadReady } from "./app";
 
-// import { createApp } from "vue";
-// import { router } from "@gepick/client/router";
-// import { pinia } from "@gepick/client/store";
-// import Gepick from "@gepick/client/kona.vue";
-// import './setImmediate';
+async function main() {
+  try {
+    moduleLoadReady
+      .then((container) => {
+        container.get<IApplication>(IApplication).start();
+      });
+  }
+  catch (err) {
+    console.error((err as Error).stack);
+  }
+}
 
-// import "@gepick/client/global.scss";
-// import "ant-design-vue/dist/reset.css";
-
-// const app = createApp(Gepick);
-
-// app.use(router).use(pinia);
-// app.mount("#app");
-import './index';
+main();

@@ -14,7 +14,6 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { inject } from 'inversify';
 import { Message } from '@lumino/messaging';
 import * as React from 'react';
 import { Virtuoso, VirtuosoHandle, VirtuosoProps } from 'react-virtuoso';
@@ -22,7 +21,7 @@ import { ElementExt } from '@lumino/domutils';
 import { useEffect } from 'react';
 import debounce from 'lodash.debounce';
 import { ISelectionService, InjectableService, Key, KeyCode, KeyModifier, MaybePromise, MenuPath, PostConstruct, createServiceDecorator, isOSX, notEmpty, toDisposable } from '@gepick/core/common';
-import { ContextMenuRenderer, IContextMenuRenderer } from '../../context-menu';
+import { IContextMenuRenderer } from '../../context-menu';
 import { StatefulWidget } from '../../shell';
 import {
   BUSY_CLASS,
@@ -145,7 +144,71 @@ export class DefaultTreeProps extends InjectableService {
 export const ITreeProps = createServiceDecorator<ITreeProps>(DefaultTreeProps.name);
 export interface ITreeProps extends TreeProps {}
 
-export namespace TreeWidget {
+export namespace TreeWidget1 {
+  /**
+   * Representation of a tree node row.
+   */
+  export interface NodeRow {
+    /**
+     * The node row index.
+     */
+    index: number;
+    /**
+     * The actual node.
+     */
+    node: TreeNode;
+    /**
+     * A root relative number representing the hierarchical depth of the actual node. Root is `0`, its children have `1` and so on.
+     */
+    depth: number;
+  }
+  /**
+   * Representation of the tree view properties.
+   */
+  export interface ViewProps extends VirtuosoProps<unknown, unknown> {
+    /**
+     * The width property.
+     */
+    width: number;
+    /**
+     * The height property.
+     */
+    height: number;
+    /**
+     * The scroll to row value.
+     */
+    scrollToRow?: number;
+
+    rows: any;
+
+    renderNodeRow: (row: NodeRow) => React.ReactNode;
+  }
+  export class View extends React.Component<ViewProps> {
+    list: VirtuosoHandle | undefined;
+    override render(): React.ReactNode {
+      const { rows, width, height, scrollToRow, renderNodeRow, ...other } = this.props;
+      return (
+        <Virtuoso
+          ref={(list) => {
+            this.list = (list || undefined);
+            if (this.list && scrollToRow !== undefined) {
+              this.list.scrollIntoView({
+                index: scrollToRow,
+                align: 'center',
+              });
+            }
+          }}
+          totalCount={rows.length}
+          itemContent={index => renderNodeRow(rows[index])}
+          width={width}
+          height={height}
+          // This is a pixel value, it will scan 200px to the top and bottom of the current view
+          overscan={500}
+          {...other}
+        />
+      );
+    }
+  }
 
   /**
    * Bare minimum common interface of the keyboard and the mouse event with respect to the key maskings.
@@ -164,7 +227,6 @@ export namespace TreeWidget {
      */
     readonly shiftKey: boolean;
   }
-
 }
 
 export class TreeWidget extends ReactWidget implements StatefulWidget {
@@ -303,11 +365,11 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
     this.selectionService.selection = TreeWidgetSelection.create(this);
   }
 
-  protected rows = new Map<string, TreeWidget.NodeRow>();
+  protected rows = new Map<string, TreeWidget1.NodeRow>();
   protected updateRows = debounce(() => this.doUpdateRows(), 10);
   protected doUpdateRows(): void {
     const root = this.model.root;
-    const rowsToUpdate: Array<[string, TreeWidget.NodeRow]> = [];
+    const rowsToUpdate: Array<[string, TreeWidget1.NodeRow]> = [];
     if (root) {
       const depths = new Map<CompositeTreeNode | undefined, number>();
       let index = 0;
@@ -333,7 +395,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
     return parentDepth === undefined ? 0 : TreeNode.isVisible(node.parent) ? parentDepth + 1 : parentDepth;
   }
 
-  protected toNodeRow(node: TreeNode, index: number, depth: number): TreeWidget.NodeRow {
+  protected toNodeRow(node: TreeNode, index: number, depth: number): TreeWidget1.NodeRow {
     return { node, index, depth };
   }
 
@@ -456,12 +518,12 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
     return this.model.root;
   }
 
-  protected ScrollingRowRenderer: React.FC<{ rows: TreeWidget.NodeRow[] }> = ({ rows }) => {
+  protected ScrollingRowRenderer: React.FC<{ rows: TreeWidget1.NodeRow[] }> = ({ rows }) => {
     useEffect(() => this.scrollToSelected());
     return <>{rows.map(row => <div key={row.index}>{this.renderNodeRow(row)}</div>)}</>;
   };
 
-  protected view: TreeWidget.View | undefined;
+  protected view: TreeWidget1.View | undefined;
   /**
    * Render the tree widget.
    * @param model the tree model.
@@ -473,7 +535,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
         return <this.ScrollingRowRenderer rows={rows} />;
       }
       return (
-        <TreeWidget.View
+        <TreeWidget1.View
           ref={view => this.view = (view || undefined)}
           width={this.node.offsetWidth as any}
           height={this.node.offsetHeight as any}
@@ -510,11 +572,11 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
   /**
    * Render the node row.
    */
-  protected readonly renderNodeRow = (row: TreeWidget.NodeRow) => this.doRenderNodeRow(row);
+  protected readonly renderNodeRow = (row: TreeWidget1.NodeRow) => this.doRenderNodeRow(row);
   /**
    * Actually render the node row.
    */
-  protected doRenderNodeRow({ node, depth }: TreeWidget.NodeRow): React.ReactNode {
+  protected doRenderNodeRow({ node, depth }: TreeWidget1.NodeRow): React.ReactNode {
     return (
       <React.Fragment>
         {this.renderIndent(node, { depth })}
@@ -1426,7 +1488,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
    *
    * @returns `true` if the tree modifier aware event contains the `ctrlcmd` mask.
    */
-  protected hasCtrlCmdMask(event: TreeWidget.ModifierAwareEvent): boolean {
+  protected hasCtrlCmdMask(event: TreeWidget1.ModifierAwareEvent): boolean {
     return isOSX ? event.metaKey : event.ctrlKey;
   }
 
@@ -1436,7 +1498,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
    *
    * @returns `true` if the tree modifier aware event contains the `shift` mask.
    */
-  protected hasShiftMask(event: TreeWidget.ModifierAwareEvent): boolean {
+  protected hasShiftMask(event: TreeWidget1.ModifierAwareEvent): boolean {
     // Ctrl/Cmd mask overrules the Shift mask.
     if (this.hasCtrlCmdMask(event)) {
       return false;
@@ -1551,71 +1613,5 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
       return this.props.leftPadding;
     }
     return depth * this.treeIndent;
-  }
-}
-export namespace TreeWidget {
-  /**
-   * Representation of a tree node row.
-   */
-  export interface NodeRow {
-    /**
-     * The node row index.
-     */
-    index: number;
-    /**
-     * The actual node.
-     */
-    node: TreeNode;
-    /**
-     * A root relative number representing the hierarchical depth of the actual node. Root is `0`, its children have `1` and so on.
-     */
-    depth: number;
-  }
-  /**
-   * Representation of the tree view properties.
-   */
-  export interface ViewProps extends VirtuosoProps<unknown, unknown> {
-    /**
-     * The width property.
-     */
-    width: number;
-    /**
-     * The height property.
-     */
-    height: number;
-    /**
-     * The scroll to row value.
-     */
-    scrollToRow?: number;
-
-    rows: any;
-
-    renderNodeRow: (row: NodeRow) => React.ReactNode;
-  }
-  export class View extends React.Component<ViewProps> {
-    list: VirtuosoHandle | undefined;
-    override render(): React.ReactNode {
-      const { rows, width, height, scrollToRow, renderNodeRow, ...other } = this.props;
-      return (
-        <Virtuoso
-          ref={(list) => {
-            this.list = (list || undefined);
-            if (this.list && scrollToRow !== undefined) {
-              this.list.scrollIntoView({
-                index: scrollToRow,
-                align: 'center',
-              });
-            }
-          }}
-          totalCount={rows.length}
-          itemContent={index => renderNodeRow(rows[index])}
-          width={width}
-          height={height}
-          // This is a pixel value, it will scan 200px to the top and bottom of the current view
-          overscan={500}
-          {...other}
-        />
-      );
-    }
   }
 }
