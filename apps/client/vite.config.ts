@@ -1,7 +1,6 @@
 import { resolve } from "node:path";
 import { defineConfig } from "vite";
 import checker from "vite-plugin-checker";
-import tsconfigPaths from "vite-tsconfig-paths";
 import svgLoader from "vite-svg-loader";
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import react from "@vitejs/plugin-react";
@@ -21,9 +20,6 @@ function staticSavePath(type?: string, ext?: string): string {
 
 export default defineConfig({
   plugins: [
-    // tsconfigPaths({
-    //   projects: ["./tsconfig.json"],
-    // }),
     react({
       babel: {
         plugins: [
