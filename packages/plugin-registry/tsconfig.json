@@ -11,6 +11,9 @@
     },
     {
       "path": "../plugin-api"
+    },
+    {
+      "path": "../plugin-system"
     }
   ],
   "include": [

@@ -1,11 +1,11 @@
-import { AbstractViewContribution, ApplicationShell, IViewContribution } from "@gepick/core/browser";
-import { Contribution, ISelectionService, PostConstruct } from "@gepick/core/common";
-import { PluginsViewContainer } from "./plugin/plugin-view-container";
-import { IPluginsModel } from "./plugin/plugin-model";
-import { BUILTIN_QUERY, INSTALLED_QUERY } from "./search/plugin-registry-search-model";
+import { AbstractViewContribution, IViewContribution } from "@gepick/core/browser";
+import { Contribution, ISelectionService } from "@gepick/core/common";
+import { PluginsViewContainer } from "../plugin/plugin-view-container";
+import { IPluginsModel } from "../plugin/plugin-model";
+import { BUILTIN_QUERY, INSTALLED_QUERY } from "../search/plugin-registry-search-model";
 
 @Contribution(IViewContribution)
-export class PluginRegistryViewContribution extends AbstractViewContribution<any> {
+export class PluginRegistryViewContribution extends AbstractViewContribution<PluginsViewContainer> {
   constructor(
     @IPluginsModel protected model: IPluginsModel,
     @ISelectionService protected readonly selectionService: ISelectionService,
@@ -19,9 +19,6 @@ export class PluginRegistryViewContribution extends AbstractViewContribution<any
       },
     });
   }
-
-  @PostConstruct()
-  protected init(): void {}
 
   async initializeLayout(): Promise<void> {
     await this.openView({ activate: false });

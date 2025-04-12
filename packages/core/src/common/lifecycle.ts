@@ -197,3 +197,10 @@ export abstract class Disposable implements IDisposable {
     return this._disposableStore.add(disposable);
   }
 }
+
+export interface DisposableGroup { add: (disposable: IDisposable) => void }
+
+export function disposableTimeout(...args: Parameters<typeof setTimeout>): IDisposable {
+  const handle = setTimeout(...args);
+  return { dispose: () => clearTimeout(handle) };
+}

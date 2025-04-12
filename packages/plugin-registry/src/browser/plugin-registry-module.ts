@@ -1,5 +1,5 @@
 import { Module, ServiceModule } from "@gepick/core/common";
-import { PluginRegistryViewContribution } from "./plugin-registry-view-contribution";
+import { PluginRegistryViewContribution } from "./view/plugin-registry-view-contribution";
 import { PluginsViewContainer } from "./plugin/plugin-view-container";
 import { PluginsWidget } from "./plugin/plugin-widget";
 import { PluginRegistrySearchModel } from "./search/plugin-registry-search-model";

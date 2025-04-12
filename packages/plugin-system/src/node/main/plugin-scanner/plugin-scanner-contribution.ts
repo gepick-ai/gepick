@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { createContribution } from '@gepick/core/common';
 import { fileService } from "@gepick/core/node";
-import { PluginType } from "../type";
+import { PluginType } from "../../../common/type";
 import { PluginIdentifiers } from "../../../common/plugin-identifiers";
 import { IPluginContributions, IPluginIdentifier, IPluginModel } from "../../../common/plugin-service";
 

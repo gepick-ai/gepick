@@ -1,8 +1,8 @@
 import { Contribution, InjectableService, createServiceDecorator } from "@gepick/core/common";
 import { IApplicationContribution } from "@gepick/core/node";
 import { IDeployedPlugin } from "../../common/plugin-service";
+import { PluginType } from "../../common/type";
 import { IPluginStorageScanService } from "./plugin-scanner/plugin-storage-scan-service";
-import { PluginType } from "./type";
 import { IPluginSource, IPluginStorage } from "./plugin-scanner/plugin-scanner-contribution";
 
 interface IPluginStorageLocationContext {

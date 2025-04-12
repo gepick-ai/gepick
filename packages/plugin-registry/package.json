@@ -23,7 +23,8 @@
   },
   "dependencies": {
     "@gepick/core": "workspace:*",
-    "@gepick/plugin-api": "workspace:*"
+    "@gepick/plugin-api": "workspace:*",
+    "@gepick/plugin-system": "workspace:*"
   },
   "devDependencies": {
     "@gepick/cli": "workspace:*"
