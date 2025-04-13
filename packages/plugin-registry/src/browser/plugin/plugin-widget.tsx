@@ -1,14 +1,13 @@
 import { Message, SourceTreeWidget, TreeModel, TreeNode } from "@gepick/core/browser";
 import { Emitter, Event, PostConstruct, createServiceDecorator } from "@gepick/core/common";
-import { IPluginSource, PluginsSourceOptions } from "./plugin-source";
+import { IPluginSource, IPluginsSourceOptions, PluginsSourceOptions } from "./plugin-source";
 
 export const generateExtensionWidgetId = (widgetId: string): string => `${PluginsWidget.ID}:${widgetId}`;
 
 export class PluginsWidgetOptions extends PluginsSourceOptions {
+  static override name = PluginsSourceOptions.name;
   title?: string;
 }
-export const IPluginsWidgetOptions = createServiceDecorator<IPluginsWidgetOptions>(PluginsWidgetOptions.name);
-export type IPluginsWidgetOptions = PluginsWidgetOptions;
 
 export class PluginsWidget extends SourceTreeWidget {
   static ID = 'vsx-extensions';
@@ -19,7 +18,7 @@ export class PluginsWidget extends SourceTreeWidget {
   protected _badgeTooltip?: string;
   protected onDidChangeBadgeTooltipEmitter = new Emitter<void>();
 
-  @IPluginsWidgetOptions protected readonly options: IPluginsWidgetOptions;
+  @IPluginsSourceOptions protected readonly options: PluginsWidgetOptions;
   @IPluginSource protected readonly extensionsSource: IPluginSource;
 
   @PostConstruct()
@@ -121,3 +120,5 @@ export class PluginsWidget extends SourceTreeWidget {
     }
   }
 }
+export const IPluginsWidget = createServiceDecorator(PluginsWidget.name);
+export type IPluginsWidget = PluginsWidget;

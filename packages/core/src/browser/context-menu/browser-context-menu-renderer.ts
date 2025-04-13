@@ -26,7 +26,7 @@ export class BrowserContextMenuAccess extends ContextMenuAccess {
   }
 }
 
-class BrowserMainMenuFactory extends InjectableService {
+export class BrowserMainMenuFactory extends InjectableService {
   createContextMenu(..._args: any) {
     return {
       aboutToClose: { connect: (_fn: any) => {} },

@@ -1,6 +1,6 @@
-import { DisposableStore, Emitter, Event, IDisposable, InjectableService, Key, PostConstruct, createServiceDecorator, isObject, toDisposable } from "@gepick/core/common";
+import { DisposableStore, Emitter, Event, ICommandRegistry, IDisposable, InjectableService, Key, PostConstruct, createServiceDecorator, isObject, toDisposable } from "@gepick/core/common";
 import { DockPanel, LayoutItem, PanelLayout, SplitLayout, SplitPanel, Widget } from "@lumino/widgets";
-import { map, some } from '@lumino/algorithm';
+import { find, map, some } from '@lumino/algorithm';
 import { interfaces } from "inversify";
 import { isEmpty } from "lodash-es";
 import { MimeData } from "@lumino/coreutils";
@@ -565,7 +565,7 @@ export class ViewContainer extends BaseWidget {
     @IWidgetManager readonly widgetManager: IWidgetManager,
     @IApplicationShell readonly shell: IApplicationShell,
     @ITabBarToolbarRegistry readonly toolbarRegistry: ITabBarToolbarRegistry,
-    // readonly toolbarFactory: any,
+    @ICommandRegistry readonly commandRegistry: ICommandRegistry,
   ) {
     super();
   }
@@ -918,9 +918,9 @@ export class ViewContainer extends BaseWidget {
     return false;
   }
 
-  protected unregisterPart(_part: ViewContainerPart): void {
-    // const commandId = this.toggleVisibilityCommandId(part);
-    // this.commandRegistry.unregisterCommand(commandId);
+  protected unregisterPart(part: ViewContainerPart): void {
+    const commandId = this.toggleVisibilityCommandId(part);
+    this.commandRegistry.unregisterCommand(commandId);
     // this.menuRegistry.unregisterMenuAction(commandId);
   }
 
@@ -967,28 +967,28 @@ export class ViewContainer extends BaseWidget {
   /**
    * Register a command to toggle the visibility of the new part.
    */
-  protected registerPart(_toRegister: ViewContainerPart): void {
-    // const commandId = this.toggleVisibilityCommandId(toRegister);
-    // this.commandRegistry.registerCommand({ id: commandId }, {
-    //   execute: () => {
-    //     const toHide = find(this.containerLayout.iter(), part => part.id === toRegister.id);
-    //     if (toHide) {
-    //       toHide.setHidden(!toHide.isHidden);
-    //     }
-    //   },
-    //   isToggled: () => {
-    //     if (!toRegister.canHide) {
-    //       return true;
-    //     }
-    //     const widgetToToggle = find(this.containerLayout.iter(), part => part.id === toRegister.id);
-    //     if (widgetToToggle) {
-    //       return !widgetToToggle.isHidden;
-    //     }
-    //     return false;
-    //   },
-    //   isEnabled: arg => toRegister.canHide && (!this.titleOptions || !(arg instanceof Widget) || (arg instanceof ViewContainer && arg.id === this.id)),
-    //   isVisible: arg => !this.titleOptions || !(arg instanceof Widget) || (arg instanceof ViewContainer && arg.id === this.id),
-    // });
+  protected registerPart(toRegister: ViewContainerPart): void {
+    const commandId = this.toggleVisibilityCommandId(toRegister);
+    this.commandRegistry.registerCommand({ id: commandId }, {
+      execute: () => {
+        const toHide = find(this.containerLayout.iter(), part => part.id === toRegister.id);
+        if (toHide) {
+          toHide.setHidden(!toHide.isHidden);
+        }
+      },
+      isToggled: () => {
+        if (!toRegister.canHide) {
+          return true;
+        }
+        const widgetToToggle = find(this.containerLayout.iter(), part => part.id === toRegister.id);
+        if (widgetToToggle) {
+          return !widgetToToggle.isHidden;
+        }
+        return false;
+      },
+      isEnabled: arg => toRegister.canHide && (!this.titleOptions || !(arg instanceof Widget) || (arg instanceof ViewContainer && arg.id === this.id)),
+      isVisible: arg => !this.titleOptions || !(arg instanceof Widget) || (arg instanceof ViewContainer && arg.id === this.id),
+    });
   }
 
   protected fireDidChangeTrackableWidgets(): void {
