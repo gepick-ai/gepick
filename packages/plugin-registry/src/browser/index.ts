@@ -1,1 +1,1 @@
-export * from "./view/plugin-registry-view-contribution";
+export * from "./plugin-registry-module";

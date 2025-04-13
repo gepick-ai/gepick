@@ -1,3 +1,4 @@
+export * from "./common-module";
 export * from "./event";
 export * from "./lifecycle";
 export * from './linkedList';
@@ -26,6 +27,5 @@ export * from "./strings";
 export * from "./glob";
 export * from "./window";
 export * from "./command";
-export * from "./common-module";
 export * from "./uri";
 export * from "./markdown";

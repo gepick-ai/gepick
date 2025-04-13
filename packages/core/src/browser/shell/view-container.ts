@@ -8,7 +8,7 @@ import { Drag } from "@lumino/dragdrop";
 import { BaseWidget, CODICON_TREE_ITEM_CLASSES, COLLAPSED_CLASS, EXPANSION_TOGGLE_CLASS, IWidgetManager, Message, MessageLoop, PINNED_CLASS, UnsafeWidgetUtilities, addEventListener, addKeyListener, waitForRevealed } from "../widgets";
 import { ISplitPositionHandler, MAIN_AREA_ID, SplitPositionHandler, SplitPositionOptions } from "./side-panel";
 import { IApplicationShell } from "./shell";
-import { ITabBarToolbarRegistry, TabBarToolbar, TabBarToolbarFactory, TabBarToolbarRegistry } from "./tab-bar-toolbar";
+import { ITabBarToolbarFactory, ITabBarToolbarRegistry, TabBarToolbar, TabBarToolbarRegistry } from "./tab-bar-toolbar";
 
 /**
  * Parse a magnitude value (e.g. width, height, left, top) from a CSS attribute value.
@@ -133,7 +133,7 @@ export class ViewContainerPart extends BaseWidget {
     readonly originalContainerId: string,
     readonly originalContainerTitle: ViewContainerTitleOptions | undefined,
     protected readonly toolbarRegistry: TabBarToolbarRegistry,
-    protected readonly toolbarFactory: TabBarToolbarFactory,
+    // protected readonly toolbarFactory: ITabBarToolbarFactory,
     readonly options: ViewContainer.Factory.WidgetOptions = {},
   ) {
     super();
@@ -167,8 +167,8 @@ export class ViewContainerPart extends BaseWidget {
     this.body = body;
 
     this.toNoDisposeWrapped = this.toDispose.add(wrapped);
-    this.toolbar = this.toolbarFactory();
-    this.toolbar.addClass('theia-view-container-part-title');
+    // this.toolbar = this.toolbarFactory();
+    // this.toolbar.addClass('theia-view-container-part-title');
 
     [
       disposable,
@@ -565,7 +565,7 @@ export class ViewContainer extends BaseWidget {
     @IWidgetManager readonly widgetManager: IWidgetManager,
     @IApplicationShell readonly shell: IApplicationShell,
     @ITabBarToolbarRegistry readonly toolbarRegistry: ITabBarToolbarRegistry,
-    readonly toolbarFactory: any,
+    // readonly toolbarFactory: any,
   ) {
     super();
   }
@@ -760,7 +760,7 @@ export class ViewContainer extends BaseWidget {
   }
 
   protected createPart(widget: Widget, partId: string, originalContainerId: string, originalContainerTitle?: ViewContainerTitleOptions, options?: ViewContainer.Factory.WidgetOptions): ViewContainerPart {
-    return new ViewContainerPart(widget, partId, this.id, originalContainerId, originalContainerTitle, this.toolbarRegistry, this.toolbarFactory, options);
+    return new ViewContainerPart(widget, partId, this.id, originalContainerId, originalContainerTitle, this.toolbarRegistry, options);
   }
 
   protected attachNewPart(newPart: ViewContainerPart, insertIndex?: number): IDisposable {

@@ -10,7 +10,7 @@
       "path": "../../packages/core"
     },
     {
-      "path": "../../packages/plugin-system"
+      "path": "../../packages/plugin-registry"
     },
     {
       "path": "../../packages/getting-started"

@@ -1,5 +1,5 @@
 import { Message, PanelLayout, ViewContainer, ViewContainerPart, codicon } from "@gepick/core/browser";
-import { PostConstruct } from "@gepick/core/common";
+import { PostConstruct, createServiceDecorator } from "@gepick/core/common";
 import { IPluginRegistrySearchBar } from "../search/plugin-registry-search-bar";
 import { PluginSearchMode } from "../search/plugin-registry-search-model";
 import { IPluginsModel } from "./plugin-model";
@@ -144,6 +144,8 @@ export class PluginsViewContainer extends ViewContainer {
     return `a/'Views'`;
   }
 }
+export const IPluginsViewContainer = createServiceDecorator<IPluginsViewContainer>(PluginsViewContainer.name);
+export type IPluginsViewContainer = PluginsViewContainer;
 
 export namespace PluginsViewContainer {
   export interface State {

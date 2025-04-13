@@ -14,8 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { injectable } from 'inversify';
-import { Emitter, Event, IDisposable, createServiceDecorator } from '../../common';
+import { Emitter, Event, IDisposable, InjectableService, createServiceDecorator } from '../../common';
 
 export type ContextKeyValue = null | undefined | boolean | number | string
   | Array<null | undefined | boolean | number | string>
@@ -84,8 +83,7 @@ export interface ContextKeyService extends ContextMatcher {
 
 export type ScopedValueStore = Omit<ContextKeyService, 'onDidChange' | 'match' | 'parseKeys' | 'with' | 'createOverlay'> & IDisposable;
 
-@injectable()
-export class ContextKeyServiceDummyImpl implements ContextKeyService {
+export class ContextKeyServiceDummyImpl extends InjectableService implements ContextKeyService {
   protected readonly onDidChangeEmitter = new Emitter<ContextKeyChangeEvent>();
   readonly onDidChange = this.onDidChangeEmitter.event;
   protected fireDidChange(event: ContextKeyChangeEvent): void {
@@ -136,8 +134,6 @@ export class ContextKeyServiceDummyImpl implements ContextKeyService {
    * Details should be implemented by an extension, e.g. by the monaco extension.
    */
   setContext(_key: string, _value: unknown): void { }
-
-  dispose(): void { }
 }
 export const IContextKeyService = createServiceDecorator(ContextKeyServiceDummyImpl.name);
 export type IContextKeyService = ContextKeyServiceDummyImpl;

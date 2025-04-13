@@ -14,7 +14,6 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { inject, injectable } from 'inversify';
 import { DisposableCollection, IDisposable, InjectableService, MarkdownString, createServiceDecorator, disposableTimeout } from '@gepick/core/common';
 import { IMarkdownRendererFactory, MarkdownRenderer, MarkdownRendererFactory } from '../markdown';
 
@@ -95,8 +94,6 @@ export interface HoverRequest {
 export class HoverService extends InjectableService {
   protected static hostClassName = 'theia-hover';
   protected static styleSheetId = 'theia-hover-style';
-  @IMarkdownRendererFactory protected readonly markdownRendererFactory: IMarkdownRendererFactory;
-
   protected _markdownRenderer: MarkdownRenderer | undefined;
   protected get markdownRenderer(): MarkdownRenderer {
     this._markdownRenderer ||= this.markdownRendererFactory.createMarkdownRenderer();
@@ -117,6 +114,12 @@ export class HoverService extends InjectableService {
   protected hoverTarget: HTMLElement | undefined;
   protected lastHidHover = Date.now();
   protected readonly disposeOnHide = new DisposableCollection();
+
+  constructor(
+    @IMarkdownRendererFactory protected readonly markdownRendererFactory: IMarkdownRendererFactory,
+  ) {
+    super();
+  }
 
   requestHover(request: HoverRequest): void {
     if (request.target !== this.hoverTarget) {

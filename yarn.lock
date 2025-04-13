@@ -2400,6 +2400,7 @@ __metadata:
     "@gepick/core": "workspace:*"
     "@gepick/getting-started": "workspace:*"
     "@gepick/logger": "workspace:*"
+    "@gepick/plugin-registry": "workspace:*"
     "@gepick/user": "workspace:*"
     "@types/lodash-es": "npm:^4.17.12"
     "@vitejs/plugin-react": "npm:^4.3.4"
@@ -2539,7 +2540,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@gepick/plugin-registry@workspace:packages/plugin-registry":
+"@gepick/plugin-registry@workspace:*, @gepick/plugin-registry@workspace:packages/plugin-registry":
   version: 0.0.0-use.local
   resolution: "@gepick/plugin-registry@workspace:packages/plugin-registry"
   dependencies:
