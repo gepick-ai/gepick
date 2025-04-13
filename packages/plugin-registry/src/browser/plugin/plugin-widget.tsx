@@ -6,6 +6,7 @@ export const generateExtensionWidgetId = (widgetId: string): string => `${Plugin
 
 export class PluginsWidgetOptions extends PluginsSourceOptions {
   static override name = PluginsSourceOptions.name;
+  static readonly id: string;
   title?: string;
 }
 

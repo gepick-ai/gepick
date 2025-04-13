@@ -1,8 +1,8 @@
 import { Contribution, IServiceContainer, InjectableService } from "@gepick/core/common";
 import { IWidgetFactory, IWidgetManager, ViewContainerIdentifier } from "@gepick/core/browser";
 import { IPluginsViewContainer, PluginsViewContainer } from "../plugin/plugin-view-container";
-import { IPluginsWidget, PluginsWidget } from "../plugin/plugin-widget";
-import { PluginsSourceOptions } from "../plugin/plugin-source";
+import { IPluginsWidget, PluginsWidget, PluginsWidgetOptions } from "../plugin/plugin-widget";
+import { IPluginsSourceOptions, PluginsSourceOptions } from "../plugin/plugin-source";
 
 export class CurViewContainerIdentifier extends ViewContainerIdentifier {
   static override name = ViewContainerIdentifier.name;
@@ -15,7 +15,10 @@ export class CurViewContainerIdentifier extends ViewContainerIdentifier {
 export class PluginsWidgetFactory extends InjectableService {
   public readonly id = PluginsWidget.ID;
 
-  createWidget(container: IServiceContainer) {
+  createWidget(container: IServiceContainer, options: IPluginsSourceOptions) {
+    container.rebind(PluginsWidgetOptions.getServiceId()).toConstantValue(options);
+    container.rebind(PluginsWidget.getServiceId()).to(PluginsWidget).inRequestScope();
+
     return container.get<IPluginsWidget>(IPluginsWidget);
   }
 }

@@ -1,5 +1,5 @@
 import { Module, ServiceModule } from "@gepick/core/common";
-import { LabelProvider } from "../label";
+import { LabelParser, LabelProvider } from "../label";
 import { SplitPositionHandler } from "./side-panel";
 import { ApplicationShell } from "./shell";
 import { ViewContainer } from "./view-container";
@@ -12,6 +12,7 @@ import { TabBarToolbar, TabBarToolbarFactory, TabBarToolbarRegistry } from "./ta
     TabBarToolbar,
     TabBarToolbarFactory,
     TabBarToolbarRegistry,
+    LabelParser,
     LabelProvider,
     ViewContainer,
   ],

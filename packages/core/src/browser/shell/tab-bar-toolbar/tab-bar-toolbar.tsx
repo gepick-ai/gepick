@@ -409,14 +409,6 @@ export namespace TabBarToolbar {
 export const ITabBarToolbar = createServiceDecorator(TabBarToolbar.name);
 export type ITabBarToolbar = TabBarToolbar;
 
-/**
- * Factory for instantiating tab-bar toolbars.
- */
-// export const TabBarToolbarFactory = Symbol('TabBarToolbarFactory');
-export interface ITabBarToolbarFactory {
-  (): ITabBarToolbar;
-}
-
 export class TabBarToolbarFactory extends InjectableService {
   constructor(
     @IServiceContainer protected serviceContainer: IServiceContainer,
@@ -428,3 +420,5 @@ export class TabBarToolbarFactory extends InjectableService {
     return this.serviceContainer.get<ITabBarToolbar>(ITabBarToolbar);
   }
 }
+export const ITabBarToolbarFactory = createServiceDecorator(TabBarToolbarFactory.name);
+export type ITabBarToolbarFactory = TabBarToolbarFactory;

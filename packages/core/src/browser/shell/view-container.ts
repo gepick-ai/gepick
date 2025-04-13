@@ -133,7 +133,7 @@ export class ViewContainerPart extends BaseWidget {
     readonly originalContainerId: string,
     readonly originalContainerTitle: ViewContainerTitleOptions | undefined,
     protected readonly toolbarRegistry: TabBarToolbarRegistry,
-    // protected readonly toolbarFactory: ITabBarToolbarFactory,
+    protected readonly toolbarFactory: ITabBarToolbarFactory,
     readonly options: ViewContainer.Factory.WidgetOptions = {},
   ) {
     super();
@@ -167,8 +167,8 @@ export class ViewContainerPart extends BaseWidget {
     this.body = body;
 
     this.toNoDisposeWrapped = this.toDispose.add(wrapped);
-    // this.toolbar = this.toolbarFactory();
-    // this.toolbar.addClass('theia-view-container-part-title');
+    this.toolbar = this.toolbarFactory.createTabBarToolbar();
+    this.toolbar.addClass('theia-view-container-part-title');
 
     [
       disposable,
@@ -565,6 +565,7 @@ export class ViewContainer extends BaseWidget {
     @IWidgetManager readonly widgetManager: IWidgetManager,
     @IApplicationShell readonly shell: IApplicationShell,
     @ITabBarToolbarRegistry readonly toolbarRegistry: ITabBarToolbarRegistry,
+    @ITabBarToolbarFactory readonly toolbarFactory: ITabBarToolbarFactory,
     @ICommandRegistry readonly commandRegistry: ICommandRegistry,
   ) {
     super();
@@ -760,7 +761,7 @@ export class ViewContainer extends BaseWidget {
   }
 
   protected createPart(widget: Widget, partId: string, originalContainerId: string, originalContainerTitle?: ViewContainerTitleOptions, options?: ViewContainer.Factory.WidgetOptions): ViewContainerPart {
-    return new ViewContainerPart(widget, partId, this.id, originalContainerId, originalContainerTitle, this.toolbarRegistry, options);
+    return new ViewContainerPart(widget, partId, this.id, originalContainerId, originalContainerTitle, this.toolbarRegistry, this.toolbarFactory, options);
   }
 
   protected attachNewPart(newPart: ViewContainerPart, insertIndex?: number): IDisposable {
