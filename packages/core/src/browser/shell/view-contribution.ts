@@ -29,6 +29,7 @@ export interface OpenViewArguments extends ApplicationShell.WidgetOptions {
 }
 
 export interface ViewContributionOptions {
+  viewContainerId?: string;
   widgetId: string;
   widgetName: string;
   defaultWidgetOptions: ApplicationShell.WidgetOptions;
@@ -47,6 +48,18 @@ export abstract class AbstractViewContribution<T extends Widget> extends Injecta
     super();
   }
 
+  get viewId(): string {
+    return this.options.widgetId;
+  }
+
+  get viewLabel(): string {
+    return this.options.widgetName;
+  }
+
+  get defaultViewOptions(): ApplicationShell.WidgetOptions {
+    return this.options.defaultWidgetOptions;
+  }
+
   get widget(): Promise<T> {
     return this.widgetManager.getOrCreateWidget<T>(this.options.widgetId);
   }
@@ -57,29 +70,44 @@ export abstract class AbstractViewContribution<T extends Widget> extends Injecta
 
   async openView(args: Partial<OpenViewArguments> = {}): Promise<T> {
     const shell = this.shell;
-    const widget = await this.widget;
+    const widget = await this.widgetManager.getOrCreateWidget(this.options.viewContainerId || this.viewId);
     const tabBar = shell.getTabBarFor(widget);
     const area = shell.getAreaFor(widget);
     if (!tabBar) {
       // The widget is not attached yet, so add it to the shell
       const widgetArgs: OpenViewArguments = {
-        ...this.options.defaultWidgetOptions,
+        ...this.defaultViewOptions,
         ...args,
       };
-      shell.addWidget(widget, widgetArgs);
+      await shell.addWidget(widget, widgetArgs);
     }
     else if (args.toggle && area && shell.isExpanded(area) && tabBar.currentTitle === widget.title) {
-      // The widget is attached and visible, so close it (toggle)
-      widget.close();
+      // The widget is attached and visible, so collapse the containing panel (toggle)
+      switch (area) {
+        case 'left':
+          await shell.collapsePanel(area);
+          break;
+        default:
+          // The main area cannot be collapsed, so close the widget
+          await this.closeView();
+      }
+
+      return this.widget;
     }
 
     if (widget.isAttached && args.activate) {
-      shell.activateWidget(widget.id);
+      await shell.activateWidget(this.viewId);
     }
     else if (widget.isAttached && args.reveal) {
-      shell.revealWidget(widget.id);
+      await shell.revealWidget(this.viewId);
     }
-    return widget;
+
+    return this.widget;
+  }
+
+  async closeView(): Promise<T | undefined> {
+    const widget = await this.shell.closeWidget(this.viewId);
+    return widget as T | undefined;
   }
 
   setupOptions(options: ViewContributionOptions) {

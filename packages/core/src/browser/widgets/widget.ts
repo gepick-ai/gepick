@@ -272,6 +272,13 @@ export function addClipboardListener<K extends 'cut' | 'copy' | 'paste'>(element
   );
 }
 
+/**
+ * Resolves when the given widget is detached and hidden.
+ */
+export function waitForClosed(widget: Widget): Promise<void> {
+  return waitForVisible(widget, false, false);
+}
+
 function waitForVisible(widget: Widget, visible: boolean, attached?: boolean): Promise<void> {
   if ((typeof attached !== 'boolean' || widget.isAttached === attached)
     && (widget.isVisible === visible || (widget.node.style.visibility !== 'hidden') === visible)

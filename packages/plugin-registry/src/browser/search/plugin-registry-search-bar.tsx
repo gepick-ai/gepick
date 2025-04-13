@@ -26,7 +26,7 @@ export class PluginRegistrySearchBar extends ReactWidget {
           defaultValue=""
           spellCheck={false}
           className="theia-input"
-          placeholder="Search Extensions in Open Plugin Registry"
+          placeholder="Search Extensions in Plugin Registry"
           onChange={this.updateQuery}
         >
         </input>

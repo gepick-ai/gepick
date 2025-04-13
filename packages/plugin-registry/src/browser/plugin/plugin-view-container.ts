@@ -40,7 +40,7 @@ export class PluginsViewContainer extends ViewContainer {
   }
 
   protected override configureLayout(layout: PanelLayout): void {
-    // layout.addWidget(this.searchBar);
+    layout.addWidget(this.searchBar);
     super.configureLayout(layout);
   }
 

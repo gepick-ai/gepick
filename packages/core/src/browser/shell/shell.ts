@@ -2,7 +2,7 @@ import { PostConstruct, createServiceDecorator } from "@gepick/core/common";
 import { Signal } from "@lumino/signaling";
 import { ArrayExt, find, toArray } from "@lumino/algorithm";
 import { IDragEvent } from "@lumino/dragdrop";
-import { BaseWidget, BoxLayout, BoxPanel, DockLayout, DockPanel, FocusTracker, Layout, Message, SplitLayout, SplitPanel, TabBar, Widget } from "../widgets";
+import { BaseWidget, BoxLayout, BoxPanel, DockLayout, DockPanel, FocusTracker, Layout, Message, SplitLayout, SplitPanel, TabBar, Widget, waitForClosed } from "../widgets";
 import { GepickDockPanel, SidePanel, SidePanelHandler } from "./side-panel";
 import { ScrollableTabBar, TabBarRenderer } from "./tab-bars";
 
@@ -151,6 +151,15 @@ export class ApplicationShell extends BaseWidget {
    */
   get allTabBars(): TabBar<Widget>[] {
     return [...this.mainAreaTabBars, this.leftPanelHandler.tabBar];
+  }
+
+  /**
+   * A promise that is resolved when all currently pending updates are done.
+   */
+  get pendingUpdates(): Promise<void> {
+    return Promise.all([
+      this.leftPanelHandler.state.pendingUpdate,
+    ]) as Promise<any>;
   }
 
   @PostConstruct()
@@ -411,6 +420,44 @@ export class ApplicationShell extends BaseWidget {
     }
 
     return undefined;
+  }
+
+  /**
+   * @returns the widget that was closed, if any, `undefined` otherwise.
+   *
+   * If your use case requires closing multiple widgets, use {@link ApplicationShell#closeMany} instead. That method handles closing saveable widgets more reliably.
+   */
+  async closeWidget(id: string, _options?: ApplicationShell.CloseOptions): Promise<Widget | undefined> {
+    // TODO handle save for composite widgets, i.e. the preference widget has 2 editors
+    const stack = this.toTrackedStack(id);
+    const current = stack.pop();
+    if (!current) {
+      return undefined;
+    }
+    const pendingClose = (current.close(), waitForClosed(current));
+    await Promise.all([
+      pendingClose,
+      this.pendingUpdates,
+    ]);
+    return stack[0] || current;
+  }
+
+  /**
+   * @returns an array of Widgets, all of which are tracked by the focus tracker
+   * The first member of the array is the widget whose id is passed in, and the other widgets
+   * are its tracked parents in ascending order
+   */
+  protected toTrackedStack(id: string): Widget[] {
+    const tracked = new Map<string, Widget>(this.tracker.widgets.map(w => [w.id, w] as [string, Widget]));
+    let current = tracked.get(id);
+    const stack: Widget[] = [];
+    while (current) {
+      if (tracked.has(current.id)) {
+        stack.push(current);
+      }
+      current = current.parent || undefined;
+    }
+    return stack;
   }
 
   /**
@@ -730,6 +777,16 @@ export namespace ApplicationShell {
     config?: DockPanel.ILayoutConfig;
     size?: number;
     expanded?: boolean;
+  }
+
+  export interface CloseOptions {
+    /**
+     * if optional then a user will be prompted
+     * if undefined then close will be canceled
+     * if true then will be saved on close
+     * if false then won't be saved on close
+     */
+    save?: boolean | undefined;
   }
 }
 

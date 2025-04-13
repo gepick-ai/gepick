@@ -42,6 +42,7 @@
     "cors": "^2.8.5",
     "dompurify": "^2.2.9",
     "express": "^4.21.1",
+    "fast-json-stable-stringify": "^2.1.0",
     "file-icons-js": "~1.0.3",
     "font-awesome": "^4.7.0",
     "fs-extra": "^11.3.0",

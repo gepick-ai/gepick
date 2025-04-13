@@ -30,7 +30,7 @@ export class PluginRegistryViewContribution extends AbstractViewContribution<Plu
   }
 
   async initializeLayout(): Promise<void> {
-    await this.openView({ activate: false });
+    await this.openView({ activate: true });
   }
 
   protected async showBuiltinExtensions(): Promise<void> {

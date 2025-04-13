@@ -9,7 +9,7 @@ export type IApplication = Application;
 export class Application extends InjectableService {
   constructor(
     @Optional() @IApplicationContributionProvider private readonly applicationContributionProvider: IContributionProvider<IApplicationContribution>,
-    @IApplicationShell private readonly applicationShell: IApplicationShell,
+    @IApplicationShell private readonly shell: IApplicationShell,
     @IViewContributionProvider private readonly viewContributionProvider: IContributionProvider<IViewContribution>,
   ) {
     super();
@@ -54,7 +54,7 @@ export class Application extends InjectableService {
   }
 
   protected attachShell(host: HTMLElement): void {
-    Widget.attach(this.applicationShell, host);
+    Widget.attach(this.shell, host);
   }
 
   /**
@@ -64,5 +64,7 @@ export class Application extends InjectableService {
   protected async initializeLayout(): Promise<void> {
     const viewContributions = this.viewContributionProvider.getContributions();
     viewContributions.forEach(vc => vc.initializeLayout());
+
+    await this.shell.pendingUpdates;
   }
 }
