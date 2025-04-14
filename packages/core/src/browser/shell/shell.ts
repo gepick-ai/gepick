@@ -561,6 +561,17 @@ export class ApplicationShell extends BaseWidget {
   }
 
   /**
+   * @param targets the widgets to be closed
+   * @return an array of all the widgets that were actually closed.
+   */
+  async closeMany(targets: Widget[], options?: ApplicationShell.CloseOptions): Promise<Widget[]> {
+    if (options?.save === false) {
+      return (await Promise.all(targets.map(target => this.closeWidget(target.id, options)))).filter((widget): widget is Widget => widget !== undefined);
+    }
+    return [];
+  }
+
+  /**
    * Determine the name of the shell area where the given widget resides. The result is
    * undefined if the widget does not reside directly in the shell.
    */

@@ -8,12 +8,16 @@ import { PluginsSource } from "./plugin/plugin-source";
 import { PluginEditor } from "./editor/plugin-editor";
 import { Plugin, PluginFactory } from "./plugin/plugin-component";
 import { PluginsModel } from "./plugin/plugin-model";
-import { CurViewContainerIdentifier, PluginRegistryViewContainerFactory, PluginsWidgetFactory } from "./view/plugin-registry-factory";
+import { CurViewContainerIdentifier, PluginEditorFactory, PluginRegistryViewContainerFactory, PluginsWidgetFactory } from "./view/plugin-registry-factory";
+import { PluginEditorManager } from "./editor/plugin-editor-manager";
+
 import "./style/index.css";
 
 @Module({
   services: [
     PluginEditor,
+    PluginEditorFactory,
+    PluginEditorManager,
     PluginsWidgetOptions,
     PluginsSource,
     PluginRegistrySearchBar,

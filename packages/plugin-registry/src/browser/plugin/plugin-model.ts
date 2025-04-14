@@ -1,5 +1,5 @@
-import { CancellationToken, CancellationTokenSource, Emitter, Event, InjectableService, PostConstruct, createServiceDecorator } from "@gepick/core/common";
-import { DOMPurify, markdownit } from "@gepick/core/browser";
+import { CancellationToken, CancellationTokenSource, Emitter, Event, InjectableService, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
+import { DOMPurify, RequestContext, markdownit, messagingService } from "@gepick/core/browser";
 import debounce from 'p-debounce';
 import { IPluginRegistrySearchModel } from "../search/plugin-registry-search-model";
 import { IPlugin, IPluginFactory, PluginOptions } from "./plugin-component";
@@ -1157,6 +1157,35 @@ export class PluginsModel extends InjectableService {
     });
   }
 
+  resolve(id: string): Promise<IPlugin> {
+    const readmes = [
+      '/Users/jaylen/.theia/deployedPlugins/dbaeumer.vscode-eslint-3.0.10/extension/README.md',
+      '/Users/jaylen/.theia/deployedPlugins/dracula-theme.theme-dracula-2.25.1/extension/README.md',
+      '/Users/jaylen/.theia/deployedPlugins/editorconfig.editorconfig-0.17.2/extension/readme.md',
+      '/Users/jaylen/.theia/deployedPlugins/ms-vscode.vscode-github-issue-notebooks-0.0.130/extension/README.md',
+      '/Users/jaylen/.theia/deployedPlugins/sample-namespace.plugin-a-1.53.0/extension/README.md',
+      '/Users/jaylen/.theia/deployedPlugins/sample-namespace.plugin-b-1.53.0/extension/README.md',
+      '/Users/jaylen/.theia/deployedPlugins/vue.volar-3.0.0-alpha.0/extension/readme.md',
+    ];
+    return this.doChange(async () => {
+      await this.initialized;
+      const extension = await this.refresh({ id }) ?? this.getExtension(id);
+      if (!extension) {
+        throw new Error(`Failed to resolve ${id} extension.`);
+      }
+      if (extension.readme === undefined) {
+        try {
+          const [_, { content: readme }] = await messagingService.get<any>(`http://localhost:8080/api/file${readmes.find(r => r.includes(id))}`);
+          extension.update({ readme: this.compileReadme(readme) });
+        }
+        catch (e) {
+          console.error((e as Error).stack);
+        }
+      }
+      return extension;
+    });
+  }
+
   protected async refresh(data: any): Promise<IPlugin | undefined> {
     let extension = this.getExtension(data.id);
     if (!this.shouldRefresh(extension)) {
@@ -1164,7 +1193,7 @@ export class PluginsModel extends InjectableService {
     }
     extension = this.setExtension(data.id);
     extension.update(data);
-    return data;
+    return extension;
   }
 
   // protected async refresh(id: string, _version?: string): Promise<IPlugin | undefined> {

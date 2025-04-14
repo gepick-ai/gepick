@@ -2,6 +2,7 @@ import { Endpoint, IContextMenuRenderer, IHoverService, IOpenerService, OpenerOp
 import { IServiceContainer, InjectableService, MarkdownStringImpl, MenuPath, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
 import { PluginType } from "@gepick/plugin-system/common";
 import { IPluginRegistrySearchModel } from "../search/plugin-registry-search-model";
+import { VSCodeExtensionUri } from "../vscode-util";
 
 export const EXTENSIONS_CONTEXT_MENU: MenuPath = ['extensions_context_menu'];
 
@@ -235,7 +236,7 @@ export class Plugin extends InjectableService implements PluginData, TreeElement
   }
 
   get uri(): URI {
-    return new URI('');
+    return VSCodeExtensionUri.fromId(this.id);
   }
 
   get id(): string {

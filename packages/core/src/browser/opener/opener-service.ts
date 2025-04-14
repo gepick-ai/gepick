@@ -154,8 +154,10 @@ export class DefaultOpenerService extends InjectableService implements OpenerSer
   }
 
   protected getHandlers(): OpenHandler[] {
+    const handlers = this.handlersProvider.getContributions();
+
     return [
-      ...this.handlersProvider.getContributions(),
+      ...handlers,
       ...this.customEditorOpenHandlers,
     ];
   }

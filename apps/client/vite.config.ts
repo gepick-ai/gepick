@@ -1,4 +1,5 @@
 import { resolve } from "node:path";
+import { readFile } from "node:fs/promises";
 import { defineConfig } from "vite";
 import checker from "vite-plugin-checker";
 import svgLoader from "vite-svg-loader";
@@ -20,6 +21,27 @@ function staticSavePath(type?: string, ext?: string): string {
 
 export default defineConfig({
   plugins: [
+    {
+      name: 'configure-server',
+      configureServer(server) {
+        server.middlewares.use('/api/file', async (req, res) => {
+          try {
+            // 读取本地文件
+            const filePath = req.url as string;
+            const content = await readFile(filePath, 'utf-8');
+
+            // 设置响应头
+            res.setHeader('Content-Type', 'application/json');
+            const body = JSON.stringify({ code: 200, data: { content } });
+            res.end(body);
+          }
+          catch {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: 'Failed to read file' }));
+          }
+        });
+      },
+    },
     react({
       babel: {
         plugins: [

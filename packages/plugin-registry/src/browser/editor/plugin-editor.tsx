@@ -1,6 +1,7 @@
 import { DOMPurify, Message, React, ReactWidget, Widget, codicon } from "@gepick/core/browser";
-import { Deferred, URI } from "@gepick/core/common";
-import { AbstractVSXExtensionComponent } from "../plugin/plugin-component";
+import { Deferred, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
+import { AbstractVSXExtensionComponent, IPlugin } from "../plugin/plugin-component";
+import { IPluginsModel } from "../plugin/plugin-model";
 
 const downloadFormatter = new Intl.NumberFormat();
 const averageRatingFormatter = (averageRating: number): number => Math.round(averageRating * 2) / 2;
@@ -218,7 +219,24 @@ export class PluginEditor extends ReactWidget {
 
   protected readonly deferredScrollContainer = new Deferred<HTMLElement>();
 
-  extension = { name: "Extension" };
+  constructor(
+    @IPlugin protected readonly extension: IPlugin,
+    @IPluginsModel protected readonly model: IPluginsModel,
+  ) {
+    super();
+  }
+
+  @PostConstruct()
+  protected init(): void {
+    this.addClass('theia-vsx-extension-editor');
+    this.id = `${PluginEditor.ID}:${this.extension.id}`;
+    this.title.closable = true;
+    this.updateTitle();
+    this.title.iconClass = codicon('list-selection');
+    this.node.tabIndex = -1;
+    this.update();
+    this.toDispose.add(this.model.onDidChange(() => this.update()));
+  }
 
   override getScrollContainer(): Promise<HTMLElement> {
     return this.deferredScrollContainer.promise;
@@ -267,3 +285,6 @@ export class PluginEditor extends ReactWidget {
     );
   }
 }
+
+export const IPluginEditor = createServiceDecorator<IPluginEditor>(PluginEditor.name);
+export type IPluginEditor = PluginEditor;
