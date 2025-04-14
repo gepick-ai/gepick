@@ -28,7 +28,15 @@ export default defineConfig({
           try {
             // 读取本地文件
             const filePath = req.url as string;
-            const content = await readFile(filePath, 'utf-8');
+            let content = '';
+
+            if (req.url?.includes('png')) {
+              content = await readFile(filePath, 'base64');
+              content = `data:image/png;base64,${content}`;
+            }
+            else {
+              content = await readFile(filePath, 'utf-8');
+            }
 
             // 设置响应头
             res.setHeader('Content-Type', 'application/json');

@@ -1,4 +1,4 @@
-import { Endpoint, IContextMenuRenderer, IHoverService, IOpenerService, OpenerOptions, React, TreeElement, TreeElementNode, TreeWidget, codicon, open } from "@gepick/core/browser";
+import { Endpoint, IContextMenuRenderer, IHoverService, IOpenerService, OpenerOptions, React, TreeElement, TreeElementNode, TreeWidget, codicon, messagingService, open } from "@gepick/core/browser";
 import { IServiceContainer, InjectableService, MarkdownStringImpl, MenuPath, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
 import { PluginType } from "@gepick/plugin-system/common";
 import { IPluginRegistrySearchModel } from "../search/plugin-registry-search-model";
@@ -137,8 +137,23 @@ export namespace PluginComponent {
 }
 
 export class PluginComponent<Props extends PluginComponent.Props = PluginComponent.Props> extends AbstractVSXExtensionComponent<Props> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      iconUrl: "",
+    };
+  }
+
+  override async componentDidMount() {
+    const url = this.props.extension.iconUrl;
+    const [_, { content }] = await messagingService.get(`http://localhost:8080/api/file${url}`) as any;
+    this.setState({ iconUrl: content });
+  }
+
   override render(): React.ReactNode {
-    const { iconUrl, publisher, displayName, description, version, downloadCount, averageRating, tooltip, verified } = this.props.extension;
+    const { publisher, displayName, description, version, downloadCount, averageRating, tooltip, verified } = this.props.extension;
+    const { iconUrl } = this.state as { iconUrl: string };
 
     return (
       <div
@@ -269,11 +284,47 @@ export class Plugin extends InjectableService implements PluginData, TreeElement
 
   get iconUrl(): string | undefined {
     const plugin = this.plugin;
-    const iconUrl = plugin && plugin.metadata.model.iconUrl;
-    if (iconUrl) {
-      return new Endpoint({ path: iconUrl }).getRestUrl().toString();
-    }
-    return this.data.iconUrl;
+    // const iconUrl = plugin && plugin.metadata.model.iconUrl;
+    // if (iconUrl) {
+    //   return new Endpoint({ path: iconUrl }).getRestUrl().toString();
+    // }
+    // return this.data.iconUrl;
+
+    const icons = [
+      {
+        id: "dbaeumer.vscode-eslint",
+        url: '/Users/jaylen/.theia/deployedPlugins/dbaeumer.vscode-eslint-3.0.10/extension/eslint_icon.png',
+      },
+      {
+        id: "dracula-theme.theme-dracula",
+        url: '/Users/jaylen/.theia/deployedPlugins/dracula-theme.theme-dracula-2.25.1/extension/icon.png',
+      },
+      {
+        id: "editorconfig.editorconfig",
+        url: '/Users/jaylen/.theia/deployedPlugins/editorconfig.editorconfig-0.17.2/extension/EditorConfig_icon.png',
+      },
+      {
+        id: "ms-vscode.vscode-github-issue-notebooks",
+        url: '/Users/jaylen/.theia/deployedPlugins/ms-vscode.vscode-github-issue-notebooks-0.0.130/extension/icon.png',
+      },
+      {
+        id: "sample-namespace.plugin-a",
+        url: '/Users/jaylen/.theia/deployedPlugins/sample-namespace.plugin-a-1.53.0/extension/icon128.png',
+      },
+      {
+        id: "vue.volar",
+        url: '/Users/jaylen/.theia/deployedPlugins/vue.volar-3.0.0-alpha.0/extension/images/icon.png',
+      },
+    ];
+
+    const icon = icons.find((icon) => {
+      if (plugin.metadata.model.id.includes(icon.id)) {
+        return icon.url;
+      }
+      return undefined;
+    });
+
+    return icon?.url;
   }
 
   get publisher(): string | undefined {

@@ -1,5 +1,3 @@
-/* eslint-disable ts/no-namespace */
-
 import { URI } from "@gepick/core/common";
 
 /**
@@ -10,15 +8,15 @@ export class Endpoint {
   }
 
   getWebSocketUrl(): URI {
-    return new URI(`${this.wsScheme}://${this.host}${this.path}`)
+    return new URI(`${this.wsScheme}://${this.host}${this.path}`);
   }
 
   getRestUrl(): URI {
-    return new URI(`${this.httpScheme}://${this.host}${this.path}`)
+    return new URI(`${this.httpScheme}://${this.host}${this.path}`);
   }
 
   protected get host() {
-    return `localhost:5173`
+    return `localhost:5173`;
     // if (location.host) {
     //   return location.host;
     // }
@@ -38,7 +36,7 @@ export class Endpoint {
       .filter(value => value.startsWith(`${name}=`))
       .map((value) => {
         const encoded = value.substr(name.length + 1);
-        return decodeURIComponent(encoded)
+        return decodeURIComponent(encoded);
       })[0] || defaultValue;
   }
 
@@ -48,32 +46,32 @@ export class Endpoint {
 
   protected get httpScheme() {
     if (this.options.httpScheme) {
-      return this.options.httpScheme
+      return this.options.httpScheme;
     }
     if (location.protocol === 'http' || location.protocol === 'https') {
-      return location.protocol
+      return location.protocol;
     }
-    return 'http'
+    return 'http';
   }
 
   protected get path() {
     if (this.options.path) {
       if (this.options.path.startsWith("/")) {
-        return this.options.path
+        return this.options.path;
       }
       else {
-        return `/${this.options.path}`
+        return `/${this.options.path}`;
       }
     }
-    return this.options.path || ""
+    return this.options.path || "";
   }
 }
 
 export namespace Endpoint {
   export class Options {
-    host?: string
-    wsScheme?: string
-    httpScheme?: string
-    path?: string
+    host?: string;
+    wsScheme?: string;
+    httpScheme?: string;
+    path?: string;
   }
 }

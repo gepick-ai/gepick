@@ -1,5 +1,5 @@
 import { CancellationToken, CancellationTokenSource, Emitter, Event, InjectableService, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
-import { DOMPurify, RequestContext, markdownit, messagingService } from "@gepick/core/browser";
+import { DOMPurify, markdownit, messagingService } from "@gepick/core/browser";
 import debounce from 'p-debounce';
 import { IPluginRegistrySearchModel } from "../search/plugin-registry-search-model";
 import { IPlugin, IPluginFactory, PluginOptions } from "./plugin-component";
