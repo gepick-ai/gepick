@@ -29,6 +29,7 @@ export type IPluginClient = PluginClient;
 
 export class PluginClient extends InjectableService {
   protected readonly idPluginContributionsMap = new Map<PluginIdentifiers.UnversionedId, PluginContributions>();
+  protected installedPlugins: IDeployedPlugin[] = [];
 
   constructor(
     @IMainThreadRpcService private readonly mainThreadRpcService: IMainThreadRpcService,
@@ -36,9 +37,14 @@ export class PluginClient extends InjectableService {
     super();
   }
 
+  get plugins() {
+    return this.installedPlugins;
+  }
+
   async initialize(): Promise<void> {
     this.startPluginHostIfNeeded();
     const plugins = await this.syncPlugins();
+    this.installedPlugins = plugins;
     this.startPlugins(plugins);
   }
 

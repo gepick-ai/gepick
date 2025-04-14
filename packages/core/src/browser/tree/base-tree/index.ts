@@ -29,3 +29,4 @@ export * from "./tree-focus-service";
 export * from "./tree-label-provider";
 export * from "./tree-selection-impl";
 export * from "./search-box";
+export * from "./fuzzy-search";

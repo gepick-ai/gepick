@@ -13,6 +13,8 @@ export class PluginsSourceOptions extends InjectableService {
 export const IPluginsSourceOptions = createServiceDecorator(PluginsSourceOptions.name);
 export type IPluginsSourceOptions = PluginsSourceOptions;
 
+
+// TODO(@jaylenchen): 目前这个pluginsource有很大问题，按照theia的做法，故意设计成多个子container，然后分别绑定自己的source以及相关服务，最终可以得到不同的plugin source。但是目前我们全局都是唯一的plugin source，拿到的结果都是一样的
 export class PluginsSource extends TreeSource {
   protected scheduleFireDidChange = debounce(() => this.fireDidChange(), 100, { leading: false, trailing: true });
 
@@ -26,7 +28,9 @@ export class PluginsSource extends TreeSource {
   @PostConstruct()
   protected init(): void {
     this.fireDidChange();
-    this._register(this.model.onDidChange(() => this.scheduleFireDidChange()));
+    this._register(this.model.onDidChange(() => {
+      this.scheduleFireDidChange();
+    }));
   }
 
   getModel(): IPluginsModel {
@@ -34,7 +38,8 @@ export class PluginsSource extends TreeSource {
   }
 
   *getElements(): IterableIterator<TreeElement> {
-    for (const id of this.doGetElements()) {
+    const elements = this.doGetElements();
+    for (const id of elements) {
       const extension = this.model.getExtension(id);
       if (!extension) {
         continue;
@@ -59,7 +64,8 @@ export class PluginsSource extends TreeSource {
     if (this.options.id === PluginsSourceOptions.SEARCH_RESULT) {
       return this.model.searchResult;
     }
-
+    // eslint-disable-next-line no-console
+    console.log("installed", Array.from(this.model.installed));
     return this.model.installed;
   }
 }

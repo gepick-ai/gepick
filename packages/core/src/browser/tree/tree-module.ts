@@ -1,5 +1,5 @@
 import { Module, ServiceModule } from "@gepick/core/common";
-import { SourceTreeWidget } from "./source-tree";
+import { SourceTree, SourceTreeWidget } from "./source-tree";
 import { DefaultTreeProps, NoopTreeDecoratorService, SearchBoxFactoryImpl, TreeExpansionServiceImpl, TreeFocusServiceImpl, TreeImpl, TreeLabelProvider, TreeModelImpl, TreeNavigationService, TreeSearch, TreeSelectionServiceImpl, TreeViewWelcomeWidget } from "./base-tree";
 import { FuzzySearch } from "./base-tree/fuzzy-search";
 
@@ -17,9 +17,9 @@ import { FuzzySearch } from "./base-tree/fuzzy-search";
     TreeSearch,
     TreeSelectionServiceImpl,
     TreeViewWelcomeWidget,
-    TreeImpl,
     DefaultTreeProps,
     // source-tree
+    SourceTree,
     SourceTreeWidget,
   ],
 })

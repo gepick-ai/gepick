@@ -15,6 +15,7 @@
 // *****************************************************************************
 
 import { Container, interfaces } from 'inversify';
+import { IServiceContainer, ServiceContainer } from '@gepick/core/common';
 import { TreeProps, TreeWidget, defaultTreeProps } from './tree-widget';
 import { TreeModel, TreeModelImpl } from './tree-model';
 import { Tree, TreeImpl } from './tree';
@@ -80,8 +81,8 @@ export function isTreeServices(candidate?: Partial<TreeProps> | Partial<TreeCont
   return false;
 }
 
-export function createTreeContainer(parent: interfaces.Container, props?: Partial<TreeContainerProps>): Container {
-  const child = new Container({ defaultScope: 'Singleton' });
+export function createTreeContainer(parent: IServiceContainer, serviceIdentifiers: any, props?: Partial<TreeContainerProps>): IServiceContainer {
+  const child = new ServiceContainer();
   child.parent = parent;
   const overrideServices: Partial<TreeContainerProps> = isTreeServices(props) ? props : { props: props as Partial<TreeProps> | undefined };
   for (const key of Object.keys(serviceIdentifiers) as (keyof TreeIdentifiers)[]) {

@@ -5,3 +5,4 @@ export * from "./virtual-renderer";
 export * from "./enhanced-preview-widget";
 export * from "./previewable-widget";
 export * from "./widget-decoration";
+export * from "./widget-module";

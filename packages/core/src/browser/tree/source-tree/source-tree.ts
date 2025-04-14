@@ -72,8 +72,11 @@ export namespace CompositeTreeElementNode {
 }
 
 export class SourceTree extends TreeImpl {
+  static override name = TreeImpl.name;
+
   override async resolveChildren(parent: TreeElementNodeParent): Promise<TreeNode[]> {
     const elements = await this.resolveElements(parent);
+
     const nodes: TreeNode[] = [];
     let index = 0;
     for (const element of elements) {

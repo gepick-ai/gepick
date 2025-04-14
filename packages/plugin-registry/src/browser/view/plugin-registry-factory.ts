@@ -19,7 +19,9 @@ export class PluginsWidgetFactory extends InjectableService {
     container.rebind(PluginsWidgetOptions.getServiceId()).toConstantValue(options);
     container.rebind(PluginsWidget.getServiceId()).to(PluginsWidget).inRequestScope();
 
-    return container.get<IPluginsWidget>(IPluginsWidget);
+    const widget = container.get<IPluginsWidget>(IPluginsWidget);
+
+    return widget;
   }
 }
 

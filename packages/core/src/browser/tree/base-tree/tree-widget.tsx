@@ -301,6 +301,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
         }
       }
     }
+
     this.rows = new Map(rowsToUpdate);
     this.update();
   }

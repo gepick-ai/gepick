@@ -1,5 +1,8 @@
 import { Module, ServiceModule } from "@gepick/core/common";
 import { LabelParser, LabelProvider } from "../label";
+import { HoverService } from "../services";
+import { MarkdownRendererFactory, MarkdownRendererImpl } from "../markdown";
+import { DefaultOpenerService } from "../opener";
 import { SplitPositionHandler } from "./side-panel";
 import { ApplicationShell } from "./shell";
 import { ViewContainer } from "./view-container";
@@ -15,6 +18,10 @@ import { TabBarToolbar, TabBarToolbarFactory, TabBarToolbarRegistry } from "./ta
     LabelParser,
     LabelProvider,
     ViewContainer,
+    HoverService,
+    MarkdownRendererImpl,
+    MarkdownRendererFactory,
+    DefaultOpenerService,
   ],
 })
 export class ShellModule extends ServiceModule {}

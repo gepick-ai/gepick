@@ -6,9 +6,10 @@ import { PluginRegistrySearchModel } from "./search/plugin-registry-search-model
 import { PluginRegistrySearchBar } from "./search/plugin-registry-search-bar";
 import { PluginsSource } from "./plugin/plugin-source";
 import { PluginEditor } from "./editor/plugin-editor";
-import "./style/index.css";
+import { Plugin, PluginFactory } from "./plugin/plugin-component";
 import { PluginsModel } from "./plugin/plugin-model";
 import { CurViewContainerIdentifier, PluginRegistryViewContainerFactory, PluginsWidgetFactory } from "./view/plugin-registry-factory";
+import "./style/index.css";
 
 @Module({
   services: [
@@ -18,6 +19,8 @@ import { CurViewContainerIdentifier, PluginRegistryViewContainerFactory, Plugins
     PluginRegistrySearchBar,
     PluginRegistrySearchModel,
     PluginsModel,
+    Plugin,
+    PluginFactory,
     PluginsWidget,
     PluginsWidgetFactory,
     PluginsViewContainer,

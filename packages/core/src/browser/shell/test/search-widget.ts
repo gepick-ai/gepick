@@ -88,7 +88,6 @@ export type ISearchInWorkspaceFrontendContribution = SearchInWorkspaceFrontendCo
 
 @Module({
   services: [
-    WidgetManager,
     SearchInWorkspaceWidget,
     SearchWidgetFactory,
     SearchInWorkspaceFrontendContribution,

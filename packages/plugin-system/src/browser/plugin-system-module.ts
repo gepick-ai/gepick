@@ -10,4 +10,4 @@ import { PluginClient } from './plugin-client';
     PluginClient,
   ],
 })
-export class PluginBrowserModule extends ServiceModule {};
+export class PluginSystemModule extends ServiceModule {};

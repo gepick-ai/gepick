@@ -10,7 +10,11 @@ export class PluginsWidgetOptions extends PluginsSourceOptions {
   title?: string;
 }
 
+export const IPluginsWidget = createServiceDecorator<IPluginsWidget>(SourceTreeWidget.name);
+export type IPluginsWidget = PluginsWidget;
+
 export class PluginsWidget extends SourceTreeWidget {
+  static override name = SourceTreeWidget.name;
   static ID = 'vsx-extensions';
 
   protected _badge?: number;
@@ -30,6 +34,9 @@ export class PluginsWidget extends SourceTreeWidget {
     this.id = generateExtensionWidgetId(this.options.id);
     this.toDispose.add(this.extensionsSource);
     this.source = this.extensionsSource;
+
+    // TODO(@jaylenchen): 这里记得修改为动态的id
+    (this.source as any).options.id = 'installed';
 
     const title = this.options.title ?? this.computeTitle();
     this.title.label = title;
@@ -84,6 +91,7 @@ export class PluginsWidget extends SourceTreeWidget {
   protected async resolveCount(): Promise<number | undefined> {
     if (this.options.id !== PluginsSourceOptions.SEARCH_RESULT) {
       const elements = await this.source?.getElements() || [];
+
       return [...elements].length;
     }
     return undefined;
@@ -121,5 +129,3 @@ export class PluginsWidget extends SourceTreeWidget {
     }
   }
 }
-export const IPluginsWidget = createServiceDecorator(PluginsWidget.name);
-export type IPluginsWidget = PluginsWidget;
