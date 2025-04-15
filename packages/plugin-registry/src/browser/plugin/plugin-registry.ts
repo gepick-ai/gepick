@@ -90,11 +90,11 @@ export class PluginRegistry extends InjectableService {
       const currInstalled = new Set<string>();
       const refreshing = [];
 
-      for (const plugin of mockVSXDatas) {
-        const id = plugin.id ?? plugin.model?.id;
-        const extension = this.setPlugin(id);
-        currInstalled.add(extension.id);
-        refreshing.push(this.refresh(plugin));
+      for (const pluginData of mockVSXDatas) {
+        const id = pluginData.id ?? pluginData.model?.id;
+        const plugin = this.setPlugin(id);
+        currInstalled.add(plugin.id);
+        refreshing.push(this.refresh(pluginData));
       }
 
       const installed = new Set([...prevInstalled, ...currInstalled]);
@@ -117,20 +117,20 @@ export class PluginRegistry extends InjectableService {
     ];
     return this.doChange(async () => {
       await this.initialized;
-      const extension = await this.refresh({ id }) ?? this.getPlugin(id);
-      if (!extension) {
+      const plugin = await this.refresh({ id }) ?? this.getPlugin(id);
+      if (!plugin) {
         throw new Error(`Failed to resolve ${id} extension.`);
       }
-      if (extension.readme === undefined) {
+      if (plugin.readme === undefined) {
         try {
           const [_, { content: readme }] = await messagingService.get<any>(`http://localhost:8080/api/file${readmes.find(r => r.includes(id))}`);
-          extension.update({ readme: this.compileReadme(readme) });
+          plugin.update({ readme: this.compileReadme(readme) });
         }
         catch (e) {
           console.error((e as Error).stack);
         }
       }
-      return extension;
+      return plugin;
     });
   }
 
@@ -164,8 +164,8 @@ export class PluginRegistry extends InjectableService {
 
   /**
    * Compare two extensions based on their display name, and publisher if applicable.
-   * @param a the first extension id for comparison.
-   * @param b the second extension id for comparison.
+   * @param a the first plugin id for comparison.
+   * @param b the second plugin id for comparison.
    */
   protected comparePlugins(a: string, b: string): number {
     const extensionA = this.getPlugin(a);
@@ -215,14 +215,14 @@ export class PluginRegistry extends InjectableService {
   }
 
   /**
-   * Determines if the given extension should be refreshed.
-   * @param extension the extension to refresh.
+   * Determines if the given plguin should be refreshed.
+   * @param plugin the plugin to refresh.
    */
-  protected shouldRefresh(extension?: any): boolean {
-    if (extension === undefined) {
+  protected shouldRefresh(plugin?: any): boolean {
+    if (plugin === undefined) {
       return true;
     }
-    return !extension.builtin;
+    return !plugin.builtin;
   }
 }
 
