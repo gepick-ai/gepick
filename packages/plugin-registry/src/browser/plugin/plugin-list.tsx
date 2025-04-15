@@ -18,6 +18,10 @@ export class PluginListWidget extends SourceTreeWidget {
   static override name = SourceTreeWidget.name;
   static ID = 'vsx-extensions';
 
+  static createPluginListWidgetId(widgetId: string): string {
+    return `${PluginListWidget.ID}:${widgetId}`;
+  };
+
   protected _badge?: number;
   protected _badgeTooltip?: string;
 
@@ -28,7 +32,7 @@ export class PluginListWidget extends SourceTreeWidget {
   public readonly onDidChangeBadgeTooltip = this._onDidChangeBadgeTooltip.event;
 
   @IPluginsSourceOptions protected readonly pluginListOptions: PluginListOptions;
-  @IPluginSource protected readonly extensionsSource: IPluginSource;
+  @IPluginSource protected readonly pluginSource: IPluginSource;
 
   get badge(): number | undefined {
     return this._badge;
@@ -48,10 +52,6 @@ export class PluginListWidget extends SourceTreeWidget {
     this._onDidChangeBadgeTooltip.fire();
   }
 
-  static createPluginListWidgetId(widgetId: string): string {
-    return `${PluginListWidget.ID}:${widgetId}`;
-  };
-
   @PostConstruct()
   protected override init(): void {
     super.init();
@@ -59,8 +59,8 @@ export class PluginListWidget extends SourceTreeWidget {
     this.addClass('theia-vsx-extensions');
 
     this.id = PluginListWidget.createPluginListWidgetId(this.pluginListOptions.id);
-    this.toDispose.add(this.extensionsSource);
-    this.source = this.extensionsSource;
+    this.toDispose.add(this.pluginSource);
+    this.source = this.pluginSource;
 
     // TODO(@jaylenchen): 这里记得修改为动态的id
     (this.source as any).options.id = 'installed';
@@ -109,7 +109,7 @@ export class PluginListWidget extends SourceTreeWidget {
 
   protected override renderTree(model: TreeModel): React.ReactNode {
     if (this.pluginListOptions.id === PluginsSourceOptions.SEARCH_RESULT) {
-      const searchError = this.extensionsSource.getModel().searchError;
+      const searchError = this.pluginSource.getModel().searchError;
       if (searchError) {
         const message = 'Error fetching extensions.';
         const configurationHint = 'This could be caused by network configuration issues.';

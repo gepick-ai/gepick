@@ -34,11 +34,11 @@ export class PluginRegistryViewContribution extends AbstractViewContribution<Plu
 
   protected async showBuiltinExtensions(): Promise<void> {
     await this.openView({ activate: true });
-    this.model.search.query = BUILTIN_QUERY;
+    this.model.searchModel.query = BUILTIN_QUERY;
   }
 
   protected async showInstalledExtensions(): Promise<void> {
     await this.openView({ activate: true });
-    this.model.search.query = INSTALLED_QUERY;
+    this.model.searchModel.query = INSTALLED_QUERY;
   }
 }

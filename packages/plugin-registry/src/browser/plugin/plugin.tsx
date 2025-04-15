@@ -229,14 +229,12 @@ export namespace PluginComponent {
 
 // #region Plugin
 export class Plugin extends InjectableService implements PluginData, TreeElement {
+  protected _busy = 0;
   protected readonly data: Partial<PluginData> = {};
-
   protected registryUri: Promise<string>;
 
-  protected _busy = 0;
-
   constructor(
-    @IPluginOptions protected readonly options: IPluginOptions,
+    @IPluginOptions protected readonly pluginOptions: IPluginOptions,
     @ISearchModel protected readonly searchModel: ISearchModel,
     @IContextMenuRenderer protected readonly contextMenuRenderer: IContextMenuRenderer,
     @IHoverService protected readonly hoverService: IHoverService,
@@ -250,7 +248,7 @@ export class Plugin extends InjectableService implements PluginData, TreeElement
   }
 
   get id(): string {
-    return this.options.id;
+    return this.pluginOptions.id;
   }
 
   get name(): string | undefined {
@@ -266,7 +264,7 @@ export class Plugin extends InjectableService implements PluginData, TreeElement
   }
 
   get plugin(): any | undefined {
-    return this.options;
+    return this.pluginOptions;
   }
 
   get installed(): boolean {

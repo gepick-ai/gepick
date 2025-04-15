@@ -33,7 +33,7 @@ export class PluginRegistryViewContainer extends ViewContainer {
   protected override onAfterAttach(msg: Message): void {
     super.onBeforeAttach(msg);
     this.updateMode();
-    this.toDisposeOnDetach.add(this.model.search.onDidChangeQuery(() => this.updateMode()));
+    this.toDisposeOnDetach.add(this.model.searchModel.onDidChangeQuery(() => this.updateMode()));
   }
 
   protected override configureLayout(layout: PanelLayout): void {
@@ -45,7 +45,7 @@ export class PluginRegistryViewContainer extends ViewContainer {
   protected readonly lastModeState = new Map<SearchMode, ViewContainer.State>();
 
   protected updateMode(): void {
-    const currentMode = this.model.search.getModeForQuery();
+    const currentMode = this.model.searchModel.getModeForQuery();
     if (currentMode === this.currentMode) {
       return;
     }
@@ -117,7 +117,7 @@ export class PluginRegistryViewContainer extends ViewContainer {
       modes[mode] = this.lastModeState.get(mode);
     }
     return {
-      query: this.model.search.query,
+      query: this.model.searchModel.query,
       modes,
     };
   }
@@ -130,7 +130,7 @@ export class PluginRegistryViewContainer extends ViewContainer {
         this.lastModeState.set(mode, modeState);
       }
     }
-    this.model.search.query = state.query;
+    this.model.searchModel.query = state.query;
   }
 
   protected override updateToolbarItems(allParts: ViewContainerPart[]): void {

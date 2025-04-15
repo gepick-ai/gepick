@@ -19,8 +19,8 @@ export class PluginsModel extends InjectableService {
   public readonly onDidChange = this._onDidChange.event;
 
   constructor(
-    @ISearchModel readonly search: ISearchModel,
-    @IPluginFactory protected readonly extensionFactory: IPluginFactory,
+    @ISearchModel readonly searchModel: ISearchModel,
+    @IPluginFactory protected readonly pluginFactory: IPluginFactory,
   ) {
     super();
   }
@@ -59,7 +59,7 @@ export class PluginsModel extends InjectableService {
   }
 
   protected async initSearchResult(): Promise<void> {
-    this.search.onDidChangeQuery(() => this.updateSearchResult());
+    this.searchModel.onDidChangeQuery(() => this.updateSearchResult());
     try {
       await this.updateSearchResult();
     }
@@ -79,7 +79,7 @@ export class PluginsModel extends InjectableService {
   protected setExtension(id: string) {
     let extension = this.extensions.get(id);
     if (!extension) {
-      extension = this.extensionFactory.createPlugin(new PluginOptions(id));
+      extension = this.pluginFactory.createPlugin(new PluginOptions(id));
       this.extensions.set(id, extension);
     }
     return extension;
@@ -1193,7 +1193,7 @@ export class PluginsModel extends InjectableService {
 
   protected updateSearchResult = pDebounce(async () => {
     const { token } = this.resetSearchCancellationTokenSource();
-    await this.doUpdateSearchResult({ query: this.search.query, includeAllVersions: true }, token);
+    await this.doUpdateSearchResult({ query: this.searchModel.query, includeAllVersions: true }, token);
   }, 500);
 
   protected resetSearchCancellationTokenSource(): CancellationTokenSource {
