@@ -1,30 +1,40 @@
 import { Module, ServiceModule } from "@gepick/core/common";
 import { SearchBar, SearchModel } from "./search";
-import { Plugin, PluginFactory, PluginListOptions, PluginListWidget, PluginListWidgetFactory, PluginsModel, PluginsSource, PluginsViewContainer } from "./plugin";
+import { Plugin, PluginFactory, PluginListOptions, PluginListWidget, PluginListWidgetFactory, PluginsModel, PluginsSource } from "./plugin";
 import { PluginEditorManager, PluginEditorWidget, PluginEditorWidgetFactory } from "./editor";
-import { CurViewContainerIdentifier, PluginRegistryViewContainerFactory } from "./plugin-registry-factory";
-import { PluginRegistryViewContribution } from "./plugin-registry-view-contribution";
+import { CurViewContainerIdentifier, PluginRegistryViewContainer, PluginRegistryViewContainerFactory, PluginRegistryViewContribution } from "./view-container";
 
 import "./style/index.css";
 
 @Module({
   services: [
+    // #region Search
+    SearchBar,
+    SearchModel,
+    // #endregion
+
+    // #region Plugin
+    Plugin,
+    PluginFactory,
+    PluginListOptions,
+    PluginsSource,
+    PluginsModel,
+    PluginListWidget,
+    PluginListWidgetFactory,
+    // #endregion
+
+    // #region Editor
     PluginEditorWidget,
     PluginEditorWidgetFactory,
     PluginEditorManager,
-    PluginListOptions,
-    PluginsSource,
-    SearchBar,
-    SearchModel,
-    PluginsModel,
-    Plugin,
-    PluginFactory,
-    PluginListWidget,
-    PluginListWidgetFactory,
-    PluginsViewContainer,
+    // #endregion
+
+    // #region ViewContainer
+    CurViewContainerIdentifier,
+    PluginRegistryViewContainer,
     PluginRegistryViewContainerFactory,
     PluginRegistryViewContribution,
-    CurViewContainerIdentifier,
+    // #endregion
   ],
 })
 export class PluginRegistryModule extends ServiceModule {}

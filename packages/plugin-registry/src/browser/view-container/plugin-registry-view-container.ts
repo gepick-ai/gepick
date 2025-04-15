@@ -1,11 +1,9 @@
-import { Message, PanelLayout, ViewContainer, ViewContainerPart, codicon } from "@gepick/core/browser";
-import { PostConstruct, createServiceDecorator } from "@gepick/core/common";
+import { IWidgetFactory, IWidgetManager, Message, PanelLayout, ViewContainer, ViewContainerIdentifier, ViewContainerPart, codicon } from "@gepick/core/browser";
+import { Contribution, IServiceContainer, InjectableService, PostConstruct, createServiceDecorator } from "@gepick/core/common";
 import { ISearchBar, SearchMode } from "../search";
-import { IPluginsModel } from "./plugin-model";
-import { PluginListWidget } from "./plugin-list";
-import { PluginsSourceOptions } from "./plugin-source";
+import { IPluginsModel, PluginListWidget, PluginsSourceOptions } from "../plugin";
 
-export class PluginsViewContainer extends ViewContainer {
+export class PluginRegistryViewContainer extends ViewContainer {
   static ID = 'vsx-extensions-view-container';
   static LABEL = 'Extensions';
 
@@ -18,11 +16,11 @@ export class PluginsViewContainer extends ViewContainer {
   @PostConstruct()
   protected override init(): void {
     super.init();
-    this.id = PluginsViewContainer.ID;
+    this.id = PluginRegistryViewContainer.ID;
     this.addClass('theia-vsx-extensions-view-container');
 
     this.setTitleOptions({
-      label: PluginsViewContainer.LABEL,
+      label: PluginRegistryViewContainer.LABEL,
       iconClass: codicon('extensions'),
       closeable: true,
     });
@@ -143,8 +141,8 @@ export class PluginsViewContainer extends ViewContainer {
     return `a/'Views'`;
   }
 }
-export const IPluginsViewContainer = createServiceDecorator<IPluginsViewContainer>(PluginsViewContainer.name);
-export type IPluginsViewContainer = PluginsViewContainer;
+export const IPluginsViewContainer = createServiceDecorator<IPluginsViewContainer>(PluginRegistryViewContainer.name);
+export type IPluginsViewContainer = PluginRegistryViewContainer;
 
 export namespace PluginsViewContainer {
   export interface State {
@@ -152,5 +150,39 @@ export namespace PluginsViewContainer {
     modes: {
       [mode: number]: ViewContainer.State | undefined;
     };
+  }
+}
+
+export class CurViewContainerIdentifier extends ViewContainerIdentifier {
+  static override name = ViewContainerIdentifier.name;
+
+  override id: string = PluginRegistryViewContainer.ID;
+  override progressLocationId?: string = 'extensions';
+}
+
+@Contribution(IWidgetFactory)
+export class PluginRegistryViewContainerFactory extends InjectableService {
+  public readonly id = PluginRegistryViewContainer.ID;
+
+  constructor(
+    @IWidgetManager protected readonly widgetManager: IWidgetManager,
+  ) {
+    super();
+  }
+
+  async createWidget(container: IServiceContainer) {
+    const viewContainer = container.get<IPluginsViewContainer>(IPluginsViewContainer);
+    const widgetManager = container.get<IWidgetManager>(IWidgetManager);
+    for (const id of [
+      PluginsSourceOptions.SEARCH_RESULT,
+      PluginsSourceOptions.INSTALLED,
+      PluginsSourceOptions.BUILT_IN,
+    ]) {
+      const widget = await widgetManager.getOrCreateWidget(PluginListWidget.ID, { id });
+      viewContainer.addWidget(widget, {
+        initiallyCollapsed: id === PluginsSourceOptions.BUILT_IN,
+      });
+    }
+    return viewContainer;
   }
 }

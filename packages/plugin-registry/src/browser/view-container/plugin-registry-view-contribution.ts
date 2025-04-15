@@ -1,18 +1,19 @@
 import { AbstractViewContribution, IViewContribution } from "@gepick/core/browser";
 import { Contribution, ICommandRegistry, ISelectionService, PostConstruct, lodashDebounce } from "@gepick/core/common";
-import { BUILTIN_QUERY, INSTALLED_QUERY } from "./search";
-import { IPluginsModel, PluginsViewContainer } from "./plugin";
+import { BUILTIN_QUERY, INSTALLED_QUERY } from "../search";
+import { IPluginsModel } from "../plugin";
+import { PluginRegistryViewContainer } from "./plugin-registry-view-container";
 
 @Contribution(IViewContribution)
-export class PluginRegistryViewContribution extends AbstractViewContribution<PluginsViewContainer> {
+export class PluginRegistryViewContribution extends AbstractViewContribution<PluginRegistryViewContainer> {
   constructor(
     @IPluginsModel protected model: IPluginsModel,
     @ISelectionService protected readonly selectionService: ISelectionService,
     @ICommandRegistry protected commandRegistry: ICommandRegistry,
   ) {
     super({
-      widgetId: PluginsViewContainer.ID,
-      widgetName: PluginsViewContainer.LABEL,
+      widgetId: PluginRegistryViewContainer.ID,
+      widgetName: PluginRegistryViewContainer.LABEL,
       defaultWidgetOptions: {
         area: 'left',
         rank: 500,
