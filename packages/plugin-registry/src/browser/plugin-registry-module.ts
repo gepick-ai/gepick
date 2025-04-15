@@ -1,6 +1,6 @@
 import { Module, ServiceModule } from "@gepick/core/common";
-import { SearchBar, SearchModel } from "./search";
-import { Plugin, PluginFactory, PluginListOptions, PluginListWidget, PluginListWidgetFactory, PluginsModel, PluginsSource } from "./plugin";
+import { PluginSearchBarWidget, PluginSearchModel } from "./search";
+import { Plugin, PluginFactory, PluginListModel, PluginListWidgetOptions, PluginListWidget, PluginListWidgetFactory, PluginRegistry } from "./plugin";
 import { PluginEditorManager, PluginEditorWidget, PluginEditorWidgetFactory } from "./editor";
 import { CurViewContainerIdentifier, PluginRegistryViewContainer, PluginRegistryViewContainerFactory, PluginRegistryViewContribution } from "./view-container";
 
@@ -9,16 +9,16 @@ import "./style/index.css";
 @Module({
   services: [
     // #region Search
-    SearchModel,
-    SearchBar,
+    PluginSearchModel,
+    PluginSearchBarWidget,
     // #endregion
 
     // #region Plugin
     Plugin,
     PluginFactory,
-    PluginListOptions,
-    PluginsSource,
-    PluginsModel,
+    PluginListWidgetOptions,
+    PluginListModel,
+    PluginRegistry,
     PluginListWidget,
     PluginListWidgetFactory,
     // #endregion

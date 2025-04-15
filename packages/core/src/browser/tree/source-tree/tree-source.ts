@@ -44,11 +44,8 @@ export namespace CompositeTreeElement {
 }
 
 export abstract class TreeSource extends InjectableService {
-  protected readonly onDidChangeEmitter = this._register(new Emitter<void>());
-  readonly onDidChange: Event<void> = this.onDidChangeEmitter.event;
-  protected fireDidChange(): void {
-    this.onDidChangeEmitter.fire(undefined);
-  }
+  protected readonly _onDidChange = this._register(new Emitter<void>());
+  readonly onDidChange: Event<void> = this._onDidChange.event;
 
   readonly id: string | undefined;
   readonly placeholder: string | undefined;

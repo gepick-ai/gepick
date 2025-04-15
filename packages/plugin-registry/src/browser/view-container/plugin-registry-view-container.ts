@@ -1,7 +1,7 @@
 import { IWidgetFactory, IWidgetManager, Message, PanelLayout, ViewContainer, ViewContainerIdentifier, ViewContainerPart, codicon } from "@gepick/core/browser";
 import { Contribution, IServiceContainer, InjectableService, PostConstruct, createServiceDecorator } from "@gepick/core/common";
-import { ISearchBar, SearchMode } from "../search";
-import { IPluginsModel, PluginListWidget, PluginsSourceOptions } from "../plugin";
+import { IPluginSearchBarWidget, IPluginSearchModel, PluginSearchMode } from "../search";
+import { PluginListModelOptions, PluginListWidget } from "../plugin";
 
 export class PluginRegistryViewContainer extends ViewContainer {
   static ID = 'vsx-extensions-view-container';
@@ -9,9 +9,8 @@ export class PluginRegistryViewContainer extends ViewContainer {
 
   override disableDNDBetweenContainers = true;
 
-  @ISearchBar protected readonly searchBar: ISearchBar;
-
-  @IPluginsModel protected readonly model: IPluginsModel;
+  @IPluginSearchBarWidget protected readonly pluginSearchBarWidget: IPluginSearchBarWidget;
+  @IPluginSearchModel protected readonly pluginSearchModel: IPluginSearchModel;
 
   @PostConstruct()
   protected override init(): void {
@@ -27,29 +26,29 @@ export class PluginRegistryViewContainer extends ViewContainer {
   }
 
   protected override onActivateRequest(_msg: Message): void {
-    this.searchBar.activate();
+    this.pluginSearchBarWidget.activate();
   }
 
   protected override onAfterAttach(msg: Message): void {
     super.onBeforeAttach(msg);
     this.updateMode();
-    this.toDisposeOnDetach.add(this.model.searchModel.onDidChangeQuery(() => this.updateMode()));
+    this.toDisposeOnDetach.add(this.pluginSearchModel.onDidChangeQuery(() => this.updateMode()));
   }
 
   protected override configureLayout(layout: PanelLayout): void {
-    layout.addWidget(this.searchBar);
+    layout.addWidget(this.pluginSearchBarWidget);
     super.configureLayout(layout);
   }
 
-  protected currentMode: SearchMode = SearchMode.Initial;
-  protected readonly lastModeState = new Map<SearchMode, ViewContainer.State>();
+  protected currentMode: PluginSearchMode = PluginSearchMode.Initial;
+  protected readonly lastModeState = new Map<PluginSearchMode, ViewContainer.State>();
 
   protected updateMode(): void {
-    const currentMode = this.model.searchModel.getModeForQuery();
+    const currentMode = this.pluginSearchModel.getModeForQuery();
     if (currentMode === this.currentMode) {
       return;
     }
-    if (this.currentMode !== SearchMode.Initial) {
+    if (this.currentMode !== PluginSearchMode.Initial) {
       this.lastModeState.set(this.currentMode, super.doStoreState());
     }
     this.currentMode = currentMode;
@@ -93,19 +92,19 @@ export class PluginRegistryViewContainer extends ViewContainer {
     if (widgetsToShow.length) {
       return widgetsToShow.includes(part.wrapped.id);
     }
-    return part.wrapped.id !== PluginListWidget.createPluginListWidgetId(PluginsSourceOptions.SEARCH_RESULT);
+    return part.wrapped.id !== PluginListWidget.createPluginListWidgetId(PluginListModelOptions.SEARCH_RESULT);
   }
 
   protected getWidgetsForMode(): string[] {
     switch (this.currentMode) {
-      case SearchMode.Builtin:
-        return [PluginListWidget.createPluginListWidgetId(PluginsSourceOptions.BUILT_IN)];
-      case SearchMode.Installed:
-        return [PluginListWidget.createPluginListWidgetId(PluginsSourceOptions.INSTALLED)];
-      case SearchMode.Recommended:
-        return [PluginListWidget.createPluginListWidgetId(PluginsSourceOptions.RECOMMENDED)];
-      case SearchMode.Search:
-        return [PluginListWidget.createPluginListWidgetId(PluginsSourceOptions.SEARCH_RESULT)];
+      case PluginSearchMode.Builtin:
+        return [PluginListWidget.createPluginListWidgetId(PluginListModelOptions.BUILT_IN)];
+      case PluginSearchMode.Installed:
+        return [PluginListWidget.createPluginListWidgetId(PluginListModelOptions.INSTALLED)];
+      case PluginSearchMode.Recommended:
+        return [PluginListWidget.createPluginListWidgetId(PluginListModelOptions.RECOMMENDED)];
+      case PluginSearchMode.Search:
+        return [PluginListWidget.createPluginListWidgetId(PluginListModelOptions.SEARCH_RESULT)];
       default:
         return [];
     }
@@ -117,20 +116,20 @@ export class PluginRegistryViewContainer extends ViewContainer {
       modes[mode] = this.lastModeState.get(mode);
     }
     return {
-      query: this.model.searchModel.query,
+      query: this.pluginSearchModel.query,
       modes,
     };
   }
 
   protected override doRestoreState(state: any): void {
     for (const key in state.modes) {
-      const mode = Number(key) as SearchMode;
+      const mode = Number(key) as PluginSearchMode;
       const modeState = state.modes[mode];
       if (modeState) {
         this.lastModeState.set(mode, modeState);
       }
     }
-    this.model.searchModel.query = state.query;
+    this.pluginSearchModel.query = state.query;
   }
 
   protected override updateToolbarItems(allParts: ViewContainerPart[]): void {
@@ -174,13 +173,13 @@ export class PluginRegistryViewContainerFactory extends InjectableService {
     const viewContainer = container.get<IPluginsViewContainer>(IPluginsViewContainer);
     const widgetManager = container.get<IWidgetManager>(IWidgetManager);
     for (const id of [
-      PluginsSourceOptions.SEARCH_RESULT,
-      PluginsSourceOptions.INSTALLED,
-      PluginsSourceOptions.BUILT_IN,
+      PluginListModelOptions.SEARCH_RESULT,
+      PluginListModelOptions.INSTALLED,
+      PluginListModelOptions.BUILT_IN,
     ]) {
       const widget = await widgetManager.getOrCreateWidget(PluginListWidget.ID, { id });
       viewContainer.addWidget(widget, {
-        initiallyCollapsed: id === PluginsSourceOptions.BUILT_IN,
+        initiallyCollapsed: id === PluginListModelOptions.BUILT_IN,
       });
     }
     return viewContainer;

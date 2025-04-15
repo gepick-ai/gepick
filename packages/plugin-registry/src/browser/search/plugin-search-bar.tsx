@@ -1,13 +1,13 @@
 import { Message, ReactWidget, codicon } from "@gepick/core/browser";
 import { PostConstruct, createServiceDecorator } from "@gepick/core/common";
-import { ISearchModel } from "./search-model";
+import { IPluginSearchModel } from "./plugin-search-model";
 
-export class SearchBar extends ReactWidget {
+export class PluginSearchBarWidget extends ReactWidget {
   protected input: HTMLInputElement | undefined;
   protected onlyShowVerifiedExtensions: boolean | undefined;
 
   constructor(
-    @ISearchModel protected readonly searchModel: ISearchModel,
+    @IPluginSearchModel protected readonly pluginSearchModel: IPluginSearchModel,
   ) {
     super();
   }
@@ -18,7 +18,7 @@ export class SearchBar extends ReactWidget {
     this.id = 'vsx-extensions-search-bar';
     this.addClass('theia-vsx-extensions-search-bar');
 
-    this.searchModel.onDidChangeQuery((query: string) => this.updateSearchTerm(query));
+    this.pluginSearchModel.onDidChangeQuery((query: string) => this.updateSearchTerm(query));
   }
 
   protected render(): React.ReactNode {
@@ -40,7 +40,7 @@ export class SearchBar extends ReactWidget {
   }
 
   protected updateQuery = (e: React.ChangeEvent<HTMLInputElement>) => {
-    this.searchModel.query = e.target.value;
+    this.pluginSearchModel.query = e.target.value;
   };
 
   protected updateSearchTerm(term: string): void {
@@ -82,5 +82,5 @@ export class SearchBar extends ReactWidget {
   }
 }
 
-export const ISearchBar = createServiceDecorator<ISearchBar>(SearchBar.name);
-export type ISearchBar = SearchBar;
+export const IPluginSearchBarWidget = createServiceDecorator<IPluginSearchBarWidget>(PluginSearchBarWidget.name);
+export type IPluginSearchBarWidget = PluginSearchBarWidget;

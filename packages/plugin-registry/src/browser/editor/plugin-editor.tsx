@@ -1,12 +1,12 @@
 import { DOMPurify, IWidgetFactory, Message, React, ReactWidget, Widget, codicon } from "@gepick/core/browser";
 import { Contribution, Deferred, IServiceContainer, InjectableService, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
-import { AbstractPluginComponent, IPlugin, IPluginOptions, IPluginsModel, Plugin, PluginOptions } from "../plugin";
+import { AbstractPluginComponent, IPlugin, IPluginOptions, IPluginRegistry, Plugin, PluginOptions } from "../plugin";
 
 const downloadFormatter = new Intl.NumberFormat();
 const averageRatingFormatter = (averageRating: number): number => Math.round(averageRating * 2) / 2;
 const getAverageRatingTitle = (averageRating: number): string => `Average rating: ${averageRatingFormatter(averageRating)} out of 5`;
 
-class PluginEditorComponent extends AbstractVSXExtensionComponent {
+class PluginEditorComponent extends AbstractPluginComponent {
   protected header: HTMLElement | undefined;
   protected body: HTMLElement | undefined;
   protected _scrollContainer: HTMLElement | undefined;
@@ -222,8 +222,8 @@ export class PluginEditorWidget extends ReactWidget {
   protected readonly deferredScrollContainer = new Deferred<HTMLElement>();
 
   constructor(
-    @IPlugin protected readonly extension: IPlugin,
-    @IPluginsModel protected readonly model: IPluginsModel,
+    @IPlugin protected readonly plugin: IPlugin,
+    @IPluginRegistry protected readonly pluginRegistry: IPluginRegistry,
   ) {
     super();
   }
@@ -231,13 +231,13 @@ export class PluginEditorWidget extends ReactWidget {
   @PostConstruct()
   protected init(): void {
     this.addClass('theia-vsx-extension-editor');
-    this.id = `${PluginEditorWidget.ID}:${this.extension.id}`;
+    this.id = `${PluginEditorWidget.ID}:${this.plugin.id}`;
     this.title.closable = true;
     this.updateTitle();
     this.title.iconClass = codicon('list-selection');
     this.node.tabIndex = -1;
     this.update();
-    this.toDispose.add(this.model.onDidChange(() => this.update()));
+    this.toDispose.add(this.pluginRegistry.onDidChange(() => this.update()));
   }
 
   override getScrollContainer(): Promise<HTMLElement> {
@@ -255,7 +255,7 @@ export class PluginEditorWidget extends ReactWidget {
   }
 
   protected updateTitle(): void {
-    const label = `Extension:${this.extension.name}`;
+    const label = `Extension:${this.plugin.name}`;
     this.title.label = label;
     this.title.caption = label;
   }
@@ -281,7 +281,7 @@ export class PluginEditorWidget extends ReactWidget {
     return (
       <PluginEditorComponent
         ref={this.resolveScrollContainer}
-        extension={this.extension}
+        extension={this.plugin}
       />
     );
   }
@@ -295,8 +295,8 @@ export class PluginEditorWidgetFactory extends InjectableService {
 
   async createWidget(container: IServiceContainer, options: IPluginOptions) {
     container.rebind(PluginOptions.getServiceId()).toConstantValue(options);
-    const extension = await container.get<IPluginsModel>(IPluginsModel).resolve(options.id);
-    container.rebind(Plugin.getServiceId()).toConstantValue(extension);
+    const plugin = await container.get<IPluginRegistry>(IPluginRegistry).resolve(options.id);
+    container.rebind(Plugin.getServiceId()).toConstantValue(plugin);
     container.unbind(PluginEditorWidget.getServiceId());
     container.bind(PluginEditorWidget.getServiceId()).to(PluginEditorWidget);
     return container.get<IPluginEditorWidget>(IPluginEditorWidget);

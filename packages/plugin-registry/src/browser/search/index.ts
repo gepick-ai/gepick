@@ -1,2 +1,2 @@
-export * from "./search-bar";
-export * from "./search-model";
+export * from "./plugin-search-bar";
+export * from "./plugin-search-model";

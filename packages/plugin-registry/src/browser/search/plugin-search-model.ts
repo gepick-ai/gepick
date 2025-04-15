@@ -16,7 +16,7 @@
 
 import { Emitter, InjectableService, createServiceDecorator } from "@gepick/core/common";
 
-export enum SearchMode {
+export enum PluginSearchMode {
   Initial,
   None,
   Search,
@@ -29,14 +29,14 @@ export const BUILTIN_QUERY = '@builtin';
 export const INSTALLED_QUERY = '@installed';
 export const RECOMMENDED_QUERY = '@recommended';
 
-export class SearchModel extends InjectableService {
+export class PluginSearchModel extends InjectableService {
   protected readonly _onDidChangeQuery = new Emitter<string>();
   readonly onDidChangeQuery = this._onDidChangeQuery.event;
 
-  protected readonly specialQueries = new Map<string, SearchMode>([
-    [BUILTIN_QUERY, SearchMode.Builtin],
-    [INSTALLED_QUERY, SearchMode.Installed],
-    [RECOMMENDED_QUERY, SearchMode.Recommended],
+  protected readonly specialQueries = new Map<string, PluginSearchMode>([
+    [BUILTIN_QUERY, PluginSearchMode.Builtin],
+    [INSTALLED_QUERY, PluginSearchMode.Installed],
+    [RECOMMENDED_QUERY, PluginSearchMode.Recommended],
   ]);
 
   protected _query = '';
@@ -54,12 +54,12 @@ export class SearchModel extends InjectableService {
     return this._query;
   }
 
-  getModeForQuery(): SearchMode {
+  getModeForQuery(): PluginSearchMode {
     return this.query
-      ? this.specialQueries.get(this.query) ?? SearchMode.Search
-      : SearchMode.None;
+      ? this.specialQueries.get(this.query) ?? PluginSearchMode.Search
+      : PluginSearchMode.None;
   }
 }
 
-export const ISearchModel = createServiceDecorator<ISearchModel>(SearchModel.name);
-export type ISearchModel = SearchModel;
+export const IPluginSearchModel = createServiceDecorator<IPluginSearchModel>(PluginSearchModel.name);
+export type IPluginSearchModel = PluginSearchModel;

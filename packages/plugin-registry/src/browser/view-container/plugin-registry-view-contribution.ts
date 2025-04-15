@@ -1,13 +1,14 @@
 import { AbstractViewContribution, IViewContribution } from "@gepick/core/browser";
 import { Contribution, ICommandRegistry, ISelectionService, PostConstruct, lodashDebounce } from "@gepick/core/common";
-import { BUILTIN_QUERY, INSTALLED_QUERY } from "../search";
-import { IPluginsModel } from "../plugin";
+import { BUILTIN_QUERY, INSTALLED_QUERY, IPluginSearchModel } from "../search";
+import { IPluginRegistry } from "../plugin";
 import { PluginRegistryViewContainer } from "./plugin-registry-view-container";
 
 @Contribution(IViewContribution)
 export class PluginRegistryViewContribution extends AbstractViewContribution<PluginRegistryViewContainer> {
   constructor(
-    @IPluginsModel protected model: IPluginsModel,
+    @IPluginRegistry protected pluginRegistry: IPluginRegistry,
+    @IPluginSearchModel protected pluginSearchModel: IPluginSearchModel,
     @ISelectionService protected readonly selectionService: ISelectionService,
     @ICommandRegistry protected commandRegistry: ICommandRegistry,
   ) {
@@ -23,7 +24,7 @@ export class PluginRegistryViewContribution extends AbstractViewContribution<Plu
 
   @PostConstruct()
   protected init(): void {
-    const oneShotDisposable = this.model.onDidChange(lodashDebounce(() => {
+    const oneShotDisposable = this.pluginRegistry.onDidChange(lodashDebounce(() => {
       oneShotDisposable.dispose();
     }, 5000, { trailing: true }));
   }
@@ -34,11 +35,11 @@ export class PluginRegistryViewContribution extends AbstractViewContribution<Plu
 
   protected async showBuiltinExtensions(): Promise<void> {
     await this.openView({ activate: true });
-    this.model.searchModel.query = BUILTIN_QUERY;
+    this.pluginSearchModel.query = BUILTIN_QUERY;
   }
 
   protected async showInstalledExtensions(): Promise<void> {
     await this.openView({ activate: true });
-    this.model.searchModel.query = INSTALLED_QUERY;
+    this.pluginSearchModel.query = INSTALLED_QUERY;
   }
 }

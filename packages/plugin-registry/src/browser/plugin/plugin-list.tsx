@@ -1,18 +1,90 @@
-import { IWidgetFactory, Message, SourceTreeWidget, TreeModel, TreeNode } from "@gepick/core/browser";
-import { Contribution, Emitter, IServiceContainer, InjectableService, PostConstruct, createServiceDecorator } from "@gepick/core/common";
-import { IPluginSource, IPluginsSourceOptions, PluginsSourceOptions } from "./plugin-source";
+import { IWidgetFactory, Message, SourceTreeWidget, TreeElement, TreeModel, TreeNode, TreeSource } from "@gepick/core/browser";
+import { Contribution, Emitter, IServiceContainer, InjectableService, PostConstruct, createServiceDecorator, lodashDebounce } from "@gepick/core/common";
+import { IPluginRegistry } from "./plugin-registry";
 
-export class PluginListOptions extends PluginsSourceOptions {
-  static override name = PluginsSourceOptions.name;
+// #region Plugin List Model Options
+export class PluginListModelOptions extends InjectableService {
+  static INSTALLED = 'installed';
+  static BUILT_IN = 'builtin';
+  static SEARCH_RESULT = 'searchResult';
+  static RECOMMENDED = 'recommended';
+  readonly id: string;
+}
+export const IPluginListModelOptions = createServiceDecorator(PluginListModelOptions.name);
+export type IPluginListModelOptions = PluginListModelOptions;
+// #endregion
+
+// #region Plugin List Model
+// TODO(@jaylenchen): 目前这个pluginsource有很大问题，按照theia的做法，故意设计成多个子container，然后分别绑定自己的source以及相关服务，最终可以得到不同的plugin source。但是目前我们全局都是唯一的plugin source，拿到的结果都是一样的
+export class PluginListModel extends TreeSource {
+  constructor(
+    @IPluginListModelOptions protected readonly pluginListModelOptions: IPluginListModelOptions,
+    @IPluginRegistry protected readonly pluginRegistry: IPluginRegistry,
+  ) {
+    super();
+  }
+
+  @PostConstruct()
+  protected init(): void {
+    this._onDidChange.fire();
+    this._register(this.pluginRegistry.onDidChange(() => {
+      const scheduleFireDidChange = lodashDebounce(() => this._onDidChange.fire(), 100, { leading: false, trailing: true });
+      scheduleFireDidChange();
+    }));
+  }
+
+  getPluginRegistry(): IPluginRegistry {
+    return this.pluginRegistry;
+  }
+
+  *getElements(): IterableIterator<TreeElement> {
+    const elements = this.doGetElements();
+
+    for (const id of elements) {
+      const extension = this.pluginRegistry.getPlugin(id);
+      if (!extension) {
+        continue;
+      }
+      if (this.pluginListModelOptions.id === PluginListModelOptions.RECOMMENDED) {
+        if (this.pluginRegistry.isInstalled(id)) {
+          continue;
+        }
+      }
+      if (this.pluginListModelOptions.id === PluginListModelOptions.BUILT_IN) {
+        if (extension.builtin) {
+          yield extension;
+        }
+      }
+      else if (!extension.builtin) {
+        yield extension;
+      }
+    }
+  }
+
+  protected doGetElements(): IterableIterator<string> {
+    if (this.pluginListModelOptions.id === PluginListModelOptions.SEARCH_RESULT) {
+      return this.pluginRegistry.searchResult;
+    }
+
+    return this.pluginRegistry.installed;
+  }
+}
+
+export const IPluginListModel = createServiceDecorator<IPluginListModel>(PluginListModel.name);
+export type IPluginListModel = PluginListModel;
+// #endregion
+
+// #region Plugin List Widget Options
+export class PluginListWidgetOptions extends PluginListModelOptions {
+  static override name = PluginListModelOptions.name;
   static readonly id: string;
   title?: string;
 }
+// #endregion
 
-export const IPluginListWidget = createServiceDecorator<IPluginListWidget>(SourceTreeWidget.name);
-export type IPluginListWidget = PluginListWidget;
-
+// #region Plugin List Widget
 /**
- * Plugin列表小组件，比如Installed Plugin List、Recommend Plugin List
+ * Plugin列表小组件，比如Installed Plugin List Widget、Recommend Plugin List Widget、Recommend
  */
 export class PluginListWidget extends SourceTreeWidget {
   static override name = SourceTreeWidget.name;
@@ -31,8 +103,8 @@ export class PluginListWidget extends SourceTreeWidget {
   protected _onDidChangeBadgeTooltip = new Emitter<void>();
   public readonly onDidChangeBadgeTooltip = this._onDidChangeBadgeTooltip.event;
 
-  @IPluginsSourceOptions protected readonly pluginListOptions: PluginListOptions;
-  @IPluginSource protected readonly pluginSource: IPluginSource;
+  @IPluginListModelOptions protected readonly pluginListWidgetOptions: PluginListWidgetOptions;
+  @IPluginListModel protected readonly pluginListModel: IPluginListModel;
 
   get badge(): number | undefined {
     return this._badge;
@@ -58,14 +130,14 @@ export class PluginListWidget extends SourceTreeWidget {
 
     this.addClass('theia-vsx-extensions');
 
-    this.id = PluginListWidget.createPluginListWidgetId(this.pluginListOptions.id);
-    this.toDispose.add(this.pluginSource);
-    this.source = this.pluginSource;
+    this.id = PluginListWidget.createPluginListWidgetId(this.pluginListWidgetOptions.id);
+    this.toDispose.add(this.pluginListModel);
+    this.source = this.pluginListModel;
 
     // TODO(@jaylenchen): 这里记得修改为动态的id
     (this.source as any).options.id = 'installed';
 
-    const title = this.pluginListOptions.title ?? this.computeTitle();
+    const title = this.pluginListWidgetOptions.title ?? this.computeTitle();
     this.title.label = title;
     this.title.caption = title;
 
@@ -75,14 +147,14 @@ export class PluginListWidget extends SourceTreeWidget {
   }
 
   protected computeTitle(): string {
-    switch (this.pluginListOptions.id) {
-      case PluginsSourceOptions.INSTALLED:
+    switch (this.pluginListWidgetOptions.id) {
+      case PluginListModelOptions.INSTALLED:
         return 'Installed';
-      case PluginsSourceOptions.BUILT_IN:
+      case PluginListModelOptions.BUILT_IN:
         return 'Built-in';
-      case PluginsSourceOptions.RECOMMENDED:
+      case PluginListModelOptions.RECOMMENDED:
         return 'Recommended';
-      case PluginsSourceOptions.SEARCH_RESULT:
+      case PluginListModelOptions.SEARCH_RESULT:
         return 'Open VSX Registry';
       default:
         return '';
@@ -90,7 +162,7 @@ export class PluginListWidget extends SourceTreeWidget {
   }
 
   protected async resolveCount(): Promise<number | undefined> {
-    if (this.pluginListOptions.id !== PluginsSourceOptions.SEARCH_RESULT) {
+    if (this.pluginListWidgetOptions.id !== PluginListModelOptions.SEARCH_RESULT) {
       const elements = await this.source?.getElements() || [];
 
       return [...elements].length;
@@ -108,8 +180,8 @@ export class PluginListWidget extends SourceTreeWidget {
   }
 
   protected override renderTree(model: TreeModel): React.ReactNode {
-    if (this.pluginListOptions.id === PluginsSourceOptions.SEARCH_RESULT) {
-      const searchError = this.pluginSource.getModel().searchError;
+    if (this.pluginListWidgetOptions.id === PluginListModelOptions.SEARCH_RESULT) {
+      const searchError = this.pluginListModel.getPluginRegistry().searchError;
       if (searchError) {
         const message = 'Error fetching extensions.';
         const configurationHint = 'This could be caused by network configuration issues.';
@@ -123,20 +195,24 @@ export class PluginListWidget extends SourceTreeWidget {
 
   protected override onAfterShow(msg: Message): void {
     super.onAfterShow(msg);
-    if (this.pluginListOptions.id === PluginsSourceOptions.INSTALLED) {
+    if (this.pluginListWidgetOptions.id === PluginListModelOptions.INSTALLED) {
       // This is needed when an Extension was installed outside of the extension view.
       // E.g. using explorer context menu.
       this.doUpdateRows();
     }
   }
 }
+export const IPluginListWidget = createServiceDecorator<IPluginListWidget>(SourceTreeWidget.name);
+export type IPluginListWidget = PluginListWidget;
+// #endregion
 
+// #region Plugin List Widget Factory
 @Contribution(IWidgetFactory)
 export class PluginListWidgetFactory extends InjectableService {
   public readonly id = PluginListWidget.ID;
 
-  createWidget(container: IServiceContainer, options: IPluginsSourceOptions) {
-    container.rebind(PluginListOptions.getServiceId()).toConstantValue(options);
+  createWidget(container: IServiceContainer, options: IPluginListModelOptions) {
+    container.rebind(PluginListWidgetOptions.getServiceId()).toConstantValue(options);
     container.rebind(PluginListWidget.getServiceId()).to(PluginListWidget).inRequestScope();
 
     const widget = container.get<IPluginListWidget>(IPluginListWidget);
@@ -144,3 +220,4 @@ export class PluginListWidgetFactory extends InjectableService {
     return widget;
   }
 }
+// #endregion
