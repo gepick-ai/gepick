@@ -1,6 +1,6 @@
 import { IOpenHandler, WidgetOpenHandler } from "@gepick/core/browser";
 import { Contribution, URI } from "@gepick/core/common";
-import { IPluginOptions } from "../plugin/plugin-component";
+import { IPluginOptions } from "../plugin";
 import { VSCodeExtensionUri } from "../vscode-util";
 import { PluginEditorWidget } from "./plugin-editor";
 

@@ -28,3 +28,54 @@ export namespace VSCodeExtensionUri {
     return undefined;
   }
 }
+
+/**
+ * Should be aligned with https://github.com/eclipse/openvsx/blob/master/server/src/main/java/org/eclipse/openvsx/json/ExtensionJson.java
+ */
+export interface VSXExtensionRaw {
+  error?: string;
+  namespaceUrl: string;
+  reviewsUrl: string;
+  name: string;
+  namespace: string;
+  targetPlatform?: any;
+  publishedBy: any;
+  preRelease: boolean;
+  namespaceAccess: any;
+  files: any;
+  allVersions: {
+    [version: string]: string;
+  };
+  allVersionsUrl?: string;
+  averageRating?: number;
+  downloadCount: number;
+  reviewCount: number;
+  version: string;
+  timestamp: string;
+  preview?: boolean;
+  verified?: boolean;
+  displayName?: string;
+  namespaceDisplayName: string;
+  description?: string;
+  categories?: string[];
+  extensionKind?: string[];
+  tags?: string[];
+  license?: string;
+  homepage?: string;
+  repository?: string;
+  sponsorLink?: string;
+  bugs?: string;
+  markdown?: string;
+  galleryColor?: string;
+  galleryTheme?: string;
+  localizedLanguages?: string[];
+  qna?: string;
+  badges?: any[];
+  dependencies?: any[];
+  bundledExtensions?: any[];
+  allTargetPlatformVersions?: any[];
+  url?: string;
+  engines?: {
+    [engine: string]: string;
+  };
+}

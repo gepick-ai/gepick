@@ -2,8 +2,6 @@ import { IWidgetFactory, Message, SourceTreeWidget, TreeModel, TreeNode } from "
 import { Contribution, Emitter, IServiceContainer, InjectableService, PostConstruct, createServiceDecorator } from "@gepick/core/common";
 import { IPluginSource, IPluginsSourceOptions, PluginsSourceOptions } from "./plugin-source";
 
-export const generateExtensionWidgetId = (widgetId: string): string => `${PluginListWidget.ID}:${widgetId}`;
-
 export class PluginListOptions extends PluginsSourceOptions {
   static override name = PluginsSourceOptions.name;
   static readonly id: string;
@@ -14,7 +12,7 @@ export const IPluginListWidget = createServiceDecorator<IPluginListWidget>(Sourc
 export type IPluginListWidget = PluginListWidget;
 
 /**
- * Plugin列表小组件
+ * Plugin列表小组件，比如Installed Plugin List、Recommend Plugin List
  */
 export class PluginListWidget extends SourceTreeWidget {
   static override name = SourceTreeWidget.name;
@@ -29,7 +27,7 @@ export class PluginListWidget extends SourceTreeWidget {
   protected _onDidChangeBadgeTooltip = new Emitter<void>();
   public readonly onDidChangeBadgeTooltip = this._onDidChangeBadgeTooltip.event;
 
-  @IPluginsSourceOptions protected readonly options: PluginListOptions;
+  @IPluginsSourceOptions protected readonly pluginListOptions: PluginListOptions;
   @IPluginSource protected readonly extensionsSource: IPluginSource;
 
   get badge(): number | undefined {
@@ -50,20 +48,24 @@ export class PluginListWidget extends SourceTreeWidget {
     this._onDidChangeBadgeTooltip.fire();
   }
 
+  static createPluginListWidgetId(widgetId: string): string {
+    return `${PluginListWidget.ID}:${widgetId}`;
+  };
+
   @PostConstruct()
   protected override init(): void {
     super.init();
 
     this.addClass('theia-vsx-extensions');
 
-    this.id = generateExtensionWidgetId(this.options.id);
+    this.id = PluginListWidget.createPluginListWidgetId(this.pluginListOptions.id);
     this.toDispose.add(this.extensionsSource);
     this.source = this.extensionsSource;
 
     // TODO(@jaylenchen): 这里记得修改为动态的id
     (this.source as any).options.id = 'installed';
 
-    const title = this.options.title ?? this.computeTitle();
+    const title = this.pluginListOptions.title ?? this.computeTitle();
     this.title.label = title;
     this.title.caption = title;
 
@@ -73,7 +75,7 @@ export class PluginListWidget extends SourceTreeWidget {
   }
 
   protected computeTitle(): string {
-    switch (this.options.id) {
+    switch (this.pluginListOptions.id) {
       case PluginsSourceOptions.INSTALLED:
         return 'Installed';
       case PluginsSourceOptions.BUILT_IN:
@@ -88,7 +90,7 @@ export class PluginListWidget extends SourceTreeWidget {
   }
 
   protected async resolveCount(): Promise<number | undefined> {
-    if (this.options.id !== PluginsSourceOptions.SEARCH_RESULT) {
+    if (this.pluginListOptions.id !== PluginsSourceOptions.SEARCH_RESULT) {
       const elements = await this.source?.getElements() || [];
 
       return [...elements].length;
@@ -106,7 +108,7 @@ export class PluginListWidget extends SourceTreeWidget {
   }
 
   protected override renderTree(model: TreeModel): React.ReactNode {
-    if (this.options.id === PluginsSourceOptions.SEARCH_RESULT) {
+    if (this.pluginListOptions.id === PluginsSourceOptions.SEARCH_RESULT) {
       const searchError = this.extensionsSource.getModel().searchError;
       if (searchError) {
         const message = 'Error fetching extensions.';
@@ -121,7 +123,7 @@ export class PluginListWidget extends SourceTreeWidget {
 
   protected override onAfterShow(msg: Message): void {
     super.onAfterShow(msg);
-    if (this.options.id === PluginsSourceOptions.INSTALLED) {
+    if (this.pluginListOptions.id === PluginsSourceOptions.INSTALLED) {
       // This is needed when an Extension was installed outside of the extension view.
       // E.g. using explorer context menu.
       this.doUpdateRows();

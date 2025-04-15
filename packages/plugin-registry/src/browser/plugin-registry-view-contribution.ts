@@ -1,9 +1,7 @@
 import { AbstractViewContribution, IViewContribution } from "@gepick/core/browser";
-import { Contribution, ICommandRegistry, ISelectionService, PostConstruct } from "@gepick/core/common";
-import debounce from "lodash.debounce";
-import { PluginsViewContainer } from "../plugin/plugin-view-container";
-import { IPluginsModel } from "../plugin/plugin-model";
-import { BUILTIN_QUERY, INSTALLED_QUERY } from "../search/search-model";
+import { Contribution, ICommandRegistry, ISelectionService, PostConstruct, lodashDebounce } from "@gepick/core/common";
+import { BUILTIN_QUERY, INSTALLED_QUERY } from "./search";
+import { IPluginsModel, PluginsViewContainer } from "./plugin";
 
 @Contribution(IViewContribution)
 export class PluginRegistryViewContribution extends AbstractViewContribution<PluginsViewContainer> {
@@ -24,7 +22,7 @@ export class PluginRegistryViewContribution extends AbstractViewContribution<Plu
 
   @PostConstruct()
   protected init(): void {
-    const oneShotDisposable = this.model.onDidChange(debounce(() => {
+    const oneShotDisposable = this.model.onDidChange(lodashDebounce(() => {
       oneShotDisposable.dispose();
     }, 5000, { trailing: true }));
   }

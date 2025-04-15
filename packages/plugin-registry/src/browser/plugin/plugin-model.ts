@@ -1,59 +1,7 @@
-import { CancellationToken, CancellationTokenSource, Emitter, Event, InjectableService, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
+import { CancellationToken, CancellationTokenSource, Emitter, Event, InjectableService, PostConstruct, URI, createServiceDecorator, pDebounce } from "@gepick/core/common";
 import { DOMPurify, markdownit, messagingService } from "@gepick/core/browser";
-import debounce from 'p-debounce';
-import { ISearchModel } from "../search/search-model";
-import { IPlugin, IPluginFactory, PluginOptions } from "./plugin-component";
-
-/**
- * Should be aligned with https://github.com/eclipse/openvsx/blob/master/server/src/main/java/org/eclipse/openvsx/json/ExtensionJson.java
- */
-export interface VSXExtensionRaw {
-  error?: string;
-  namespaceUrl: string;
-  reviewsUrl: string;
-  name: string;
-  namespace: string;
-  targetPlatform?: any;
-  publishedBy: any;
-  preRelease: boolean;
-  namespaceAccess: any;
-  files: any;
-  allVersions: {
-    [version: string]: string;
-  };
-  allVersionsUrl?: string;
-  averageRating?: number;
-  downloadCount: number;
-  reviewCount: number;
-  version: string;
-  timestamp: string;
-  preview?: boolean;
-  verified?: boolean;
-  displayName?: string;
-  namespaceDisplayName: string;
-  description?: string;
-  categories?: string[];
-  extensionKind?: string[];
-  tags?: string[];
-  license?: string;
-  homepage?: string;
-  repository?: string;
-  sponsorLink?: string;
-  bugs?: string;
-  markdown?: string;
-  galleryColor?: string;
-  galleryTheme?: string;
-  localizedLanguages?: string[];
-  qna?: string;
-  badges?: any[];
-  dependencies?: any[];
-  bundledExtensions?: any[];
-  allTargetPlatformVersions?: any[];
-  url?: string;
-  engines?: {
-    [engine: string]: string;
-  };
-}
+import { ISearchModel } from "../search";
+import { IPlugin, IPluginFactory, PluginOptions } from "./plugin";
 
 export class PluginsModel extends InjectableService {
   protected initialized: Promise<void>;
@@ -1196,57 +1144,6 @@ export class PluginsModel extends InjectableService {
     return extension;
   }
 
-  // protected async refresh(id: string, _version?: string): Promise<IPlugin | undefined> {
-  //   try {
-  //     let extension = this.getExtension(id);
-  //     if (!this.shouldRefresh(extension)) {
-  //       return extension;
-  //     }
-
-  //     const data: VSXExtensionRaw | undefined = {
-  //       namespaceUrl: "",
-  //       reviewsUrl: "",
-  //       name: "",
-  //       namespace: "",
-  //       publishedBy: undefined,
-  //       preRelease: false,
-  //       namespaceAccess: undefined,
-  //       files: undefined,
-  //       allVersions: {},
-  //       downloadCount: 0,
-  //       reviewCount: 0,
-  //       version: "",
-  //       timestamp: "",
-  //       namespaceDisplayName: "",
-  //     };
-  //     if (!data) {
-  //       return;
-  //     }
-  //     if (data.error) {
-  //       return this.onDidFailRefresh(id, data.error);
-  //     }
-  //     if (!data.verified) {
-  //       if (data.publishedBy.loginName === 'open-vsx') {
-  //         data.verified = true;
-  //       }
-  //     }
-  //     extension = this.setExtension(id);
-  //     extension.update(Object.assign(data, {
-  //       publisher: data.namespace,
-  //       downloadUrl: data.files.download,
-  //       iconUrl: data.files.icon,
-  //       readmeUrl: data.files.readme,
-  //       licenseUrl: data.files.license,
-  //       version: data.version,
-  //       verified: data.verified,
-  //     }));
-  //     return extension;
-  //   }
-  //   catch (e) {
-  //     return this.onDidFailRefresh(id, e);
-  //   }
-  // }
-
   protected doChange<T>(task: () => Promise<T>): Promise<T>;
   protected doChange<T>(task: () => Promise<T>, token: CancellationToken): Promise<T | undefined>;
   protected doChange<T>(task: () => Promise<T>, token: CancellationToken = CancellationToken.None): Promise<T | undefined> {
@@ -1298,7 +1195,7 @@ export class PluginsModel extends InjectableService {
     this.updateSearchResult();
   }
 
-  protected updateSearchResult = debounce(async () => {
+  protected updateSearchResult = pDebounce(async () => {
     const { token } = this.resetSearchCancellationTokenSource();
     await this.doUpdateSearchResult({ query: this.search.query, includeAllVersions: true }, token);
   }, 500);

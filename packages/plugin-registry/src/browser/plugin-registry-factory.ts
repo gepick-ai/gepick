@@ -1,8 +1,6 @@
 import { Contribution, IServiceContainer, InjectableService } from "@gepick/core/common";
 import { IWidgetFactory, IWidgetManager, ViewContainerIdentifier } from "@gepick/core/browser";
-import { IPluginsViewContainer, PluginsViewContainer } from "../plugin/plugin-view-container";
-import { PluginListWidget } from "../plugin/plugin-list-widget";
-import { PluginsSourceOptions } from "../plugin/plugin-source";
+import { IPluginsViewContainer, PluginListWidget, PluginsSourceOptions, PluginsViewContainer } from "./plugin";
 
 export class CurViewContainerIdentifier extends ViewContainerIdentifier {
   static override name = ViewContainerIdentifier.name;

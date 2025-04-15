@@ -1,7 +1,7 @@
 import { Endpoint, IContextMenuRenderer, IHoverService, IOpenerService, OpenerOptions, React, TreeElement, TreeElementNode, TreeWidget, codicon, messagingService, open } from "@gepick/core/browser";
 import { IServiceContainer, InjectableService, MarkdownStringImpl, MenuPath, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
 import { PluginType } from "@gepick/plugin-system/common";
-import { ISearchModel } from "../search/search-model";
+import { ISearchModel } from "../search";
 import { VSCodeExtensionUri } from "../vscode-util";
 
 export const EXTENSIONS_CONTEXT_MENU: MenuPath = ['extensions_context_menu'];

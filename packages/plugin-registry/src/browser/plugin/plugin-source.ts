@@ -1,6 +1,5 @@
 import { TreeElement, TreeSource } from "@gepick/core/browser";
-import { InjectableService, PostConstruct, createServiceDecorator } from "@gepick/core/common";
-import debounce from "lodash.debounce";
+import { InjectableService, PostConstruct, createServiceDecorator, lodashDebounce } from "@gepick/core/common";
 import { IPluginsModel } from "./plugin-model";
 
 export class PluginsSourceOptions extends InjectableService {
@@ -13,10 +12,9 @@ export class PluginsSourceOptions extends InjectableService {
 export const IPluginsSourceOptions = createServiceDecorator(PluginsSourceOptions.name);
 export type IPluginsSourceOptions = PluginsSourceOptions;
 
-
 // TODO(@jaylenchen): 目前这个pluginsource有很大问题，按照theia的做法，故意设计成多个子container，然后分别绑定自己的source以及相关服务，最终可以得到不同的plugin source。但是目前我们全局都是唯一的plugin source，拿到的结果都是一样的
 export class PluginsSource extends TreeSource {
-  protected scheduleFireDidChange = debounce(() => this.fireDidChange(), 100, { leading: false, trailing: true });
+  protected scheduleFireDidChange = lodashDebounce(() => this.fireDidChange(), 100, { leading: false, trailing: true });
 
   constructor(
     @IPluginsSourceOptions protected readonly options: IPluginsSourceOptions,
@@ -64,8 +62,7 @@ export class PluginsSource extends TreeSource {
     if (this.options.id === PluginsSourceOptions.SEARCH_RESULT) {
       return this.model.searchResult;
     }
-    // eslint-disable-next-line no-console
-    console.log("installed", Array.from(this.model.installed));
+
     return this.model.installed;
   }
 }

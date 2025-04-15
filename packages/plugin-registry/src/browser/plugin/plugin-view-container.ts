@@ -1,9 +1,8 @@
 import { Message, PanelLayout, ViewContainer, ViewContainerPart, codicon } from "@gepick/core/browser";
 import { PostConstruct, createServiceDecorator } from "@gepick/core/common";
-import { ISearchBar } from "../search/search-bar";
-import { SearchMode } from "../search/search-model";
+import { ISearchBar, SearchMode } from "../search";
 import { IPluginsModel } from "./plugin-model";
-import { generateExtensionWidgetId } from "./plugin-list-widget";
+import { PluginListWidget } from "./plugin-list";
 import { PluginsSourceOptions } from "./plugin-source";
 
 export class PluginsViewContainer extends ViewContainer {
@@ -96,19 +95,19 @@ export class PluginsViewContainer extends ViewContainer {
     if (widgetsToShow.length) {
       return widgetsToShow.includes(part.wrapped.id);
     }
-    return part.wrapped.id !== generateExtensionWidgetId(PluginsSourceOptions.SEARCH_RESULT);
+    return part.wrapped.id !== PluginListWidget.createPluginListWidgetId(PluginsSourceOptions.SEARCH_RESULT);
   }
 
   protected getWidgetsForMode(): string[] {
     switch (this.currentMode) {
       case SearchMode.Builtin:
-        return [generateExtensionWidgetId(PluginsSourceOptions.BUILT_IN)];
+        return [PluginListWidget.createPluginListWidgetId(PluginsSourceOptions.BUILT_IN)];
       case SearchMode.Installed:
-        return [generateExtensionWidgetId(PluginsSourceOptions.INSTALLED)];
+        return [PluginListWidget.createPluginListWidgetId(PluginsSourceOptions.INSTALLED)];
       case SearchMode.Recommended:
-        return [generateExtensionWidgetId(PluginsSourceOptions.RECOMMENDED)];
+        return [PluginListWidget.createPluginListWidgetId(PluginsSourceOptions.RECOMMENDED)];
       case SearchMode.Search:
-        return [generateExtensionWidgetId(PluginsSourceOptions.SEARCH_RESULT)];
+        return [PluginListWidget.createPluginListWidgetId(PluginsSourceOptions.SEARCH_RESULT)];
       default:
         return [];
     }
