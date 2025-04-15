@@ -2,11 +2,11 @@ import { IOpenHandler, WidgetOpenHandler } from "@gepick/core/browser";
 import { Contribution, URI } from "@gepick/core/common";
 import { IPluginOptions } from "../plugin/plugin-component";
 import { VSCodeExtensionUri } from "../vscode-util";
-import { PluginEditor } from "./plugin-editor";
+import { PluginEditorWidget } from "./plugin-editor";
 
 @Contribution(IOpenHandler)
-export class PluginEditorManager extends WidgetOpenHandler<PluginEditor> {
-  readonly id = PluginEditor.ID;
+export class PluginEditorManager extends WidgetOpenHandler<PluginEditorWidget> {
+  readonly id = PluginEditorWidget.ID;
 
   canHandle(uri: URI): number {
     const id = VSCodeExtensionUri.toId(uri);

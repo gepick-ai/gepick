@@ -1,9 +1,9 @@
 import { Message, PanelLayout, ViewContainer, ViewContainerPart, codicon } from "@gepick/core/browser";
 import { PostConstruct, createServiceDecorator } from "@gepick/core/common";
-import { IPluginRegistrySearchBar } from "../search/plugin-registry-search-bar";
-import { PluginSearchMode } from "../search/plugin-registry-search-model";
+import { ISearchBar } from "../search/search-bar";
+import { SearchMode } from "../search/search-model";
 import { IPluginsModel } from "./plugin-model";
-import { generateExtensionWidgetId } from "./plugin-widget";
+import { generateExtensionWidgetId } from "./plugin-list-widget";
 import { PluginsSourceOptions } from "./plugin-source";
 
 export class PluginsViewContainer extends ViewContainer {
@@ -12,7 +12,7 @@ export class PluginsViewContainer extends ViewContainer {
 
   override disableDNDBetweenContainers = true;
 
-  @IPluginRegistrySearchBar protected readonly searchBar: IPluginRegistrySearchBar;
+  @ISearchBar protected readonly searchBar: ISearchBar;
 
   @IPluginsModel protected readonly model: IPluginsModel;
 
@@ -44,15 +44,15 @@ export class PluginsViewContainer extends ViewContainer {
     super.configureLayout(layout);
   }
 
-  protected currentMode: PluginSearchMode = PluginSearchMode.Initial;
-  protected readonly lastModeState = new Map<PluginSearchMode, ViewContainer.State>();
+  protected currentMode: SearchMode = SearchMode.Initial;
+  protected readonly lastModeState = new Map<SearchMode, ViewContainer.State>();
 
   protected updateMode(): void {
     const currentMode = this.model.search.getModeForQuery();
     if (currentMode === this.currentMode) {
       return;
     }
-    if (this.currentMode !== PluginSearchMode.Initial) {
+    if (this.currentMode !== SearchMode.Initial) {
       this.lastModeState.set(this.currentMode, super.doStoreState());
     }
     this.currentMode = currentMode;
@@ -101,13 +101,13 @@ export class PluginsViewContainer extends ViewContainer {
 
   protected getWidgetsForMode(): string[] {
     switch (this.currentMode) {
-      case PluginSearchMode.Builtin:
+      case SearchMode.Builtin:
         return [generateExtensionWidgetId(PluginsSourceOptions.BUILT_IN)];
-      case PluginSearchMode.Installed:
+      case SearchMode.Installed:
         return [generateExtensionWidgetId(PluginsSourceOptions.INSTALLED)];
-      case PluginSearchMode.Recommended:
+      case SearchMode.Recommended:
         return [generateExtensionWidgetId(PluginsSourceOptions.RECOMMENDED)];
-      case PluginSearchMode.Search:
+      case SearchMode.Search:
         return [generateExtensionWidgetId(PluginsSourceOptions.SEARCH_RESULT)];
       default:
         return [];
@@ -127,7 +127,7 @@ export class PluginsViewContainer extends ViewContainer {
 
   protected override doRestoreState(state: any): void {
     for (const key in state.modes) {
-      const mode = Number(key) as PluginSearchMode;
+      const mode = Number(key) as SearchMode;
       const modeState = state.modes[mode];
       if (modeState) {
         this.lastModeState.set(mode, modeState);

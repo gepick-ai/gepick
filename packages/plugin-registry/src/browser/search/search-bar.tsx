@@ -1,12 +1,16 @@
 import { Message, ReactWidget, codicon } from "@gepick/core/browser";
 import { PostConstruct, createServiceDecorator } from "@gepick/core/common";
-import { IPluginRegistrySearchModel } from "./plugin-registry-search-model";
+import { ISearchModel } from "./search-model";
 
-export class PluginRegistrySearchBar extends ReactWidget {
+export class SearchBar extends ReactWidget {
   protected input: HTMLInputElement | undefined;
   protected onlyShowVerifiedExtensions: boolean | undefined;
 
-  @IPluginRegistrySearchModel protected readonly searchModel: IPluginRegistrySearchModel;
+  constructor(
+    @ISearchModel protected readonly searchModel: ISearchModel,
+  ) {
+    super();
+  }
 
   @PostConstruct()
   protected init(): void {
@@ -78,5 +82,5 @@ export class PluginRegistrySearchBar extends ReactWidget {
   }
 }
 
-export const IPluginRegistrySearchBar = createServiceDecorator<IPluginRegistrySearchBar>(PluginRegistrySearchBar.name);
-export type IPluginRegistrySearchBar = PluginRegistrySearchBar;
+export const ISearchBar = createServiceDecorator<ISearchBar>(SearchBar.name);
+export type ISearchBar = SearchBar;

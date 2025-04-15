@@ -59,7 +59,8 @@ export function createServiceDecorator<T>(serviceName: string): ServiceDecorator
 export const CONTRIBUTION_METADATA_KEY = 'contributionId';
 
 /**
- * 向class类元数据注入'contribution' 属性，其值为contributionId。
+ * 使用Contribution Decorator将你的class类注册成为某个功能的Contribution。
+ * 实际内部是向class类元数据注入'contribution' 属性，其值为contributionId。
  */
 export function Contribution(contributionId: ContributionId) {
   // eslint-disable-next-line ts/no-unsafe-function-type

@@ -16,7 +16,7 @@
 
 import { Emitter, InjectableService, createServiceDecorator } from "@gepick/core/common";
 
-export enum PluginSearchMode {
+export enum SearchMode {
   Initial,
   None,
   Search,
@@ -29,34 +29,37 @@ export const BUILTIN_QUERY = '@builtin';
 export const INSTALLED_QUERY = '@installed';
 export const RECOMMENDED_QUERY = '@recommended';
 
-export class PluginRegistrySearchModel extends InjectableService {
-  protected readonly onDidChangeQueryEmitter = new Emitter<string>();
-  readonly onDidChangeQuery = this.onDidChangeQueryEmitter.event;
-  protected readonly specialQueries = new Map<string, PluginSearchMode>([
-    [BUILTIN_QUERY, PluginSearchMode.Builtin],
-    [INSTALLED_QUERY, PluginSearchMode.Installed],
-    [RECOMMENDED_QUERY, PluginSearchMode.Recommended],
+export class SearchModel extends InjectableService {
+  protected readonly _onDidChangeQuery = new Emitter<string>();
+  readonly onDidChangeQuery = this._onDidChangeQuery.event;
+
+  protected readonly specialQueries = new Map<string, SearchMode>([
+    [BUILTIN_QUERY, SearchMode.Builtin],
+    [INSTALLED_QUERY, SearchMode.Installed],
+    [RECOMMENDED_QUERY, SearchMode.Recommended],
   ]);
 
   protected _query = '';
+
   set query(query: string) {
     if (this._query === query) {
       return;
     }
+
     this._query = query;
-    this.onDidChangeQueryEmitter.fire(this._query);
+    this._onDidChangeQuery.fire(this._query);
   }
 
   get query(): string {
     return this._query;
   }
 
-  getModeForQuery(): PluginSearchMode {
+  getModeForQuery(): SearchMode {
     return this.query
-      ? this.specialQueries.get(this.query) ?? PluginSearchMode.Search
-      : PluginSearchMode.None;
+      ? this.specialQueries.get(this.query) ?? SearchMode.Search
+      : SearchMode.None;
   }
 }
 
-export const IPluginRegistrySearchModel = createServiceDecorator<IPluginRegistrySearchModel>(PluginRegistrySearchModel.name);
-export type IPluginRegistrySearchModel = PluginRegistrySearchModel;
+export const ISearchModel = createServiceDecorator<ISearchModel>(SearchModel.name);
+export type ISearchModel = SearchModel;

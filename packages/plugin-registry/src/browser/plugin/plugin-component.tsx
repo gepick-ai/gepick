@@ -1,7 +1,7 @@
 import { Endpoint, IContextMenuRenderer, IHoverService, IOpenerService, OpenerOptions, React, TreeElement, TreeElementNode, TreeWidget, codicon, messagingService, open } from "@gepick/core/browser";
 import { IServiceContainer, InjectableService, MarkdownStringImpl, MenuPath, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
 import { PluginType } from "@gepick/plugin-system/common";
-import { IPluginRegistrySearchModel } from "../search/plugin-registry-search-model";
+import { ISearchModel } from "../search/search-model";
 import { VSCodeExtensionUri } from "../vscode-util";
 
 export const EXTENSIONS_CONTEXT_MENU: MenuPath = ['extensions_context_menu'];
@@ -237,17 +237,12 @@ export class Plugin extends InjectableService implements PluginData, TreeElement
 
   constructor(
     @IPluginOptions protected readonly options: IPluginOptions,
-    @IPluginRegistrySearchModel readonly search: IPluginRegistrySearchModel,
+    @ISearchModel protected readonly searchModel: ISearchModel,
     @IContextMenuRenderer protected readonly contextMenuRenderer: IContextMenuRenderer,
     @IHoverService protected readonly hoverService: IHoverService,
     @IOpenerService protected readonly openerService: IOpenerService,
   ) {
     super();
-  }
-
-  @PostConstruct()
-  protected init(): void {
-    this.registryUri = new Promise(resolve => resolve(""));
   }
 
   get uri(): URI {
@@ -425,6 +420,11 @@ export class Plugin extends InjectableService implements PluginData, TreeElement
   protected _busy = 0;
   get busy(): boolean {
     return !!this._busy;
+  }
+
+  @PostConstruct()
+  protected init(): void {
+    this.registryUri = new Promise(resolve => resolve(""));
   }
 
   protected getData<K extends keyof PluginData>(key: K): PluginData[K] {

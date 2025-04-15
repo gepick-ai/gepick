@@ -3,7 +3,7 @@ import { Contribution, ICommandRegistry, ISelectionService, PostConstruct } from
 import debounce from "lodash.debounce";
 import { PluginsViewContainer } from "../plugin/plugin-view-container";
 import { IPluginsModel } from "../plugin/plugin-model";
-import { BUILTIN_QUERY, INSTALLED_QUERY } from "../search/plugin-registry-search-model";
+import { BUILTIN_QUERY, INSTALLED_QUERY } from "../search/search-model";
 
 @Contribution(IViewContribution)
 export class PluginRegistryViewContribution extends AbstractViewContribution<PluginsViewContainer> {

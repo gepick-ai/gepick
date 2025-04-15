@@ -1,32 +1,32 @@
 import { Module, ServiceModule } from "@gepick/core/common";
 import { PluginRegistryViewContribution } from "./view/plugin-registry-view-contribution";
 import { PluginsViewContainer } from "./plugin/plugin-view-container";
-import { PluginsWidget, PluginsWidgetOptions } from "./plugin/plugin-widget";
-import { PluginRegistrySearchModel } from "./search/plugin-registry-search-model";
-import { PluginRegistrySearchBar } from "./search/plugin-registry-search-bar";
+import { PluginListWidget, PluginListWidgetFactory, PluginListOptions } from "./plugin/plugin-list-widget";
+import { SearchModel } from "./search/search-model";
+import { SearchBar } from "./search/search-bar";
 import { PluginsSource } from "./plugin/plugin-source";
-import { PluginEditor } from "./editor/plugin-editor";
+import { PluginEditorWidget, PluginEditorWidgetFactory } from "./editor/plugin-editor";
 import { Plugin, PluginFactory } from "./plugin/plugin-component";
 import { PluginsModel } from "./plugin/plugin-model";
-import { CurViewContainerIdentifier, PluginEditorFactory, PluginRegistryViewContainerFactory, PluginsWidgetFactory } from "./view/plugin-registry-factory";
+import { CurViewContainerIdentifier, PluginRegistryViewContainerFactory } from "./view/plugin-registry-factory";
 import { PluginEditorManager } from "./editor/plugin-editor-manager";
 
 import "./style/index.css";
 
 @Module({
   services: [
-    PluginEditor,
-    PluginEditorFactory,
+    PluginEditorWidget,
+    PluginEditorWidgetFactory,
     PluginEditorManager,
-    PluginsWidgetOptions,
+    PluginListOptions,
     PluginsSource,
-    PluginRegistrySearchBar,
-    PluginRegistrySearchModel,
+    SearchBar,
+    SearchModel,
     PluginsModel,
     Plugin,
     PluginFactory,
-    PluginsWidget,
-    PluginsWidgetFactory,
+    PluginListWidget,
+    PluginListWidgetFactory,
     PluginsViewContainer,
     PluginRegistryViewContainerFactory,
     PluginRegistryViewContribution,

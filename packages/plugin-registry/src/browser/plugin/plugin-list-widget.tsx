@@ -1,34 +1,59 @@
-import { Message, SourceTreeWidget, TreeModel, TreeNode } from "@gepick/core/browser";
-import { Emitter, Event, PostConstruct, createServiceDecorator } from "@gepick/core/common";
+import { IWidgetFactory, Message, SourceTreeWidget, TreeModel, TreeNode } from "@gepick/core/browser";
+import { Contribution, Emitter, IServiceContainer, InjectableService, PostConstruct, createServiceDecorator } from "@gepick/core/common";
 import { IPluginSource, IPluginsSourceOptions, PluginsSourceOptions } from "./plugin-source";
 
-export const generateExtensionWidgetId = (widgetId: string): string => `${PluginsWidget.ID}:${widgetId}`;
+export const generateExtensionWidgetId = (widgetId: string): string => `${PluginListWidget.ID}:${widgetId}`;
 
-export class PluginsWidgetOptions extends PluginsSourceOptions {
+export class PluginListOptions extends PluginsSourceOptions {
   static override name = PluginsSourceOptions.name;
   static readonly id: string;
   title?: string;
 }
 
-export const IPluginsWidget = createServiceDecorator<IPluginsWidget>(SourceTreeWidget.name);
-export type IPluginsWidget = PluginsWidget;
+export const IPluginListWidget = createServiceDecorator<IPluginListWidget>(SourceTreeWidget.name);
+export type IPluginListWidget = PluginListWidget;
 
-export class PluginsWidget extends SourceTreeWidget {
+/**
+ * Plugin列表小组件
+ */
+export class PluginListWidget extends SourceTreeWidget {
   static override name = SourceTreeWidget.name;
   static ID = 'vsx-extensions';
 
   protected _badge?: number;
-  protected onDidChangeBadgeEmitter = new Emitter<void>();
-
   protected _badgeTooltip?: string;
-  protected onDidChangeBadgeTooltipEmitter = new Emitter<void>();
 
-  @IPluginsSourceOptions protected readonly options: PluginsWidgetOptions;
+  protected _onDidChangeBadge = new Emitter<void>();
+  public readonly onDidChangeBadge = this._onDidChangeBadge.event;
+
+  protected _onDidChangeBadgeTooltip = new Emitter<void>();
+  public readonly onDidChangeBadgeTooltip = this._onDidChangeBadgeTooltip.event;
+
+  @IPluginsSourceOptions protected readonly options: PluginListOptions;
   @IPluginSource protected readonly extensionsSource: IPluginSource;
+
+  get badge(): number | undefined {
+    return this._badge;
+  }
+
+  set badge(count: number | undefined) {
+    this._badge = count;
+    this._onDidChangeBadge.fire();
+  }
+
+  get badgeTooltip(): string | undefined {
+    return this._badgeTooltip;
+  }
+
+  set badgeTooltip(tooltip: string | undefined) {
+    this._badgeTooltip = tooltip;
+    this._onDidChangeBadgeTooltip.fire();
+  }
 
   @PostConstruct()
   protected override init(): void {
     super.init();
+
     this.addClass('theia-vsx-extensions');
 
     this.id = generateExtensionWidgetId(this.options.id);
@@ -45,32 +70,6 @@ export class PluginsWidget extends SourceTreeWidget {
     this.toDispose.add(this.source.onDidChange(async () => {
       this.badge = await this.resolveCount();
     }));
-  }
-
-  get onDidChangeBadge(): Event<void> {
-    return this.onDidChangeBadgeEmitter.event;
-  }
-
-  get badge(): number | undefined {
-    return this._badge;
-  }
-
-  set badge(count: number | undefined) {
-    this._badge = count;
-    this.onDidChangeBadgeEmitter.fire();
-  }
-
-  get onDidChangeBadgeTooltip(): Event<void> {
-    return this.onDidChangeBadgeTooltipEmitter.event;
-  }
-
-  get badgeTooltip(): string | undefined {
-    return this._badgeTooltip;
-  }
-
-  set badgeTooltip(tooltip: string | undefined) {
-    this._badgeTooltip = tooltip;
-    this.onDidChangeBadgeTooltipEmitter.fire();
   }
 
   protected computeTitle(): string {
@@ -127,5 +126,19 @@ export class PluginsWidget extends SourceTreeWidget {
       // E.g. using explorer context menu.
       this.doUpdateRows();
     }
+  }
+}
+
+@Contribution(IWidgetFactory)
+export class PluginListWidgetFactory extends InjectableService {
+  public readonly id = PluginListWidget.ID;
+
+  createWidget(container: IServiceContainer, options: IPluginsSourceOptions) {
+    container.rebind(PluginListOptions.getServiceId()).toConstantValue(options);
+    container.rebind(PluginListWidget.getServiceId()).to(PluginListWidget).inRequestScope();
+
+    const widget = container.get<IPluginListWidget>(IPluginListWidget);
+
+    return widget;
   }
 }

@@ -1,7 +1,7 @@
 import { CancellationToken, CancellationTokenSource, Emitter, Event, InjectableService, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
 import { DOMPurify, markdownit, messagingService } from "@gepick/core/browser";
 import debounce from 'p-debounce';
-import { IPluginRegistrySearchModel } from "../search/plugin-registry-search-model";
+import { ISearchModel } from "../search/search-model";
 import { IPlugin, IPluginFactory, PluginOptions } from "./plugin-component";
 
 /**
@@ -70,7 +70,7 @@ export class PluginsModel extends InjectableService {
   protected searchCancellationTokenSource = new CancellationTokenSource();
 
   constructor(
-    @IPluginRegistrySearchModel readonly search: IPluginRegistrySearchModel,
+    @ISearchModel readonly search: ISearchModel,
     @IPluginFactory protected readonly extensionFactory: IPluginFactory,
   ) {
     super();

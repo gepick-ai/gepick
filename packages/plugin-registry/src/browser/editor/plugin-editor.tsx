@@ -1,13 +1,13 @@
-import { DOMPurify, Message, React, ReactWidget, Widget, codicon } from "@gepick/core/browser";
-import { Deferred, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
-import { AbstractVSXExtensionComponent, IPlugin } from "../plugin/plugin-component";
+import { DOMPurify, IWidgetFactory, Message, React, ReactWidget, Widget, codicon } from "@gepick/core/browser";
+import { Contribution, Deferred, IServiceContainer, InjectableService, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
+import { AbstractVSXExtensionComponent, IPlugin, IPluginOptions, Plugin, PluginOptions } from "../plugin/plugin-component";
 import { IPluginsModel } from "../plugin/plugin-model";
 
 const downloadFormatter = new Intl.NumberFormat();
 const averageRatingFormatter = (averageRating: number): number => Math.round(averageRating * 2) / 2;
 const getAverageRatingTitle = (averageRating: number): string => `Average rating: ${averageRatingFormatter(averageRating)} out of 5`;
 
-export class PluginEditorComponent extends AbstractVSXExtensionComponent {
+class PluginEditorComponent extends AbstractVSXExtensionComponent {
   protected header: HTMLElement | undefined;
   protected body: HTMLElement | undefined;
   protected _scrollContainer: HTMLElement | undefined;
@@ -214,7 +214,10 @@ export class PluginEditorComponent extends AbstractVSXExtensionComponent {
   };
 }
 
-export class PluginEditor extends ReactWidget {
+/**
+ * 插件详情面板
+ */
+export class PluginEditorWidget extends ReactWidget {
   static ID = 'vsx-extension-editor';
 
   protected readonly deferredScrollContainer = new Deferred<HTMLElement>();
@@ -229,7 +232,7 @@ export class PluginEditor extends ReactWidget {
   @PostConstruct()
   protected init(): void {
     this.addClass('theia-vsx-extension-editor');
-    this.id = `${PluginEditor.ID}:${this.extension.id}`;
+    this.id = `${PluginEditorWidget.ID}:${this.extension.id}`;
     this.title.closable = true;
     this.updateTitle();
     this.title.iconClass = codicon('list-selection');
@@ -253,7 +256,6 @@ export class PluginEditor extends ReactWidget {
   }
 
   protected updateTitle(): void {
-    // TODO(@jaylenchen): 修改为真正的extension name
     const label = `Extension:${this.extension.name}`;
     this.title.label = label;
     this.title.caption = label;
@@ -285,6 +287,19 @@ export class PluginEditor extends ReactWidget {
     );
   }
 }
+export const IPluginEditorWidget = createServiceDecorator<IPluginEditorWidget>(PluginEditorWidget.name);
+export type IPluginEditorWidget = PluginEditorWidget;
 
-export const IPluginEditor = createServiceDecorator<IPluginEditor>(PluginEditor.name);
-export type IPluginEditor = PluginEditor;
+@Contribution(IWidgetFactory)
+export class PluginEditorWidgetFactory extends InjectableService {
+  public readonly id = PluginEditorWidget.ID;
+
+  async createWidget(container: IServiceContainer, options: IPluginOptions) {
+    container.rebind(PluginOptions.getServiceId()).toConstantValue(options);
+    const extension = await container.get<IPluginsModel>(IPluginsModel).resolve(options.id);
+    container.rebind(Plugin.getServiceId()).toConstantValue(extension);
+    container.unbind(PluginEditorWidget.getServiceId());
+    container.bind(PluginEditorWidget.getServiceId()).to(PluginEditorWidget);
+    return container.get<IPluginEditorWidget>(IPluginEditorWidget);
+  }
+}
