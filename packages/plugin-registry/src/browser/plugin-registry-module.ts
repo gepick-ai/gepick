@@ -9,8 +9,8 @@ import "./style/index.css";
 @Module({
   services: [
     // #region Search
-    SearchBar,
     SearchModel,
+    SearchBar,
     // #endregion
 
     // #region Plugin

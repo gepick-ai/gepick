@@ -1,6 +1,6 @@
 import { DOMPurify, IWidgetFactory, Message, React, ReactWidget, Widget, codicon } from "@gepick/core/browser";
 import { Contribution, Deferred, IServiceContainer, InjectableService, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
-import { AbstractVSXExtensionComponent, IPlugin, IPluginOptions, IPluginsModel, Plugin, PluginOptions } from "../plugin";
+import { AbstractPluginComponent, IPlugin, IPluginOptions, IPluginsModel, Plugin, PluginOptions } from "../plugin";
 
 const downloadFormatter = new Intl.NumberFormat();
 const averageRatingFormatter = (averageRating: number): number => Math.round(averageRating * 2) / 2;

@@ -9,6 +9,7 @@ export const EXTENSIONS_CONTEXT_MENU: MenuPath = ['extensions_context_menu'];
 const downloadCompactFormatter = new Intl.NumberFormat('en-US', { notation: 'compact', compactDisplay: 'short' } as any);
 const averageRatingFormatter = (averageRating: number): number => Math.round(averageRating * 2) / 2;
 const getAverageRatingTitle = (averageRating: number): string => `'Average rating: ${averageRatingFormatter(averageRating)} out of 5'`;
+
 export class PluginData extends InjectableService {
   readonly version?: string;
   readonly iconUrl?: string;
@@ -50,13 +51,16 @@ export class PluginData extends InjectableService {
   ]);
 }
 
+// #region PluginOptions
 export class PluginOptions extends InjectableService {
   constructor(public readonly id: string) { super(); }
 }
 export const IPluginOptions = createServiceDecorator<IPluginOptions>(PluginOptions.name);
 export type IPluginOptions = PluginOptions;
+// #endregion
 
-export abstract class AbstractVSXExtensionComponent<Props extends AbstractVSXExtensionComponent.Props = AbstractVSXExtensionComponent.Props> extends React.Component<Props> {
+// #region AbstractPluginComponent
+export abstract class AbstractPluginComponent<Props extends AbstractPluginComponent.Props = AbstractPluginComponent.Props> extends React.Component<Props> {
   readonly install = async (event?: React.MouseEvent) => {
     event?.stopPropagation();
     this.forceUpdate();
@@ -123,20 +127,15 @@ export abstract class AbstractVSXExtensionComponent<Props extends AbstractVSXExt
     return <button className="theia-button prominent action" onClick={this.install}>Install</button>;
   }
 }
-export namespace AbstractVSXExtensionComponent {
+export namespace AbstractPluginComponent {
   export interface Props {
     extension: any;
   }
 }
+// #endregion
 
-export namespace PluginComponent {
-  export interface Props extends AbstractVSXExtensionComponent.Props {
-    host: TreeWidget;
-    hoverService: any;
-  }
-}
-
-export class PluginComponent<Props extends PluginComponent.Props = PluginComponent.Props> extends AbstractVSXExtensionComponent<Props> {
+// #region PluginComponent
+export class PluginComponent<Props extends PluginComponent.Props = PluginComponent.Props> extends AbstractPluginComponent<Props> {
   constructor(props: Props) {
     super(props);
 
@@ -220,20 +219,21 @@ export class PluginComponent<Props extends PluginComponent.Props = PluginCompone
   }
 }
 
+export namespace PluginComponent {
+  export interface Props extends AbstractPluginComponent.Props {
+    host: TreeWidget;
+    hoverService: any;
+  }
+}
+// #endregion
+
+// #region Plugin
 export class Plugin extends InjectableService implements PluginData, TreeElement {
   protected readonly data: Partial<PluginData> = {};
 
   protected registryUri: Promise<string>;
 
-  /**
-   * Ensure the version string begins with `'v'`.
-   */
-  static formatVersion(version: string | undefined): string | undefined {
-    if (version && !version.startsWith('v')) {
-      return `v${version}`;
-    }
-    return version;
-  }
+  protected _busy = 0;
 
   constructor(
     @IPluginOptions protected readonly options: IPluginOptions,
@@ -417,7 +417,6 @@ export class Plugin extends InjectableService implements PluginData, TreeElement
     return md;
   }
 
-  protected _busy = 0;
   get busy(): boolean {
     return !!this._busy;
   }
@@ -502,9 +501,22 @@ export class Plugin extends InjectableService implements PluginData, TreeElement
     return <PluginComponent extension={this} host={host} hoverService={this.hoverService} />;
   }
 }
+export namespace Plugin {
+  /**
+   * Ensure the version string begins with `'v'`.
+   */
+  export function formatVersion(version: string | undefined): string | undefined {
+    if (version && !version.startsWith('v')) {
+      return `v${version}`;
+    }
+    return version;
+  }
+}
 export const IPlugin = createServiceDecorator<IPlugin>(Plugin.name);
 export type IPlugin = Plugin;
+// #endregion
 
+// #region PluginFactory
 export class PluginFactory extends InjectableService {
   constructor(
     @IServiceContainer protected readonly serviceContainer: IServiceContainer,
@@ -1520,3 +1532,4 @@ export class PluginFactory extends InjectableService {
 }
 export const IPluginFactory = createServiceDecorator<IPluginFactory>(PluginFactory.name);
 export type IPluginFactory = PluginFactory;
+// #endregion

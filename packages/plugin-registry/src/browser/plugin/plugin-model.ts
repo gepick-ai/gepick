@@ -9,23 +9,20 @@ export class PluginsModel extends InjectableService {
    * Single source for all extensions
    */
   protected readonly extensions = new Map<string, any>();
-  protected readonly onDidChangeEmitter = new Emitter<void>();
   protected _installed = new Set<string>();
   protected _recommended = new Set<string>();
   protected _searchResult = new Set<string>();
   protected _searchError?: string;
-
   protected searchCancellationTokenSource = new CancellationTokenSource();
+
+  protected readonly _onDidChange = new Emitter<void>();
+  public readonly onDidChange = this._onDidChange.event;
 
   constructor(
     @ISearchModel readonly search: ISearchModel,
     @IPluginFactory protected readonly extensionFactory: IPluginFactory,
   ) {
     super();
-  }
-
-  get onDidChange(): Event<void> {
-    return this.onDidChangeEmitter.event;
   }
 
   get installed(): IterableIterator<string> {
@@ -53,7 +50,6 @@ export class PluginsModel extends InjectableService {
   }
 
   protected async initInstalled(): Promise<void> {
-    // await this.pluginSupport.willStart;
     try {
       await this.updateInstalled();
     }
@@ -1155,7 +1151,7 @@ export class PluginsModel extends InjectableService {
       if (token && token.isCancellationRequested) {
         return;
       }
-      this.onDidChangeEmitter.fire();
+      this._onDidChange.fire();
       return result;
     };
 
