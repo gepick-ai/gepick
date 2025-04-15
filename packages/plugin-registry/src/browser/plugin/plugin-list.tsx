@@ -135,7 +135,7 @@ export class PluginListWidget extends SourceTreeWidget {
     this.source = this.pluginListModel;
 
     // TODO(@jaylenchen): 这里记得修改为动态的id
-    (this.source as any).options.id = 'installed';
+    (this.source as any).pluginListModelOptions.id = 'installed';
 
     const title = this.pluginListWidgetOptions.title ?? this.computeTitle();
     this.title.label = title;

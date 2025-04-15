@@ -1,6 +1,6 @@
 import { Module, ServiceModule } from "@gepick/core/common";
 import { PluginSearchBarWidget, PluginSearchModel } from "./search";
-import { Plugin, PluginFactory, PluginListModel, PluginListWidgetOptions, PluginListWidget, PluginListWidgetFactory, PluginRegistry } from "./plugin";
+import { Plugin, PluginFactory, PluginListModel, PluginListWidget, PluginListWidgetFactory, PluginListWidgetOptions, PluginRegistry } from "./plugin";
 import { PluginEditorManager, PluginEditorWidget, PluginEditorWidgetFactory } from "./editor";
 import { CurViewContainerIdentifier, PluginRegistryViewContainer, PluginRegistryViewContainerFactory, PluginRegistryViewContribution } from "./view-container";
 
