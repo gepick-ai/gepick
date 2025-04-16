@@ -1,21 +1,21 @@
 /* @jsxImportSource vue */
 
 import { PropType, computed, defineComponent, nextTick, onMounted, onUnmounted, onUpdated, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router'
-import { Spin, Textarea, message } from "ant-design-vue"
+import { useRoute, useRouter } from 'vue-router';
+import { Spin, Textarea, message } from "ant-design-vue";
 import { SendOutlined } from '@ant-design/icons-vue';
 
 import { MdPreview } from "md-editor-v3";
 import 'md-editor-v3/lib/style.css';
-import "@gepick/copilot/browser/style/chat-bot.scss"
+import "@gepick/copilot/browser/style/chat-bot.scss";
 import { EventStreamContentType, fetchEventSource } from '@microsoft/fetch-event-source';
 
 import { countAndCompleteCodeBlocks, getChatHistories, useScroll } from '@gepick/copilot/browser';
-import { ChatMessage, CopilotGuidePrompt, isCopilotGuidePrompt } from "@gepick/copilot/common"
+import { ChatMessage, CopilotGuidePrompt, isCopilotGuidePrompt } from "@gepick/copilot/common";
 
 const ChatBotProps = () => ({
   userInfo: {
-    type: Object as PropType<{ avatarUrl: string, name: string }>,
+    type: Object as PropType<{ avatarUrl: string; name: string }>,
   },
   prompt: {
     type: String,
@@ -24,22 +24,22 @@ const ChatBotProps = () => ({
   onCompletionFinished: {
     type: Function as PropType<() => void>,
   },
-})
+});
 
 export default defineComponent({
   name: "Chat-Bot",
   props: ChatBotProps(),
   setup(props, { emit }) {
-    const router = useRouter()
-    const route = useRoute()
-    const { scrollRef, scrollToBottom } = useScroll()
+    const router = useRouter();
+    const route = useRoute();
+    const { scrollRef, scrollToBottom } = useScroll();
 
-    const textLoading = ref<string>("唯一無二のエネルギーを注入中...")
-    const isText = ref<boolean>(false)
-    const waitingAnswer = ref<boolean>(false)
-    const userPrompt = ref<string>("")
+    const textLoading = ref<string>("唯一無二のエネルギーを注入中...");
+    const isText = ref<boolean>(false);
+    const waitingAnswer = ref<boolean>(false);
+    const userPrompt = ref<string>("");
 
-    const query = ref<string>("")
+    const query = ref<string>("");
     // {
     //   role: "assistant",
     //   content: `あなたに深層占いを行うことができることをとても嬉しく思います。\nその前に、リラックスして深呼吸をし、今あなたが考えていることが本当にあなたの心からの思いであることを確認してください。`,
@@ -55,12 +55,12 @@ export default defineComponent({
       };
       messagesCopy[messagesCopy.length - 1] = updatedLastMessage;
       return messagesCopy;
-    })
+    });
 
     function handleInput(event: Event) {
       const target = event.target as HTMLInputElement;
       userPrompt.value = target.value;
-      query.value = userPrompt.value
+      query.value = userPrompt.value;
     };
 
     function handleKeydown(e: KeyboardEvent) {
@@ -75,7 +75,7 @@ export default defineComponent({
           e.preventDefault();
           sendUserPrompt();
           waitingAnswer.value = true;
-          emit("loading-start", query.value)
+          emit("loading-start", query.value);
         }
       }
     }
@@ -85,7 +85,7 @@ export default defineComponent({
 
       class FatalError extends Error { }
 
-      const ctrl = new AbortController()
+      const ctrl = new AbortController();
 
       async function createSse(url: string, body: Record<string, any>) {
         await fetchEventSource(url, {
@@ -99,14 +99,14 @@ export default defineComponent({
           onclose() {
             const { onCompletionFinished } = props;
 
-            onCompletionFinished?.()
+            onCompletionFinished?.();
             waitingAnswer.value = false;
             isText.value = false;
-            emit("loading-end")
+            emit("loading-end");
           },
           onerror(err: any) {
             // eslint-disable-next-line no-console
-            console.log("onerror", err)
+            console.log("onerror", err);
             if (err instanceof FatalError) {
               throw err; // rethrow to stop the operation
             }
@@ -129,7 +129,7 @@ export default defineComponent({
           },
           onmessage(evt: any) {
             try {
-              const res = JSON.parse(String(evt.data))
+              const res = JSON.parse(String(evt.data));
 
               if (!res || !res.message || !res.message.type) {
                 return;
@@ -141,26 +141,26 @@ export default defineComponent({
                 msg.content += res.message.content;
 
                 if (res.attachments && res.attachments.length > 0) {
-                  msg.attachments = res.attachments
+                  msg.attachments = res.attachments;
                 }
 
                 if (scrollRef.value) {
-                  scrollToBottom()
+                  scrollToBottom();
                 }
               }
             }
             catch (err) {
-              console.error(err)
+              console.error(err);
             }
           },
-        })
+        });
       }
 
       // ==================进行OpenAI API请求==================
       try {
         createSse(process.env.COPILOT_CHAT_URL ?? `http://localhost:5173/api/copilot/chat`, {
           query,
-        })
+        });
 
         /**
          * 创建一个空的助手消息，是为了在读取流的时候，不断地将助手的消息推入到message中
@@ -171,9 +171,9 @@ export default defineComponent({
         });
       }
       catch (error) {
-        message.error((error as Error).message)
+        message.error((error as Error).message);
         // eslint-disable-next-line no-console
-        console.log((error as Error).message)
+        console.log((error as Error).message);
       }
     }
 
@@ -185,7 +185,7 @@ export default defineComponent({
             role: "user",
           });
 
-          query.value = prompt
+          query.value = prompt;
         }
         else {
           messages.value.push({
@@ -196,10 +196,10 @@ export default defineComponent({
 
         userPrompt.value = "";
 
-        const token = window.localStorage.getItem("token")
+        const token = window.localStorage.getItem("token");
         if (!token) {
-          message.error("ログイン後にご利用ください。")
-          router.push({ name: "Login" })
+          message.error("ログイン後にご利用ください。");
+          router.push({ name: "Login" });
           return;
         }
 
@@ -209,14 +209,14 @@ export default defineComponent({
 
     async function sendOmikujiPrompt(prompt: string) {
       if (userPrompt.value || prompt) {
-        const omikujiId = route.query.omikujiId
+        const omikujiId = route.query.omikujiId;
 
         if (!omikujiId) {
           return;
         }
 
         // eslint-disable-next-line no-console
-        console.log("🚀 ~ sendOmikujiPrompt ~ omikujiId:", omikujiId)
+        console.log("🚀 ~ sendOmikujiPrompt ~ omikujiId:", omikujiId);
 
         if (prompt) {
           messages.value.push({
@@ -224,7 +224,7 @@ export default defineComponent({
             role: "user",
           });
 
-          query.value = prompt
+          query.value = prompt;
         }
         else {
           messages.value.push({
@@ -235,10 +235,10 @@ export default defineComponent({
 
         userPrompt.value = "";
 
-        const token = window.localStorage.getItem("token")
+        const token = window.localStorage.getItem("token");
         if (!token) {
-          message.error("ログイン後にご利用ください。")
-          router.push({ name: "Login" })
+          message.error("ログイン後にご利用ください。");
+          router.push({ name: "Login" });
           return;
         }
 
@@ -247,17 +247,17 @@ export default defineComponent({
     }
 
     onMounted(async () => {
-      const { conversations } = await getChatHistories()
+      const { conversations } = await getChatHistories();
       messages.value = [
         ...messages.value,
         ...conversations.map(conversation => conversation.messages).flat(),
-      ]
+      ];
 
       if (messages.value.length === 0) {
-        createCompletion(CopilotGuidePrompt.Divination)
+        createCompletion(CopilotGuidePrompt.Divination);
       }
       else {
-        const msg = messages.value[messages.value.length - 2]
+        const msg = messages.value[messages.value.length - 2];
 
         // TODO(@jaylenchen) 避开业务上多次重复操作点击进来，用户可能点击了能量壁纸，来到占卜，然后重新回能量壁纸再次点击占卜这样就不断生成提示语，个人觉得没啥必要。沟通业务侧这一部份如何做
         if (isCopilotGuidePrompt(msg.content)) {
@@ -274,32 +274,32 @@ export default defineComponent({
         }
 
         if (!route.query.prompt) {
-          createCompletion(CopilotGuidePrompt.Divination)
+          createCompletion(CopilotGuidePrompt.Divination);
         }
         else {
           if (route.query.prompt.includes("深度解读")) {
-            sendOmikujiPrompt(route.query.prompt as string)
+            sendOmikujiPrompt(route.query.prompt as string);
           }
           else {
-            createCompletion(route.query.prompt as string)
+            createCompletion(route.query.prompt as string);
           }
         }
       }
-    })
+    });
 
     onMounted(() => {
-      document.addEventListener('keydown', handleKeydown)
-    })
+      document.addEventListener('keydown', handleKeydown);
+    });
 
     onUnmounted(() => {
-      document.removeEventListener('keydown', handleKeydown)
-    })
+      document.removeEventListener('keydown', handleKeydown);
+    });
 
     onUpdated(() => {
       if (scrollRef.value) {
         scrollToBottom();
       }
-    })
+    });
 
     return () => (
       <div class="chat-assistant">
@@ -392,4 +392,4 @@ export default defineComponent({
       </div>
     );
   },
-})
+});

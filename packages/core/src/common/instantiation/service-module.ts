@@ -1,7 +1,7 @@
 /* eslint-disable ts/no-unsafe-function-type */
 import "reflect-metadata";
 import { Container, ContainerModule, decorate, injectable, interfaces } from "inversify";
-import { ServiceConstructor } from './instantiation';
+import { ServiceConstructor, ServiceIdUtil } from './instantiation';
 import { ContributionProvider } from './contribution-provider';
 
 export type ServiceModuleConstructor = (new (container: Container) => ServiceModule);
@@ -54,7 +54,12 @@ export abstract class ServiceModule extends ContainerModule {
     super((bind) => {
       const services = this.getServices();
 
-      services.forEach(service => this.registerService(bind, container, service));
+      services.forEach((service) => {
+        if (!ServiceIdUtil.isInjectable(service)) {
+          decorate(injectable(), service);
+        }
+        this.registerService(bind, container, service);
+      });
 
       const factories = this.getFactories();
 
@@ -79,7 +84,6 @@ export abstract class ServiceModule extends ContainerModule {
     const serviceId = serviceConstructor.getServiceId();
     const contributionId = serviceConstructor.getContributionId();
 
-    decorate(injectable(), serviceConstructor);
     bind(serviceId).to(serviceConstructor);
 
     if (contributionId) {

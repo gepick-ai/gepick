@@ -1,4 +1,4 @@
-import { CancellationToken, CancellationTokenSource, Emitter, InjectableService, PostConstruct, createServiceDecorator, pDebounce } from "@gepick/core/common";
+import { CancellationToken, CancellationTokenSource, Emitter, IServiceContainer, InjectableService, PostConstruct, createServiceDecorator, pDebounce } from "@gepick/core/common";
 import { DOMPurify, markdownit, messagingService } from "@gepick/core/browser";
 import { IPluginSearchModel } from "../search";
 import { mockVSXDatas } from "../vscode-util";

@@ -14,7 +14,7 @@ export abstract class ReactWidget extends BaseWidget {
       minScrollbarLength: 35,
     };
     this.nodeRoot = createRoot(this.node);
-    this.toDispose.add(toDisposable(() => this.nodeRoot.unmount()));
+    this.toDispose.push(toDisposable(() => this.nodeRoot.unmount()));
   }
 
   protected override onUpdateRequest(msg: Message): void {

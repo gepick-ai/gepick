@@ -4,13 +4,13 @@ import { HoverService } from "../services";
 import { MarkdownRendererFactory, MarkdownRendererImpl } from "../markdown";
 import { DefaultOpenerService } from "../opener";
 import { SplitPositionHandler } from "./side-panel";
-import { ApplicationShell } from "./shell";
-import { ViewContainer } from "./view-container";
+import { Shell } from "./shell";
+import { ViewContainer } from "./view-contribution/view-container";
 import { TabBarToolbar, TabBarToolbarFactory, TabBarToolbarRegistry } from "./tab-bar-toolbar";
 
 @Module({
   services: [
-    ApplicationShell,
+    Shell,
     SplitPositionHandler,
     TabBarToolbar,
     TabBarToolbarFactory,

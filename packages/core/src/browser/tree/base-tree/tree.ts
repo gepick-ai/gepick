@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { AccessibilityInformation, CancellationToken, CancellationTokenSource, DisposableStore, Emitter, Event, IDisposable, InjectableService, Mutable, WaitUntilEvent, createServiceDecorator, isObject, timeout } from '@gepick/core/common';
+import { AccessibilityInformation, CancellationToken, CancellationTokenSource, DisposableCollection, DisposableStore, Emitter, Event, IDisposable, InjectableService, Mutable, WaitUntilEvent, createServiceDecorator, isObject, timeout } from '@gepick/core/common';
 
 export const Tree = Symbol('Tree');
 
@@ -267,11 +267,11 @@ export class TreeImpl extends InjectableService implements Tree {
     return this._root;
   }
 
-  protected toDisposeOnSetRoot = new DisposableStore();
+  protected toDisposeOnSetRoot = new DisposableCollection();
   set root(root: TreeNode | undefined) {
     this.toDisposeOnSetRoot.dispose();
     const cancelRefresh = new CancellationTokenSource();
-    this.toDisposeOnSetRoot.add(cancelRefresh);
+    this.toDisposeOnSetRoot.push(cancelRefresh);
     this.nodes = {};
     this._root = root;
     this.addNode(root);

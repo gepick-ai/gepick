@@ -498,17 +498,12 @@ export class PluginFactory extends InjectableService {
 
   createPlugin(options: IPluginOptions): Plugin {
     const pluginOptions = Object.assign(options, { metadata: mockVSXDatas.find(data => options.id === data.id) });
+    const child = this.serviceContainer.createChild();
 
-    if (this.serviceContainer.isBound(PluginOptions.getServiceId())) {
-      this.serviceContainer.rebind(PluginOptions.getServiceId()).toConstantValue(pluginOptions);
-    }
-    else {
-      this.serviceContainer.bind(PluginOptions.getServiceId()).toConstantValue(pluginOptions);
-    }
+    child.bind(PluginOptions.getServiceId()).toConstantValue(pluginOptions);
+    child.bind(Plugin.getServiceId()).to(Plugin);
 
-    this.serviceContainer.rebind(Plugin.getServiceId()).to(Plugin).inRequestScope();
-
-    return this.serviceContainer.get<IPlugin>(IPlugin);
+    return child.get<IPlugin>(Plugin.getServiceId());
   }
 }
 export const IPluginFactory = createServiceDecorator<IPluginFactory>(PluginFactory.name);

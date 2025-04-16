@@ -62,7 +62,7 @@ export class DockPanelRenderer implements DockLayout.IRenderer {
  * The namespace for `ApplicationShell` class statics.
  */
 
-export class ApplicationShell extends BaseWidget {
+export class Shell extends BaseWidget {
   /**
    * Handler for the left side panel. The primary application views go here, such as the
    * file explorer and the git view.
@@ -70,15 +70,15 @@ export class ApplicationShell extends BaseWidget {
   leftPanelHandler: SidePanelHandler;
   leftPanel: BoxPanel;
   mainPanel: DockPanel;
-  options: ApplicationShell.Options = {
+  options: Shell.Options = {
     bottomPanel: {
-      ...ApplicationShell.DEFAULT_OPTIONS.bottomPanel,
+      ...Shell.DEFAULT_OPTIONS.bottomPanel,
     },
     leftPanel: {
-      ...ApplicationShell.DEFAULT_OPTIONS.leftPanel,
+      ...Shell.DEFAULT_OPTIONS.leftPanel,
     },
     rightPanel: {
-      ...ApplicationShell.DEFAULT_OPTIONS.rightPanel,
+      ...Shell.DEFAULT_OPTIONS.rightPanel,
     },
   };
 
@@ -117,7 +117,7 @@ export class ApplicationShell extends BaseWidget {
   /**
    * The shell area name of the currently active tab, or undefined.
    */
-  get currentTabArea(): ApplicationShell.Area | undefined {
+  get currentTabArea(): Shell.Area | undefined {
     const currentWidget = this.currentWidget;
     if (currentWidget) {
       return this.getAreaFor(currentWidget);
@@ -331,7 +331,7 @@ export class ApplicationShell extends BaseWidget {
   /**
    * Return the tab bar in the given shell area, or the tab bar that has the given widget, or undefined.
    */
-  getTabBarFor(widgetOrArea: Widget | ApplicationShell.Area): TabBar<Widget> | undefined {
+  getTabBarFor(widgetOrArea: Widget | Shell.Area): TabBar<Widget> | undefined {
     if (typeof widgetOrArea === 'string') {
       switch (widgetOrArea) {
         case 'left':
@@ -364,7 +364,7 @@ export class ApplicationShell extends BaseWidget {
    *
    * Widgets added to the top area are not tracked regarding the _current_ and _active_ states.
    */
-  addWidget(widget: Widget, options: ApplicationShell.WidgetOptions) {
+  addWidget(widget: Widget, options: Shell.WidgetOptions) {
     if (!widget.id) {
       console.error('Widgets added to the application shell must have a unique id property.');
       return;
@@ -386,7 +386,7 @@ export class ApplicationShell extends BaseWidget {
   /**
    * The widgets contained in the given shell area.
    */
-  getWidgets(area: ApplicationShell.Area): Widget[] {
+  getWidgets(area: Shell.Area): Widget[] {
     switch (area) {
       case 'main':
         return toArray(this.mainPanel.widgets());
@@ -425,9 +425,9 @@ export class ApplicationShell extends BaseWidget {
   /**
    * @returns the widget that was closed, if any, `undefined` otherwise.
    *
-   * If your use case requires closing multiple widgets, use {@link ApplicationShell#closeMany} instead. That method handles closing saveable widgets more reliably.
+   * If your use case requires closing multiple widgets, use {@link Shell#closeMany} instead. That method handles closing saveable widgets more reliably.
    */
-  async closeWidget(id: string, _options?: ApplicationShell.CloseOptions): Promise<Widget | undefined> {
+  async closeWidget(id: string, _options?: Shell.CloseOptions): Promise<Widget | undefined> {
     // TODO handle save for composite widgets, i.e. the preference widget has 2 editors
     const stack = this.toTrackedStack(id);
     const current = stack.pop();
@@ -507,7 +507,7 @@ export class ApplicationShell extends BaseWidget {
    * collapsed (see `collapsePanel`) and it contains widgets, the widgets are revealed that were
    * visible before it was collapsed.
    */
-  expandPanel(area: ApplicationShell.Area): void {
+  expandPanel(area: Shell.Area): void {
     switch (area) {
       case 'left':
         this.leftPanelHandler.expand();
@@ -523,7 +523,7 @@ export class ApplicationShell extends BaseWidget {
    * @param size the desired size of the panel in pixels.
    * @param area the area to resize.
    */
-  resize(size: number, area: ApplicationShell.Area): void {
+  resize(size: number, area: Shell.Area): void {
     switch (area) {
       case 'left':
         this.leftPanelHandler.resize(size);
@@ -537,7 +537,7 @@ export class ApplicationShell extends BaseWidget {
    * Collapse the named side panel area. This makes sure that the panel is hidden,
    * increasing the space that is available for other shell areas.
    */
-  collapsePanel(area: ApplicationShell.Area): void {
+  collapsePanel(area: Shell.Area): void {
     switch (area) {
       case 'left':
         this.leftPanelHandler.collapse();
@@ -550,7 +550,7 @@ export class ApplicationShell extends BaseWidget {
   /**
    * Check whether the named side panel area is expanded (returns `true`) or collapsed (returns `false`).
    */
-  isExpanded(area: ApplicationShell.Area): boolean {
+  isExpanded(area: Shell.Area): boolean {
     switch (area) {
       case 'left':
         return this.leftPanelHandler.state.expansion === SidePanel.ExpansionState.expanded;
@@ -564,7 +564,7 @@ export class ApplicationShell extends BaseWidget {
    * @param targets the widgets to be closed
    * @return an array of all the widgets that were actually closed.
    */
-  async closeMany(targets: Widget[], options?: ApplicationShell.CloseOptions): Promise<Widget[]> {
+  async closeMany(targets: Widget[], options?: Shell.CloseOptions): Promise<Widget[]> {
     if (options?.save === false) {
       return (await Promise.all(targets.map(target => this.closeWidget(target.id, options)))).filter((widget): widget is Widget => widget !== undefined);
     }
@@ -575,7 +575,7 @@ export class ApplicationShell extends BaseWidget {
    * Determine the name of the shell area where the given widget resides. The result is
    * undefined if the widget does not reside directly in the shell.
    */
-  getAreaFor(widget: Widget): ApplicationShell.Area | undefined {
+  getAreaFor(widget: Widget): Shell.Area | undefined {
     const title = widget.title;
     const mainPanelTabBar = find(this.mainPanel.tabBars(), bar => ArrayExt.firstIndexOf(bar.titles, title) > -1);
     if (mainPanelTabBar) {
@@ -708,7 +708,7 @@ export class ApplicationShell extends BaseWidget {
   }
 }
 
-export namespace ApplicationShell {
+export namespace Shell {
   /**
    * The areas of the application shell where widgets can reside.
    */
@@ -801,5 +801,5 @@ export namespace ApplicationShell {
   }
 }
 
-export const IApplicationShell = createServiceDecorator<IApplicationShell>(ApplicationShell.name);
-export type IApplicationShell = ApplicationShell;
+export const IShell = createServiceDecorator<IShell>(Shell.name);
+export type IShell = Shell;

@@ -1,4 +1,4 @@
-import { IDisposable, Emitter, Event, IConnectionHandler, InjectableService } from "@gepick/core/common";
+import { Emitter, Event, IConnectionHandler, IDisposable, InjectableService } from "@gepick/core/common";
 import { MessageConnection } from "./vscode-ws-jsonrpc";
 
 export type RpcServer<Client> = IDisposable & {
@@ -7,12 +7,12 @@ export type RpcServer<Client> = IDisposable & {
    * a client is used as a local object
    * to handle JSON-RPC messages from the remote server.
    */
-  setClient: (client: Client | undefined) => void
+  setClient: (client: Client | undefined) => void;
 };
 
 export interface RpcConnectionEventEmitter {
-  readonly onDidOpenConnection: Event<void>
-  readonly onDidCloseConnection: Event<void>
+  readonly onDidOpenConnection: Event<void>;
+  readonly onDidCloseConnection: Event<void>;
 }
 export type RpcProxy<T> = T & RpcConnectionEventEmitter;
 
@@ -107,7 +107,7 @@ export class RpcProxyFactory<T extends object> implements ProxyHandler<T> {
       connection.onClose(() =>
         this.onDidCloseConnectionEmitter.fire(undefined),
       );
-      this.onDidOpenConnectionEmitter.fire(undefined)
+      this.onDidOpenConnectionEmitter.fire(undefined);
     });
   }
 
@@ -120,7 +120,7 @@ export class RpcProxyFactory<T extends object> implements ProxyHandler<T> {
   listen(connection: MessageConnection) {
     if (this.target) {
       let parent = this.target;
-      const methodNames: string[] = []
+      const methodNames: string[] = [];
 
       // TODO(@jaylenchen): 这里应该想个更好的方式来解决class 全部method的获取。
       while (parent) {
@@ -134,7 +134,7 @@ export class RpcProxyFactory<T extends object> implements ProxyHandler<T> {
       methodNames.forEach((method) => {
         connection.onRequest(method, (...args) => this.onRequest(method, ...args));
         connection.onNotification(method, (...args) => this.onNotification(method, ...args));
-      })
+      });
     }
     connection.onDispose(() => this.waitForConnection());
     connection.listen();
@@ -156,15 +156,15 @@ export class RpcProxyFactory<T extends object> implements ProxyHandler<T> {
   protected onRequest(method: string, ...args: any[]): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       try {
-        const promise = this.target[method](...args) as Promise<any>
+        const promise = this.target[method](...args) as Promise<any>;
         promise
           .catch(err => reject(err))
-          .then(result => resolve(result))
+          .then(result => resolve(result));
       }
       catch (err) {
-        reject(err)
+        reject(err);
       }
-    })
+    });
   }
 
   /**
@@ -174,7 +174,7 @@ export class RpcProxyFactory<T extends object> implements ProxyHandler<T> {
    * methods calls.
    */
   protected onNotification(method: string, ...args: any[]): void {
-    this.target[method](...args)
+    this.target[method](...args);
   }
 
   /**
@@ -185,8 +185,8 @@ export class RpcProxyFactory<T extends object> implements ProxyHandler<T> {
    * If `T` implements `JsonRpcServer` then a client is used as a target object for a remote target object.
    */
   createProxy(): RpcProxy<T> {
-    const result = new Proxy<T>(this as any, this)
-    return result as any
+    const result = new Proxy<T>(this as any, this);
+    return result as any;
   }
 
   /**
@@ -215,7 +215,7 @@ export class RpcProxyFactory<T extends object> implements ProxyHandler<T> {
     if (p === 'setClient') {
       return (client: any) => {
         this.target = client;
-      }
+      };
     }
     if (p === 'onDidOpenConnection') {
       return this.onDidOpenConnectionEmitter.event;
@@ -223,30 +223,30 @@ export class RpcProxyFactory<T extends object> implements ProxyHandler<T> {
     if (p === 'onDidCloseConnection') {
       return this.onDidCloseConnectionEmitter.event;
     }
-    const isNotify = this.isNotification(p)
+    const isNotify = this.isNotification(p);
     return (...args: any[]) => {
       return this.connectionPromise.then((connection) => {
         return new Promise((resolve, reject) => {
           try {
             if (isNotify) {
-              connection.sendNotification(p.toString(), ...args)
+              connection.sendNotification(p.toString(), ...args);
               resolve(void 0);
             }
             else {
-              const resultPromise = connection.sendRequest(p.toString(), ...args) as Promise<any>
+              const resultPromise = connection.sendRequest(p.toString(), ...args) as Promise<any>;
               resultPromise
                 .catch((err: any) => reject(err))
                 .then((result: any) => {
-                  resolve(result)
-                })
+                  resolve(result);
+                });
             }
           }
           catch (err) {
-            reject(err)
+            reject(err);
           }
-        })
-      })
-    }
+        });
+      });
+    };
   }
 
   /**
@@ -259,6 +259,6 @@ export class RpcProxyFactory<T extends object> implements ProxyHandler<T> {
    * @return Whether `p` represents a notification.
    */
   protected isNotification(p: PropertyKey): boolean {
-    return p.toString().startsWith("notify") || p.toString().startsWith("on")
+    return p.toString().startsWith("notify") || p.toString().startsWith("on");
   }
 }

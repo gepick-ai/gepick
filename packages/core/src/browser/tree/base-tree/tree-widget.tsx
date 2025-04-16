@@ -216,7 +216,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
             this.model.selectNode(node);
           }
         }),
-      ].forEach(d => this.toDispose.add(d));
+      ].forEach(d => this.toDispose.push(d));
     }
     this.node.addEventListener('mousedown', this.handleMiddleClickEvent.bind(this));
     this.node.addEventListener('mouseup', this.handleMiddleClickEvent.bind(this));
@@ -240,7 +240,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
           }
         }
       }),
-    ].forEach(d => this.toDispose.add(d));
+    ].forEach(d => this.toDispose.push(d));
     setTimeout(() => {
       this.updateRows();
       this.updateDecorations();
@@ -263,7 +263,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
             this.selectionService.selection = undefined;
           }
         }),
-      ].forEach(d => this.toDispose.add(d));
+      ].forEach(d => this.toDispose.push(d));
 
       this.node.addEventListener('focusin', () => {
         if (this.model.selectedNodes.length && (!this.selectionService.selection || !TreeWidgetSelection.isSource(this.selectionService.selection, this))) {
@@ -1137,7 +1137,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
    * Get the scroll container.
    */
   protected override getScrollContainer(): MaybePromise<HTMLElement> {
-    this.toDisposeOnDetach.add(toDisposable(() => {
+    this.toDisposeOnDetach.push(toDisposable(() => {
       const { scrollTop, scrollLeft } = this.node;
       this.lastScrollState = { scrollTop, scrollLeft };
     }));
@@ -1164,7 +1164,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
       }
       UnsafeWidgetUtilities.attach(this.searchBox, this.node.parentElement!);
       this.addKeyListener(this.node, this.searchBox.keyCodePredicate.bind(this.searchBox), this.searchBox.handle.bind(this.searchBox));
-      this.toDisposeOnDetach.add(toDisposable(() => {
+      this.toDisposeOnDetach.push(toDisposable(() => {
         Widget.detach(this.searchBox);
       }));
     }

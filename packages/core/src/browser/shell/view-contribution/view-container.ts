@@ -1,14 +1,14 @@
-import { DisposableStore, Emitter, Event, ICommandRegistry, IDisposable, InjectableService, Key, PostConstruct, createServiceDecorator, isObject, toDisposable } from "@gepick/core/common";
+import { DisposableCollection, DisposableStore, Emitter, Event, ICommandRegistry, IDisposable, InjectableService, Key, PostConstruct, createServiceDecorator, isObject, toDisposable } from "@gepick/core/common";
 import { DockPanel, LayoutItem, PanelLayout, SplitLayout, SplitPanel, Widget } from "@lumino/widgets";
 import { find, map, some } from '@lumino/algorithm';
 import { interfaces } from "inversify";
 import { isEmpty } from "lodash-es";
 import { MimeData } from "@lumino/coreutils";
 import { Drag } from "@lumino/dragdrop";
-import { BaseWidget, CODICON_TREE_ITEM_CLASSES, COLLAPSED_CLASS, EXPANSION_TOGGLE_CLASS, IWidgetManager, Message, MessageLoop, PINNED_CLASS, UnsafeWidgetUtilities, addEventListener, addKeyListener, waitForRevealed } from "../widgets";
-import { ISplitPositionHandler, MAIN_AREA_ID, SplitPositionHandler, SplitPositionOptions } from "./side-panel";
-import { IApplicationShell } from "./shell";
-import { ITabBarToolbarFactory, ITabBarToolbarRegistry, TabBarToolbar, TabBarToolbarRegistry } from "./tab-bar-toolbar";
+import { BaseWidget, CODICON_TREE_ITEM_CLASSES, COLLAPSED_CLASS, EXPANSION_TOGGLE_CLASS, IWidgetManager, Message, MessageLoop, PINNED_CLASS, UnsafeWidgetUtilities, addEventListener, addKeyListener, waitForRevealed } from "../../widgets";
+import { ISplitPositionHandler, MAIN_AREA_ID, SplitPositionHandler, SplitPositionOptions } from "../side-panel";
+import { IShell } from "../shell";
+import { ITabBarToolbarFactory, ITabBarToolbarRegistry, TabBarToolbar, TabBarToolbarRegistry } from "../tab-bar-toolbar";
 
 /**
  * Parse a magnitude value (e.g. width, height, left, top) from a CSS attribute value.
@@ -144,7 +144,7 @@ export class ViewContainerPart extends BaseWidget {
 
     const fireTitleChanged = () => this.onTitleChangedEmitter.fire(undefined);
     this.wrapped.title.changed.connect(fireTitleChanged);
-    this.toDispose.add(toDisposable(() => this.wrapped.title.changed.disconnect(fireTitleChanged)));
+    this.toDispose.push(toDisposable(() => this.wrapped.title.changed.disconnect(fireTitleChanged)));
 
     if (DescriptionWidget.is(this.wrapped)) {
       this.wrapped?.onDidChangeDescription(() => this.onDidChangeDescriptionEmitter.fire(), undefined, this.toDispose);
@@ -166,7 +166,7 @@ export class ViewContainerPart extends BaseWidget {
     this.header = header;
     this.body = body;
 
-    this.toNoDisposeWrapped = this.toDispose.add(wrapped);
+    this.toNoDisposeWrapped = this.toDispose.push(wrapped);
     this.toolbar = this.toolbarFactory.createTabBarToolbar();
     this.toolbar.addClass('theia-view-container-part-title');
 
@@ -184,7 +184,7 @@ export class ViewContainerPart extends BaseWidget {
       this.onDidFocusEmitter,
       // focus event does not bubble, capture it
       addEventListener(this.node, 'focus', () => this.onDidFocusEmitter.fire(this), true),
-    ].forEach(d => this.toDispose.add(d));
+    ].forEach(d => this.toDispose.push(d));
 
     this.scrollOptions = {
       suppressScrollX: true,
@@ -556,14 +556,14 @@ export class ViewContainer extends BaseWidget {
   protected readonly onDidChangeTrackableWidgetsEmitter = new Emitter<Widget[]>();
   readonly onDidChangeTrackableWidgets = this.onDidChangeTrackableWidgetsEmitter.event;
 
-  protected readonly toDisposeOnUpdateTitle = new DisposableStore();
+  protected readonly toDisposeOnUpdateTitle = new DisposableCollection();
   protected readonly toRemoveWidgets = new Map<string, DisposableStore>();
 
   constructor(
     @IViewContainerIdentifier readonly options: IViewContainerIdentifier,
     @ISplitPositionHandler readonly splitPositionHandler: ISplitPositionHandler,
     @IWidgetManager readonly widgetManager: IWidgetManager,
-    @IApplicationShell readonly shell: IApplicationShell,
+    @IShell readonly shell: IShell,
     @ITabBarToolbarRegistry readonly toolbarRegistry: ITabBarToolbarRegistry,
     @ITabBarToolbarFactory readonly toolbarFactory: ITabBarToolbarFactory,
     @ICommandRegistry readonly commandRegistry: ICommandRegistry,
@@ -646,7 +646,7 @@ export class ViewContainer extends BaseWidget {
 
   protected updateTitle(): void {
     this.toDisposeOnUpdateTitle.dispose();
-    this.toDispose.add(this.toDisposeOnUpdateTitle);
+    this.toDispose.push(this.toDisposeOnUpdateTitle);
     this.updateTabBarDelegate();
     let title = Object.assign({}, this.titleOptions);
     if (isEmpty(title)) {
@@ -659,7 +659,7 @@ export class ViewContainer extends BaseWidget {
     // isn't originally belongs to this container but there are other **original** hidden parts.
     if (visibleParts.length === 1 && (visibleParts[0].originalContainerId === this.id || !this.findOriginalPart())) {
       const part = visibleParts[0];
-      this.toDisposeOnUpdateTitle.add(part.onTitleChanged(() => this.updateTitle()));
+      this.toDisposeOnUpdateTitle.push(part.onTitleChanged(() => this.updateTitle()));
       const partLabel = part.wrapped.title.label;
       // Change the container title if it contains only one part that originally belongs to another container.
       if (allParts.length === 1 && part.originalContainerId !== this.id && !this.isCurrentTitle(part.originalContainerTitle)) {
@@ -766,7 +766,7 @@ export class ViewContainer extends BaseWidget {
 
   protected attachNewPart(newPart: ViewContainerPart, insertIndex?: number): IDisposable {
     const toRemoveWidget = new DisposableStore();
-    this.toDispose.add(toRemoveWidget);
+    this.toDispose.push(toRemoveWidget);
     this.toRemoveWidgets.set(newPart.wrapped.id, toRemoveWidget);
     toRemoveWidget.add(toDisposable(() => this.toRemoveWidgets.delete(newPart.wrapped.id)));
     this.registerPart(newPart);

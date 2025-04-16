@@ -56,7 +56,7 @@ export class TabBarToolbar extends ReactWidget {
 
   @postConstruct()
   protected init(): void {
-    this.toDispose.add(this.contextKeyService.onDidChange((e) => {
+    this.toDispose.push(this.contextKeyService.onDidChange((e) => {
       if (e.affects(this.keybindingContextKeys)) {
         this.maybeUpdate();
       }
@@ -104,7 +104,7 @@ export class TabBarToolbar extends ReactWidget {
   protected readonly toDisposeOnSetCurrent = new DisposableStore();
   protected setCurrent(current: Widget | undefined): void {
     this.toDisposeOnSetCurrent.dispose();
-    this.toDispose.add(this.toDisposeOnSetCurrent);
+    this.toDispose.push(this.toDisposeOnSetCurrent);
     this.current = current;
     if (current) {
       const resetCurrent = () => {

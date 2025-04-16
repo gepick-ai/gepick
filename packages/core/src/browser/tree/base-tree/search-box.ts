@@ -102,7 +102,7 @@ export class SearchBox extends BaseWidget {
       this.filterToggleEmitter,
       this.debounce,
       this.debounce.onChanged(data => this.fireTextChange(data)),
-    ].forEach(d => this.toDispose.add(d));
+    ].forEach(d => this.toDispose.push(d));
     this.hide();
     this.update();
     const { input, filter } = this.createContent();

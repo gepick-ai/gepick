@@ -84,14 +84,19 @@ export class SourceTree extends TreeImpl {
         nodes.push(this.toNode(element, index++, parent));
       }
     }
+
     return nodes;
   }
 
   protected resolveElements(parent: TreeElementNodeParent): MaybePromise<IterableIterator<TreeElement>> {
+    let elements: MaybePromise<IterableIterator<TreeElement>>;
     if (TreeSourceNode.is(parent)) {
-      return parent.source.getElements();
+      elements = parent.source.getElements();
     }
-    return parent.element.getElements();
+    else {
+      elements = parent.element.getElements();
+    }
+    return elements;
   }
 
   protected toNode(element: TreeElement, index: number, parent: TreeElementNodeParent): TreeElementNode {

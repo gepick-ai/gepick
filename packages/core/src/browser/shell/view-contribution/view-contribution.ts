@@ -18,11 +18,11 @@ import { Widget } from '@lumino/widgets';
 import {
   InjectableService,
   createContribution,
-} from '../../common';
-import { IWidgetManager } from '../widgets';
-import { ApplicationShell, IApplicationShell } from './shell';
+} from '@gepick/core/common';
+import { IWidgetManager } from '../../widgets';
+import { Shell, IShell } from '../shell';
 
-export interface OpenViewArguments extends ApplicationShell.WidgetOptions {
+export interface OpenViewArguments extends Shell.WidgetOptions {
   toggle?: boolean;
   activate?: boolean;
   reveal?: boolean;
@@ -32,7 +32,7 @@ export interface ViewContributionOptions {
   viewContainerId?: string;
   widgetId: string;
   widgetName: string;
-  defaultWidgetOptions: ApplicationShell.WidgetOptions;
+  defaultWidgetOptions: Shell.WidgetOptions;
   toggleCommandId?: string;
   toggleKeybinding?: string;
 }
@@ -42,7 +42,7 @@ export interface ViewContributionOptions {
  */
 export abstract class AbstractViewContribution<T extends Widget> extends InjectableService {
   @IWidgetManager protected readonly widgetManager: IWidgetManager;
-  @IApplicationShell protected readonly shell: IApplicationShell;
+  @IShell protected readonly shell: IShell;
 
   constructor(protected options: ViewContributionOptions) {
     super();
@@ -56,7 +56,7 @@ export abstract class AbstractViewContribution<T extends Widget> extends Injecta
     return this.options.widgetName;
   }
 
-  get defaultViewOptions(): ApplicationShell.WidgetOptions {
+  get defaultViewOptions(): Shell.WidgetOptions {
     return this.options.defaultWidgetOptions;
   }
 

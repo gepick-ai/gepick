@@ -1,6 +1,6 @@
 import { IContributionProvider, InjectableService, Optional, createServiceDecorator } from '@gepick/core/common';
 import { Widget } from '../widgets';
-import { IApplicationShell, IViewContribution, IViewContributionProvider } from "../shell";
+import { IShell, IViewContribution, IViewContributionProvider } from "../shell";
 import { IApplicationContribution, IApplicationContributionProvider } from './application-contribution';
 
 export const IApplication = createServiceDecorator<IApplication>("Application");
@@ -9,7 +9,7 @@ export type IApplication = Application;
 export class Application extends InjectableService {
   constructor(
     @Optional() @IApplicationContributionProvider private readonly applicationContributionProvider: IContributionProvider<IApplicationContribution>,
-    @IApplicationShell private readonly shell: IApplicationShell,
+    @IShell private readonly shell: IShell,
     @IViewContributionProvider private readonly viewContributionProvider: IContributionProvider<IViewContribution>,
   ) {
     super();

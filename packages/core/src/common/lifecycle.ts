@@ -1,6 +1,7 @@
 /* eslint-disable jsdoc/check-alignment */
 import { once } from 'lodash-es';
 import { isIterable } from './iterator';
+import { Emitter, Event } from './event';
 
 export interface IDisposable {
   dispose: () => void;

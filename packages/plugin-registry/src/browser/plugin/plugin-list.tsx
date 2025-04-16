@@ -1,5 +1,5 @@
-import { IWidgetFactory, Message, SourceTreeWidget, TreeElement, TreeModel, TreeNode, TreeSource } from "@gepick/core/browser";
-import { Contribution, Emitter, IServiceContainer, InjectableService, PostConstruct, createServiceDecorator, lodashDebounce } from "@gepick/core/common";
+import { IWidgetFactory, Message, SourceTreeWidget, TreeElement, TreeModel, TreeModule, TreeNode, TreeSource } from "@gepick/core/browser";
+import { Contribution, Emitter, IServiceContainer, InjectableService, PostConstruct, ServiceContainer, createServiceDecorator, lodashDebounce } from "@gepick/core/common";
 import { IPluginRegistry } from "./plugin-registry";
 
 // #region Plugin List Model Options
@@ -21,16 +21,14 @@ export class PluginListModel extends TreeSource {
     @IPluginListModelOptions protected readonly pluginListModelOptions: IPluginListModelOptions,
     @IPluginRegistry protected readonly pluginRegistry: IPluginRegistry,
   ) {
-    super();
+    super({ id: `plugin-list-model:${pluginListModelOptions.id}` });
   }
 
   @PostConstruct()
   protected init(): void {
     this._onDidChange.fire();
-    this._register(this.pluginRegistry.onDidChange(() => {
-      const scheduleFireDidChange = lodashDebounce(() => this._onDidChange.fire(), 100, { leading: false, trailing: true });
-      scheduleFireDidChange();
-    }));
+    const scheduleFireDidChange = lodashDebounce(() => this._onDidChange.fire(), 100, { leading: false, trailing: true });
+    this._register(this.pluginRegistry.onDidChange(() => scheduleFireDidChange()));
   }
 
   getPluginRegistry(): IPluginRegistry {
@@ -41,8 +39,8 @@ export class PluginListModel extends TreeSource {
     const elements = this.doGetElements();
 
     for (const id of elements) {
-      const extension = this.pluginRegistry.getPlugin(id);
-      if (!extension) {
+      const plugin = this.pluginRegistry.getPlugin(id);
+      if (!plugin) {
         continue;
       }
       if (this.pluginListModelOptions.id === PluginListModelOptions.RECOMMENDED) {
@@ -51,12 +49,12 @@ export class PluginListModel extends TreeSource {
         }
       }
       if (this.pluginListModelOptions.id === PluginListModelOptions.BUILT_IN) {
-        if (extension.builtin) {
-          yield extension;
+        if (plugin.builtin) {
+          yield plugin;
         }
       }
-      else if (!extension.builtin) {
-        yield extension;
+      else if (!plugin.builtin) {
+        yield plugin;
       }
     }
   }
@@ -129,19 +127,16 @@ export class PluginListWidget extends SourceTreeWidget {
     super.init();
 
     this.addClass('theia-vsx-extensions');
+    this.toDispose.push(this.pluginListModel);
 
     this.id = PluginListWidget.createPluginListWidgetId(this.pluginListWidgetOptions.id);
-    this.toDispose.add(this.pluginListModel);
     this.source = this.pluginListModel;
-
-    // TODO(@jaylenchen): 这里记得修改为动态的id
-    (this.source as any).pluginListModelOptions.id = 'installed';
 
     const title = this.pluginListWidgetOptions.title ?? this.computeTitle();
     this.title.label = title;
     this.title.caption = title;
 
-    this.toDispose.add(this.source.onDidChange(async () => {
+    this.toDispose.push(this.source.onDidChange(async () => {
       this.badge = await this.resolveCount();
     }));
   }
@@ -163,7 +158,7 @@ export class PluginListWidget extends SourceTreeWidget {
 
   protected async resolveCount(): Promise<number | undefined> {
     if (this.pluginListWidgetOptions.id !== PluginListModelOptions.SEARCH_RESULT) {
-      const elements = await this.source?.getElements() || [];
+      const elements = await this.pluginListModel?.getElements() || [];
 
       return [...elements].length;
     }
@@ -202,7 +197,7 @@ export class PluginListWidget extends SourceTreeWidget {
     }
   }
 }
-export const IPluginListWidget = createServiceDecorator<IPluginListWidget>(SourceTreeWidget.name);
+export const IPluginListWidget = createServiceDecorator<IPluginListWidget>(PluginListWidget.name);
 export type IPluginListWidget = PluginListWidget;
 // #endregion
 
@@ -212,10 +207,14 @@ export class PluginListWidgetFactory extends InjectableService {
   public readonly id = PluginListWidget.ID;
 
   createWidget(container: IServiceContainer, options: IPluginListModelOptions) {
-    container.rebind(PluginListWidgetOptions.getServiceId()).toConstantValue(options);
-    container.rebind(PluginListWidget.getServiceId()).to(PluginListWidget).inRequestScope();
+    const child = container.createChild();
 
-    const widget = container.get<IPluginListWidget>(IPluginListWidget);
+    child.load(new TreeModule(child as any));
+    child.bind(PluginListWidgetOptions.getServiceId()).toConstantValue(options);
+    child.bind(PluginListModel.getServiceId()).to(PluginListModel);
+    child.bind(PluginListWidget.getServiceId()).to(PluginListWidget);
+
+    const widget = child.get<IPluginListWidget>(PluginListWidget.getServiceId());
 
     return widget;
   }

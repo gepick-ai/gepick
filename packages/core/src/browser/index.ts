@@ -1,4 +1,4 @@
-import '../browser/style/index.css';
+import './style/index.css';
 import 'font-awesome/css/font-awesome.min.css';
 import '@vscode/codicons/dist/codicon.css';
 

@@ -45,6 +45,11 @@ export namespace ServiceIdUtil {
 
     return Reflect.get(decorator, SERVICE_ID_KEY);
   }
+
+  export function isInjectable(target: any): boolean {
+    return Reflect.hasMetadata('inversify:paramtypes', target);
+  }
+
 }
 
 export function createServiceDecorator<T>(serviceName: string): ServiceDecorator<T> {

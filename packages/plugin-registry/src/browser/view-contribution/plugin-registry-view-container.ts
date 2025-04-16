@@ -32,7 +32,7 @@ export class PluginRegistryViewContainer extends ViewContainer {
   protected override onAfterAttach(msg: Message): void {
     super.onBeforeAttach(msg);
     this.updateMode();
-    this.toDisposeOnDetach.add(this.pluginSearchModel.onDidChangeQuery(() => this.updateMode()));
+    this.toDisposeOnDetach.push(this.pluginSearchModel.onDidChangeQuery(() => this.updateMode()));
   }
 
   protected override configureLayout(layout: PanelLayout): void {

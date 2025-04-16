@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 import { CommonModule, ServiceContainer } from "@gepick/core/common";
-import { ApplicationModule, ContextMenuModule, ShellModule, TreeModule, WidgetModule } from "@gepick/core/browser";
+import { ApplicationModule, ContextMenuModule, ShellModule, WidgetModule } from "@gepick/core/browser";
 import { GettingStartedModule } from "@gepick/getting-started/browser";
 import { PluginSystemModule } from "@gepick/plugin-system/browser";
 import { PluginRegistryModule } from "@gepick/plugin-registry/browser";
@@ -15,7 +15,6 @@ try {
     WidgetModule,
     ShellModule,
     ContextMenuModule,
-    TreeModule,
     PluginSystemModule,
     PluginRegistryModule,
     GettingStartedModule,

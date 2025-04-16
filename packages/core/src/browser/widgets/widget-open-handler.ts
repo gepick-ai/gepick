@@ -16,7 +16,7 @@
 
 import { Emitter, Event, InjectableService, MaybePromise, PostConstruct, URI } from '@gepick/core/common';
 import { BaseWidget } from '../widgets';
-import { ApplicationShell, IApplicationShell } from '../shell';
+import { Shell, IShell } from '../shell';
 import { OpenHandler, OpenerOptions } from '../opener';
 import { IWidgetManager } from './widget-manager';
 
@@ -37,7 +37,7 @@ export interface WidgetOpenerOptions extends OpenerOptions {
    * Specify how an opened widget should be added to the shell.
    * By default to the main area.
    */
-  widgetOptions?: ApplicationShell.WidgetOptions;
+  widgetOptions?: Shell.WidgetOptions;
 }
 
 /**
@@ -51,7 +51,7 @@ export abstract class WidgetOpenHandler<W extends BaseWidget> extends Injectable
   readonly onCreated: Event<W> = this.onCreatedEmitter.event;
 
   constructor(
-        @IApplicationShell protected readonly shell: IApplicationShell,
+        @IShell protected readonly shell: IShell,
         @IWidgetManager protected readonly widgetManager: IWidgetManager,
   ) {
     super();
@@ -161,7 +161,7 @@ export abstract class WidgetOpenHandler<W extends BaseWidget> extends Injectable
    *
    * @returns a promise of all closed widgets that resolves after they have been closed.
    */
-  async closeAll(options?: ApplicationShell.CloseOptions): Promise<W[]> {
+  async closeAll(options?: Shell.CloseOptions): Promise<W[]> {
     return this.shell.closeMany(this.all, options) as Promise<W[]>;
   }
 }

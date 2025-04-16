@@ -14,32 +14,18 @@
     "yarn": "4.3.1"
   },
   "scripts": {
+    "compile": "gepick compile",
     "clean": "gepick clean",
     "setup:env": "gepick setup-env",
     "start:gepick-service": "yarn clean && yarn compile && yarn setup:env && yarn dev:server",
     "start:gepick-client": "yarn dev:client",
-    "compile": "gepick build --target server",
     "build:server": "gepick build --target server",
     "build:client": "gepick build --target client",
-    "build:core": "gepick build --target core",
-    "build:auth": "gepick build --target auth",
-    "build:user": "gepick build --target user",
-    "build:copilot": "gepick build --target copilot",
     "dev:server": "gepick dev --target server",
     "dev:client": "gepick dev --target client",
-    "dev:core": "gepick dev --target core",
-    "dev:auth": "gepick dev --target auth",
-    "dev:user": "gepick dev --target user",
-    "dev:copilot": "gepick dev --target copilot",
     "build:cli": "yarn workspace @gepick/cli build",
     "dev:cli": "yarn workspace @gepick/cli dev",
     "prepare": "husky"
-  },
-  "dependencies": {
-    "@gepick/core": "workspace:^",
-    "@types/cors": "^2.8.17",
-    "fs-extra": "^11.2.0",
-    "workspace": "^0.0.1-preview.2"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.20.0",

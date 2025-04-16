@@ -237,7 +237,7 @@ export class PluginEditorWidget extends ReactWidget {
     this.title.iconClass = codicon('list-selection');
     this.node.tabIndex = -1;
     this.update();
-    this.toDispose.add(this.pluginRegistry.onDidChange(() => this.update()));
+    this.toDispose.push(this.pluginRegistry.onDidChange(() => this.update()));
   }
 
   override getScrollContainer(): Promise<HTMLElement> {
@@ -294,11 +294,12 @@ export class PluginEditorWidgetFactory extends InjectableService {
   public readonly id = PluginEditorWidget.ID;
 
   async createWidget(container: IServiceContainer, options: IPluginOptions) {
-    container.rebind(PluginOptions.getServiceId()).toConstantValue(options);
+    const child = container.createChild();
+    child.parent = container;
+    child.bind(PluginOptions.getServiceId()).toConstantValue(options);
     const plugin = await container.get<IPluginRegistry>(IPluginRegistry).resolve(options.id);
-    container.rebind(Plugin.getServiceId()).toConstantValue(plugin);
-    container.unbind(PluginEditorWidget.getServiceId());
-    container.bind(PluginEditorWidget.getServiceId()).to(PluginEditorWidget);
-    return container.get<IPluginEditorWidget>(IPluginEditorWidget);
+    child.bind(Plugin.getServiceId()).toConstantValue(plugin);
+    child.bind(PluginEditorWidget.getServiceId()).to(PluginEditorWidget);
+    return child.get<IPluginEditorWidget>(PluginEditorWidget.getServiceId());
   }
 }

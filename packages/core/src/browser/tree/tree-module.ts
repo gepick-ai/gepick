@@ -20,7 +20,6 @@ import { FuzzySearch } from "./base-tree/fuzzy-search";
     DefaultTreeProps,
     // source-tree
     SourceTree,
-    SourceTreeWidget,
   ],
 })
 export class TreeModule extends ServiceModule {}

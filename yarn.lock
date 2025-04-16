@@ -2374,6 +2374,7 @@ __metadata:
     chalk: "npm:^5.3.0"
     copyfiles: "npm:^2.4.1"
     find-up: "npm:^7.0.0"
+    fs-extra: "npm:^11.3.0"
     lerna: "npm:^8.1.9"
     ora: "npm:^8.1.1"
     rimraf: "npm:^6.0.1"
@@ -2450,7 +2451,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@gepick/core@workspace:*, @gepick/core@workspace:^, @gepick/core@workspace:packages/core":
+"@gepick/core@workspace:*, @gepick/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@gepick/core@workspace:packages/core"
   dependencies:
@@ -2571,8 +2572,6 @@ __metadata:
     "@commitlint/config-conventional": "npm:^19.2.2"
     "@eslint/js": "npm:^9.3.0"
     "@gepick/cli": "workspace:*"
-    "@gepick/core": "workspace:^"
-    "@types/cors": "npm:^2.8.17"
     "@types/dotenv-parse-variables": "npm:^2.0.3"
     "@types/eslint__js": "npm:^8.42.3"
     "@types/minimist": "npm:^1.2.5"
@@ -2588,7 +2587,6 @@ __metadata:
     eslint-plugin-tailwindcss: "npm:^3.17.0"
     eslint-plugin-vue: "npm:^9.26.0"
     execa: "npm:5.0.0"
-    fs-extra: "npm:^11.2.0"
     husky: "npm:^9.0.11"
     lerna: "npm:^8.1.9"
     lint-staged: "npm:^15.2.5"
@@ -2603,7 +2601,6 @@ __metadata:
     vite-plugin-checker: "npm:^0.6.2"
     vite-plugin-dts: "npm:^3.9.1"
     vite-tsconfig-paths: "npm:^4.2.3"
-    workspace: "npm:^0.0.1-preview.2"
   languageName: unknown
   linkType: soft
 
@@ -17402,13 +17399,6 @@ __metadata:
   version: 1.0.0
   resolution: "wordwrap@npm:1.0.0"
   checksum: 10/497d40beb2bdb08e6d38754faa17ce20b0bf1306327f80cb777927edb23f461ee1f6bc659b3c3c93f26b08e1cf4b46acc5bae8fda1f0be3b5ab9a1a0211034cd
-  languageName: node
-  linkType: hard
-
-"workspace@npm:^0.0.1-preview.2":
-  version: 0.0.1-preview.2
-  resolution: "workspace@npm:0.0.1-preview.2"
-  checksum: 10/babec73d1f1bc619a18e40dc9865f5a9edbee8ddb1ac1dd5e650729ecb1247fa8db1d110d354faef2af409a7fc3ebae2b65225e198f57bd639e70580b8fc2f9a
   languageName: node
   linkType: hard
 

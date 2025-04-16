@@ -2,7 +2,7 @@ import { Mixin } from "ts-mixer";
 import { Widget } from "@lumino/widgets";
 import { Message, MessageLoop } from "@lumino/messaging";
 import PerfectScrollbar from 'perfect-scrollbar';
-import { DisposableStore, Emitter, Event, IDisposable, InjectableService, KeyCode, KeysOrKeyCodes, MaybePromise, toDisposable } from "@gepick/core/common";
+import { DisposableCollection, DisposableStore, Emitter, Event, IDisposable, InjectableService, KeyCode, KeysOrKeyCodes, MaybePromise, toDisposable } from "@gepick/core/common";
 
 export * from '@lumino/widgets';
 export * from '@lumino/messaging';
@@ -69,8 +69,8 @@ export namespace UnsafeWidgetUtilities {
 export class InjectableBaseWidget extends Mixin(Widget, InjectableService) {}
 
 export class BaseWidget extends InjectableBaseWidget {
-  protected readonly toDispose = new DisposableStore();
-  protected readonly toDisposeOnDetach = new DisposableStore();
+  protected readonly toDispose = new DisposableCollection();
+  protected readonly toDisposeOnDetach = new DisposableCollection();
   protected scrollBar?: PerfectScrollbar;
   protected scrollOptions?: PerfectScrollbar.Options;
 
@@ -134,7 +134,7 @@ export class BaseWidget extends InjectableBaseWidget {
           suppressScrollX: true,
         });
 
-        this.toDispose.add(toDisposable(async () => {
+        this.toDispose.push(toDisposable(async () => {
           if (this.scrollBar) {
             this.scrollBar.destroy();
             this.scrollBar = undefined;
@@ -166,7 +166,7 @@ export class BaseWidget extends InjectableBaseWidget {
   }
 
   protected addEventListener<K extends keyof HTMLElementEventMap>(element: HTMLElement, type: K, listener: EventListenerOrEventListenerObject<K>): void {
-    this.toDisposeOnDetach.add(addEventListener(element, type, listener));
+    this.toDisposeOnDetach.push(addEventListener(element, type, listener));
   }
 
   protected addKeyListener<K extends keyof HTMLElementEventMap>(
@@ -175,11 +175,11 @@ export class BaseWidget extends InjectableBaseWidget {
     action: (event: KeyboardEvent) => boolean | void | object,
     ...additionalEventTypes: K[]
   ): void {
-    this.toDisposeOnDetach.add(addKeyListener(element, keysOrKeyCodes, action, ...additionalEventTypes));
+    this.toDisposeOnDetach.push(addKeyListener(element, keysOrKeyCodes, action, ...additionalEventTypes));
   }
 
   protected addClipboardListener<K extends 'cut' | 'copy' | 'paste'>(element: HTMLElement, type: K, listener: EventListenerOrEventListenerObject<K>): void {
-    this.toDisposeOnDetach.add(addClipboardListener(element, type, listener));
+    this.toDisposeOnDetach.push(addClipboardListener(element, type, listener));
   }
 }
 

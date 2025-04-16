@@ -9,7 +9,7 @@ import {
   createServiceDecorator,
 } from '../../../common';
 import { BaseWidget, IWidgetFactory, Message, VirtualRenderer, codicon } from "../../widgets";
-import { AbstractViewContribution, IViewContribution } from "../view-contribution";
+import { AbstractViewContribution, IViewContribution } from "../view-contribution/view-contribution";
 
 // ===========================测试Widget===========================
 
