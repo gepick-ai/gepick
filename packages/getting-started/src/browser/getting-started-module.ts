@@ -1,6 +1,6 @@
 import { Module, ServiceModule } from "@gepick/core/common";
 import { GettingStartedWidget } from "./getting-started-widget";
-import { GettingStartedViewContribution } from "./getting-started-view-contribution";
+import { GettingStartedViewContribution } from "./view-contribution/getting-started-view-contribution";
 import { GettingStartedFactory } from "./getting-started-factory";
 
 @Module({

@@ -78,7 +78,7 @@ export class ExtensionFrontendContribution extends AbstractViewContribution<Exte
         area: "left",
       },
     });
-    await this.openView({ activate: false });
+    await this.setupView({ activate: false });
   }
 }
 

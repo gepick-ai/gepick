@@ -79,7 +79,7 @@ export class SearchInWorkspaceFrontendContribution extends AbstractViewContribut
         area: "left",
       },
     });
-    await this.openView({ activate: false, reveal: true });
+    await this.setupView({ activate: false, reveal: true });
   }
 }
 

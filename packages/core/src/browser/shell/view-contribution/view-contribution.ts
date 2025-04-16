@@ -20,7 +20,7 @@ import {
   createContribution,
 } from '@gepick/core/common';
 import { IWidgetManager } from '../../widgets';
-import { Shell, IShell } from '../shell';
+import { IShell, Shell } from '../shell';
 
 export interface OpenViewArguments extends Shell.WidgetOptions {
   toggle?: boolean;
@@ -68,7 +68,7 @@ export abstract class AbstractViewContribution<T extends Widget> extends Injecta
     return this.widgetManager.tryGetWidget(this.options.widgetId);
   }
 
-  async openView(args: Partial<OpenViewArguments> = {}): Promise<T> {
+  async setupView(args: Partial<OpenViewArguments> = {}): Promise<T> {
     const shell = this.shell;
     const widget = await this.widgetManager.getOrCreateWidget(this.options.viewContainerId || this.viewId);
     const tabBar = shell.getTabBarFor(widget);
@@ -116,4 +116,7 @@ export abstract class AbstractViewContribution<T extends Widget> extends Injecta
 }
 
 export const [IViewContribution, IViewContributionProvider] = createContribution<IViewContribution>("ViewContribution");
+/**
+ * 注册View视图并将其连接到Application Shell。实现initializeLayout，在其里头调用setupView，结果就是往shell添加相关widget。
+ */
 export interface IViewContribution { initializeLayout: () => Promise<void> }

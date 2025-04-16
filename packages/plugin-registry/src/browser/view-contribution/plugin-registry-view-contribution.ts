@@ -5,7 +5,7 @@ import { IPluginRegistry } from "../plugin";
 import { PluginRegistryViewContainer } from "./plugin-registry-view-container";
 
 @Contribution(IViewContribution)
-export class PluginRegistryViewContribution extends AbstractViewContribution<PluginRegistryViewContainer> {
+export class PluginRegistryViewContribution extends AbstractViewContribution<PluginRegistryViewContainer> implements IViewContribution {
   constructor(
     @IPluginRegistry protected pluginRegistry: IPluginRegistry,
     @IPluginSearchModel protected pluginSearchModel: IPluginSearchModel,
@@ -30,16 +30,16 @@ export class PluginRegistryViewContribution extends AbstractViewContribution<Plu
   }
 
   async initializeLayout(): Promise<void> {
-    await this.openView({ activate: true });
+    await this.setupView({ activate: true });
   }
 
   protected async showBuiltinExtensions(): Promise<void> {
-    await this.openView({ activate: true });
+    await this.setupView({ activate: true });
     this.pluginSearchModel.query = BUILTIN_QUERY;
   }
 
   protected async showInstalledExtensions(): Promise<void> {
-    await this.openView({ activate: true });
+    await this.setupView({ activate: true });
     this.pluginSearchModel.query = INSTALLED_QUERY;
   }
 }
