@@ -3,23 +3,8 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "paths": {
-      "@gepick/client/*": [
-        "./apps/client/src/*"
-      ],
-      "@gepick/server/*": [
-        "./apps/server/src/*"
-      ],
-      "@gepick/plugin-a/*": [
-        "./apps/plugin-a/src/*"
-      ],
-      "@gepick/auth/*": [
-        "./packages/auth/src/*"
-      ],
       "@gepick/core/*": [
         "./packages/core/src/*"
-      ],
-      "@gepick/copilot/*": [
-        "./packages/copilot/src/*"
       ],
       "@gepick/plugin-api/*": [
         "./packages/plugin-api/src/*"
@@ -50,9 +35,6 @@
     },
     {
       "path": "./packages/plugin-registry"
-    },
-    {
-      "path": "./packages/user"
     },
     {
       "path": "./packages/getting-started"

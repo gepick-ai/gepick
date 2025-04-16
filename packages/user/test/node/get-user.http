@@ -1,9 +1,0 @@
-@baseUrl = http://localhost:5173/api
-
-### 创建能量壁纸
-POST {{baseUrl}}/user HTTP/1.1
-Accept: application/json
-
-{
-  "userId": "8b58cae5-f596-4076-b1e4-34c1acef0209"
-}

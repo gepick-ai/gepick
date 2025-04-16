@@ -1,9 +1,0 @@
-@baseUrl = http://localhost:5173/api
-
-GET {{baseUrl}}/copilot/history HTTP/1.1
-Accept: application/json
-Authorization:  Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImZmODIxNWU1LWQ1YzQtNDhjOC1iMjM3LTFkNTVhOWNmMDIyMSIsIm5hbWUiOiJXb3JrIEpheWxlbiIsImlhdCI6MTczNjI0ODY3NiwiZXhwIjoxNzM2MzM1MDc2fQ.tlOexpXAoytgcYaGv6YRBu4oRzAD1nJP-KTymeXjvGI
-
-{
-  "userId": "ff8215e5-d5c4-48c8-b237-1d55a9cf0221"
-}

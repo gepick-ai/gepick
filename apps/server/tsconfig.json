@@ -12,18 +12,6 @@
       "path": "../../packages/core"
     },
     {
-      "path": "../../packages/auth"
-    },
-    {
-      "path": "../../packages/copilot"
-    },
-    {
-      "path": "../../packages/user"
-    },
-    {
-      "path": "../../packages/logger"
-    },
-    {
       "path": "../../packages/plugin-system"
     }
   ],
