@@ -117,6 +117,8 @@ export abstract class AbstractView<T extends Widget> extends InjectableService {
 
 export const [IView, IViewProvider] = createContribution<IView>("View");
 /**
- * 注册View视图并将其连接到Application Shell。实现initializeLayout，在其里头调用setupView，结果就是往shell添加相关widget。
+ * 注册View视图并将其连接到Application Shell。注册View的时候：
+ * - 通过constructor构造参数告诉App往Shell加入哪个Widget，放在Shell的哪个位置等信息。
+ * - 通过实现initializeLayout方法，在其里头调用setupView，结果就是Application启动时调用widgetManager获取到对应Widget，并向shell添加相关widget。
  */
 export interface IView { initializeLayout: () => Promise<void> }
