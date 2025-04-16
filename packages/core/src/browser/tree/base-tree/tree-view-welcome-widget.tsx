@@ -25,7 +25,7 @@
 import React from "react";
 import { URI as CodeUri } from 'vscode-uri';
 import { DisposableCollection, ICommandRegistry, URI } from '@gepick/core/common';
-import { IContextKeyService } from '../../context-menu';
+import { IContextKeyService } from '../../menu';
 import { ILabelParser, LabelIcon } from '../../label';
 import { IOpenerService, open } from '../../opener';
 import { codicon } from '../../widgets';

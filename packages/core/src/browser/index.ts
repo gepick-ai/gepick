@@ -11,5 +11,5 @@ export * from "./tree";
 export * from "./shared";
 export * from "./services";
 export * from "./markdown";
-export * from "./context-menu";
+export * from "./menu";
 export * from "./opener";

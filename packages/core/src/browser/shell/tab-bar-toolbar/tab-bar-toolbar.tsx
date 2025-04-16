@@ -18,7 +18,7 @@ import { postConstruct } from 'inversify';
 import * as React from 'react';
 import { DisposableStore, IDisposable, IServiceContainer, InjectableService, MenuPath, createServiceDecorator, toDisposable } from '@gepick/core/common';
 import { ACTION_ITEM, ReactWidget, Widget, codicon } from '../../widgets';
-import { Anchor, ContextMatcher, ContextMenuAccess, IContextKeyService, IContextMenuRenderer } from '../../context-menu';
+import { Anchor, ContextMatcher, ContextMenuAccess, IContextKeyService, IContextMenuRenderer } from '../../menu';
 
 import { ILabelParser, LabelIcon } from '../../label';
 import { ReactTabBarToolbarItem, RenderedToolbarItem, TAB_BAR_TOOLBAR_CONTEXT_MENU, TabBarDelegator, TabBarToolbarItem } from './tab-bar-toolbar-types';

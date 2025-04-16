@@ -562,18 +562,16 @@ export class SidePanelHandler {
     sender.releaseMouse();
 
     // Clone the selected tab and use that as drag image
-    // tslint:disable:no-null-keyword
-    const clonedTab = tab.cloneNode(true) as any;
-    clonedTab.style.width = null;
-    clonedTab.style.height = null;
-    const label = clonedTab.getElementsByClassName('lm-TabBar-tabLabel')[0] as any;
-    label.style.width = null;
-    label.style.height = null;
-    // tslint:enable:no-null-keyword
+    const clonedTab = tab.cloneNode(true) as HTMLElement;
+    clonedTab.style.width = '';
+    clonedTab.style.height = '';
+    const label = clonedTab.getElementsByClassName('lm-TabBar-tabLabel')[0] as HTMLElement;
+    label.style.width = '';
+    label.style.height = '';
 
     // Create and start a drag to move the selected tab to another panel
     const mimeData = new MimeData();
-    mimeData.setData('application/vnd.phosphor.widget-factory', () => title.owner);
+    mimeData.setData('application/vnd.lumino.widget-factory', () => title.owner);
     const drag = new Drag({
       mimeData,
       dragImage: clonedTab,

@@ -21,7 +21,7 @@ import { ElementExt } from '@lumino/domutils';
 import { useEffect } from 'react';
 import debounce from 'lodash.debounce';
 import { ISelectionService, InjectableService, Key, KeyCode, KeyModifier, MaybePromise, MenuPath, PostConstruct, createServiceDecorator, isOSX, notEmpty, toDisposable } from '@gepick/core/common';
-import { IContextMenuRenderer } from '../../context-menu';
+import { IContextMenuRenderer } from '../../menu';
 import { StatefulWidget } from '../../shell';
 import {
   BUSY_CLASS,

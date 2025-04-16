@@ -18,7 +18,7 @@ import debounce from 'lodash.debounce';
 
 import { DisposableStore, Emitter, Event, IContributionProvider, IDisposable, InjectableService, MenuPath, Optional, createContribution, createServiceDecorator, toDisposable } from '@gepick/core/common';
 import { Widget } from '../../widgets';
-import { IContextKeyService } from '../../context-menu';
+import { IContextKeyService } from '../../menu';
 import { MenuDelegate, ReactTabBarToolbarItem, RenderedToolbarItem, TabBarToolbarItem } from './tab-bar-toolbar-types';
 
 /**

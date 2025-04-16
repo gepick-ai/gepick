@@ -84,9 +84,10 @@ export abstract class AbstractView<T extends Widget> extends InjectableService {
     else if (args.toggle && area && shell.isExpanded(area) && tabBar.currentTitle === widget.title) {
       // The widget is attached and visible, so collapse the containing panel (toggle)
       switch (area) {
-        case 'left':
+        case 'left':{
           await shell.collapsePanel(area);
           break;
+        }
         default:
           // The main area cannot be collapsed, so close the widget
           await this.closeView();
