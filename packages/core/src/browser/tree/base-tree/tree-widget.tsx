@@ -137,8 +137,12 @@ export const defaultTreeProps: TreeProps = {
 };
 
 export class DefaultTreeProps extends InjectableService {
-  leftPadding: 8;
-  expansionTogglePadding: 22;
+  constructor(
+    public readonly leftPadding = 8,
+    public readonly expansionTogglePadding = 22,
+  ) {
+    super();
+  }
 }
 
 export const ITreeProps = createServiceDecorator<ITreeProps>(DefaultTreeProps.name);
@@ -1039,6 +1043,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
    */
   protected getDefaultNodeStyle(node: TreeNode, props: NodeProps): React.CSSProperties | undefined {
     const paddingLeft = `${this.getPaddingLeft(node, props)}px`;
+
     return { paddingLeft };
   }
 
