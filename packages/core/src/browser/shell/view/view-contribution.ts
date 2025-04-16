@@ -121,4 +121,9 @@ export const [IView, IViewProvider] = createContribution<IView>("View");
  * - 通过constructor构造参数告诉App往Shell加入哪个Widget，放在Shell的哪个位置等信息。
  * - 通过实现initializeLayout方法，在其里头调用setupView，结果就是Application启动时调用widgetManager获取到对应Widget，并向shell添加相关widget。
  */
-export interface IView { initializeLayout: () => Promise<void> }
+export interface IView {
+  /**
+   * 初始化Shell Layout，在这个阶段你可以注册自己的View视图
+   */
+  onShellLayoutInit: () => Promise<void>;
+}

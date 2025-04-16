@@ -4,7 +4,7 @@ import { GettingStartedWidget } from "../getting-started-widget";
 
 @Contribution(IView)
 export class GettingStartedViewContribution extends AbstractView<GettingStartedWidget> implements IView {
-  async initializeLayout(): Promise<void> {
+  async onShellLayoutInit(): Promise<void> {
     this.setupOptions({
       widgetId: GettingStartedWidget.ID,
       widgetName: GettingStartedWidget.LABEL,

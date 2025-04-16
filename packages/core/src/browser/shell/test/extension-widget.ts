@@ -69,8 +69,8 @@ export class ExtensionWidgetFactory extends InjectableService {
 // 连接到application shell
 
 @Contribution(IView)
-export class ExtensionFrontendContribution extends AbstractView<ExtensionWidget> {
-  async initializeLayout(): Promise<void> {
+export class ExtensionFrontendContribution extends AbstractView<ExtensionWidget> implements IView {
+  async onShellLayoutInit(): Promise<void> {
     this.setupOptions({
       widgetId: ExtensionWidget.ID,
       widgetName: ExtensionWidget.LABEL,

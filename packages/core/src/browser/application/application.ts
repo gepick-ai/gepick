@@ -10,7 +10,7 @@ export class Application extends InjectableService {
   constructor(
     @Optional() @IApplicationContributionProvider private readonly applicationContributionProvider: IContributionProvider<IApplicationContribution>,
     @IShell private readonly shell: IShell,
-    @IViewProvider private readonly viewContributionProvider: IContributionProvider<IView>,
+    @IViewProvider private readonly viewProvider: IContributionProvider<IView>,
   ) {
     super();
   }
@@ -62,8 +62,8 @@ export class Application extends InjectableService {
    * been stored, by creating the default layout.
    */
   protected async initializeLayout(): Promise<void> {
-    const viewContributions = this.viewContributionProvider.getContributions();
-    viewContributions.forEach(vc => vc.initializeLayout());
+    const views = this.viewProvider.getContributions();
+    views.forEach(view => view.onShellLayoutInit());
 
     await this.shell.pendingUpdates;
   }

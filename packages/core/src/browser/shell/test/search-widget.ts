@@ -70,8 +70,8 @@ export class SearchWidgetFactory extends InjectableService {
 
 // 连接到application shell
 @Contribution(IView)
-export class SearchInWorkspaceFrontendContribution extends AbstractView<SearchInWorkspaceWidget> {
-  async initializeLayout(): Promise<void> {
+export class SearchInWorkspaceFrontendContribution extends AbstractView<SearchInWorkspaceWidget> implements IView {
+  async onShellLayoutInit(): Promise<void> {
     this.setupOptions({
       widgetId: SearchInWorkspaceWidget.ID,
       widgetName: SearchInWorkspaceWidget.LABEL,
