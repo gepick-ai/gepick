@@ -1,9 +1,9 @@
-import { AbstractViewContribution, IViewContribution } from "@gepick/core/browser";
+import { AbstractView, IView } from "@gepick/core/browser";
 import { Contribution } from "@gepick/core/common";
 import { GettingStartedWidget } from "../getting-started-widget";
 
-@Contribution(IViewContribution)
-export class GettingStartedViewContribution extends AbstractViewContribution<GettingStartedWidget> implements IViewContribution {
+@Contribution(IView)
+export class GettingStartedViewContribution extends AbstractView<GettingStartedWidget> implements IView {
   async initializeLayout(): Promise<void> {
     this.setupOptions({
       widgetId: GettingStartedWidget.ID,

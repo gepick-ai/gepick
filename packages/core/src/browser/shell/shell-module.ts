@@ -5,7 +5,7 @@ import { MarkdownRendererFactory, MarkdownRendererImpl } from "../markdown";
 import { DefaultOpenerService } from "../opener";
 import { SplitPositionHandler } from "./side-panel";
 import { Shell } from "./shell";
-import { ViewContainer } from "./view-contribution/view-container";
+import { ViewContainer } from "./view/view-container";
 import { TabBarToolbar, TabBarToolbarFactory, TabBarToolbarRegistry } from "./tab-bar-toolbar";
 
 @Module({

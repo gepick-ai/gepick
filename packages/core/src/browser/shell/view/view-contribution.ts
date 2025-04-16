@@ -40,7 +40,7 @@ export interface ViewContributionOptions {
 /**
  * An abstract superclass for frontend contributions that add a view to the application shell.
  */
-export abstract class AbstractViewContribution<T extends Widget> extends InjectableService {
+export abstract class AbstractView<T extends Widget> extends InjectableService {
   @IWidgetManager protected readonly widgetManager: IWidgetManager;
   @IShell protected readonly shell: IShell;
 
@@ -115,8 +115,8 @@ export abstract class AbstractViewContribution<T extends Widget> extends Injecta
   }
 }
 
-export const [IViewContribution, IViewContributionProvider] = createContribution<IViewContribution>("ViewContribution");
+export const [IView, IViewProvider] = createContribution<IView>("View");
 /**
  * 注册View视图并将其连接到Application Shell。实现initializeLayout，在其里头调用setupView，结果就是往shell添加相关widget。
  */
-export interface IViewContribution { initializeLayout: () => Promise<void> }
+export interface IView { initializeLayout: () => Promise<void> }

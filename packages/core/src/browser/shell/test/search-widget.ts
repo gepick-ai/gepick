@@ -9,7 +9,7 @@ import {
   createServiceDecorator,
 } from '../../../common';
 import { BaseWidget, IWidgetFactory, Message, VirtualRenderer, WidgetManager, codicon } from "../../widgets";
-import { AbstractViewContribution, IViewContribution } from "../view-contribution/view-contribution";
+import { AbstractView, IView } from "../view/view-contribution";
 
 // ===========================测试Widget===========================
 
@@ -69,8 +69,8 @@ export class SearchWidgetFactory extends InjectableService {
 }
 
 // 连接到application shell
-@Contribution(IViewContribution)
-export class SearchInWorkspaceFrontendContribution extends AbstractViewContribution<SearchInWorkspaceWidget> {
+@Contribution(IView)
+export class SearchInWorkspaceFrontendContribution extends AbstractView<SearchInWorkspaceWidget> {
   async initializeLayout(): Promise<void> {
     this.setupOptions({
       widgetId: SearchInWorkspaceWidget.ID,
