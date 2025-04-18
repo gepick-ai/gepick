@@ -17,7 +17,7 @@
 import { postConstruct } from 'inversify';
 import * as React from 'react';
 import { DisposableStore, IDisposable, IServiceContainer, InjectableService, MenuPath, createServiceDecorator, toDisposable } from '@gepick/core/common';
-import { ACTION_ITEM, ReactWidget, Widget, codicon } from '../../widgets';
+import { ACTION_ITEM, ReactWidget, Widget, codicon } from '../../widget';
 import { Anchor, ContextMatcher, ContextMenuAccess, IContextKeyService, IContextMenuRenderer } from '../../menu';
 
 import { ILabelParser, LabelIcon } from '../../label';

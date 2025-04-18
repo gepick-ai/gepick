@@ -18,7 +18,7 @@ import DOMPurify from 'dompurify';
 import markdownit from 'markdown-it';
 import { Disposable, DisposableGroup, IDisposable, InjectableService, MarkdownString, PostConstruct, createServiceDecorator } from '@gepick/core/common';
 import { ILabelParser } from '../label';
-import { codicon } from '../widgets';
+import { codicon } from '../widget';
 
 // #region Copied from Copied from https://github.com/microsoft/vscode/blob/7d9b1c37f8e5ae3772782ba3b09d827eb3fdd833/src/vs/base/browser/formattedTextRenderer.ts
 export interface ContentActionHandler {

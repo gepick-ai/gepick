@@ -6,7 +6,7 @@ export * from "./request";
 export * from "./messaging";
 export * from "./application";
 export * from "./shell";
-export * from "./widgets";
+export * from "./widget";
 export * from "./tree";
 export * from "./third-party";
 export * from "./services";

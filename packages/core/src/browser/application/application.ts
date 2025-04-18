@@ -1,5 +1,5 @@
 import { IContributionProvider, InjectableService, Optional, createServiceDecorator } from '@gepick/core/common';
-import { Widget } from '../widgets';
+import { Widget } from '../widget';
 import { IShell, IView, IViewProvider } from "../shell";
 import { IApplicationContribution, IApplicationContributionProvider } from './application-contribution';
 

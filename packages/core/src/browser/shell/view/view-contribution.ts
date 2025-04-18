@@ -19,7 +19,7 @@ import {
   InjectableService,
   createContribution,
 } from '@gepick/core/common';
-import { IWidgetManager } from '../../widgets';
+import { IWidgetManager } from '../../widget';
 import { IShell, Shell } from '../shell';
 
 export interface OpenViewArguments extends Shell.WidgetOptions {

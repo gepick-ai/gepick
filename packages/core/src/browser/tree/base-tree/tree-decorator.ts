@@ -16,7 +16,7 @@
 
 import { unmanaged } from 'inversify';
 import { Disposable, DisposableCollection, Emitter, Event, InjectableService, MaybePromise, createServiceDecorator } from '@gepick/core/common';
-import { WidgetDecoration } from '../../widgets';
+import { WidgetDecoration } from '../../widget';
 import { Tree, TreeNode } from './tree';
 
 /**

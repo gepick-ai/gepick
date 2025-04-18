@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { Emitter, Event, InjectableService, MaybePromise, PostConstruct, URI } from '@gepick/core/common';
-import { BaseWidget } from '../widgets';
+import { BaseWidget } from '../widget';
 import { IShell, Shell } from '../shell';
 import { OpenHandler, OpenerOptions } from '../opener';
 import { IWidgetManager } from './widget-manager';

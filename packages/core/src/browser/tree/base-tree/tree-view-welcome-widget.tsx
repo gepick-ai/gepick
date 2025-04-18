@@ -28,7 +28,7 @@ import { DisposableCollection, ICommandRegistry, URI } from '@gepick/core/common
 import { IContextKeyService } from '../../menu';
 import { ILabelParser, LabelIcon } from '../../label';
 import { IOpenerService, open } from '../../opener';
-import { codicon } from '../../widgets';
+import { codicon } from '../../widget';
 import { TreeModel } from './tree-model';
 import { TreeWidget } from './tree-widget';
 

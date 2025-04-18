@@ -16,7 +16,7 @@
 
 import * as fileIcons from 'file-icons-js';
 import { Contribution, Emitter, Event, IContributionProvider, IDisposable, InjectableService, Optional, Path, Prioritizeable, ResourceLabelFormatter, ResourceLabelFormatting, URI, createContribution, createServiceDecorator, isObject, toDisposable } from '@gepick/core/common';
-import { codicon } from '../widgets';
+import { codicon } from '../widget';
 import { IApplicationContribution } from '../application';
 
 /**

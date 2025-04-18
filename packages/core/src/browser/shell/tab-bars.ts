@@ -22,7 +22,7 @@ import { Message } from '@lumino/messaging';
 import { ArrayExt } from '@lumino/algorithm';
 import { ElementExt } from '@lumino/domutils';
 import { ArrayUtils, DisposableStore } from '@gepick/core/common';
-import { EnhancedPreviewWidget, PreviewableWidget, WidgetDecoration } from '../widgets';
+import { EnhancedPreviewWidget, PreviewableWidget, WidgetDecoration } from '../widget';
 
 export function notEmpty<T>(arg: T | undefined | null): arg is T {
   return arg !== undefined && arg !== null;

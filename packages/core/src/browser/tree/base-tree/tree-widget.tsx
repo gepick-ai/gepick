@@ -34,7 +34,7 @@ import {
   SELECTED_CLASS,
   UnsafeWidgetUtilities,
   Widget,
-} from '../../widgets';
+} from '../../widget';
 import { ILabelProvider } from '../../label';
 import { CompositeTreeNode, TreeNode } from './tree';
 import { ITreeModel, TreeModel } from './tree-model';

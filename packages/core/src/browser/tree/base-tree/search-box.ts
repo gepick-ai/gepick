@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { Emitter, Event, IServiceContainer, InjectableService, Key, KeyCode, createServiceDecorator } from '@gepick/core/common';
-import { BaseWidget, Message } from '../../widgets';
+import { BaseWidget, Message } from '../../widget';
 import { SearchBoxDebounce, SearchBoxDebounceOptions } from './search-box-debounce';
 
 /**

@@ -16,7 +16,7 @@
 
 import * as React from 'react';
 import { ArrayUtils, Event, MenuPath, isFunction, isObject } from '../../../common';
-import { Widget } from '../../widgets';
+import { Widget } from '../../widget';
 
 /** Items whose group is exactly 'navigation' will be rendered inline. */
 export const NAVIGATION = 'navigation';
