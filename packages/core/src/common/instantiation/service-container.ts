@@ -1,4 +1,4 @@
-import { Container } from "../inversify";
+import { Container } from "../third-party/inversify";
 import { ServiceModuleConstructor } from './service-module';
 import { ServiceDecorator, ServiceIdUtil, createServiceDecorator } from './instantiation';
 

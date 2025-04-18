@@ -28,4 +28,4 @@ export * from "./window";
 export * from "./command";
 export * from "./uri";
 export * from "./markdown";
-export * from "./reexport";
+export * from "./third-party";

@@ -1,4 +1,4 @@
-import { interfaces } from "../inversify";
+import { interfaces } from "../third-party/inversify";
 import { InjectableService } from './instantiation';
 
 export class ContributionProvider<T extends object> extends InjectableService implements IContributionProvider<T> {
