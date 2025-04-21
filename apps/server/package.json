@@ -12,12 +12,8 @@
     "watch": "gepick compile --watch"
   },
   "dependencies": {
-    "@gepick/auth": "workspace:*",
-    "@gepick/copilot": "workspace:*",
     "@gepick/core": "workspace:*",
-    "@gepick/logger": "workspace:*",
     "@gepick/plugin-system": "workspace:*",
-    "@gepick/user": "workspace:*",
     "@typegoose/typegoose": "^12.9.1",
     "body-parser": "^1.20.3",
     "chalk": "^5.3.0",

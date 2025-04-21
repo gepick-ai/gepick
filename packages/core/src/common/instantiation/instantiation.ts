@@ -52,8 +52,16 @@ export namespace ServiceIdUtil {
 
 }
 
-export function createServiceDecorator<T>(serviceName: string): ServiceDecorator<T> {
-  const serviceId = Symbol.for(serviceName);
+export function createServiceDecorator<T>(serviceName: string | symbol): ServiceDecorator<T> {
+  let serviceId: symbol;
+
+  if (typeof serviceName === 'string') {
+    serviceId = Symbol.for(serviceName);
+  }
+  else {
+    serviceId = serviceName;
+  }
+
   const decorator = inject(serviceId);
 
   ServiceIdUtil.defineServiceIdForDecorator(decorator, serviceId);
@@ -67,10 +75,10 @@ export const CONTRIBUTION_METADATA_KEY = 'contributionId';
  * 使用Contribution Decorator将你的class类注册成为某个功能的Contribution。
  * 实际内部是向class类元数据注入'contribution' 属性，其值为contributionId。
  */
-export function Contribution(contributionId: ContributionId) {
+export function Contribution(contributionDecorator: ServiceDecorator<any>) {
   // eslint-disable-next-line ts/no-unsafe-function-type
   return function (target: Function) {
-    Reflect.defineMetadata(CONTRIBUTION_METADATA_KEY, contributionId, target);
+    Reflect.defineMetadata(CONTRIBUTION_METADATA_KEY, contributionDecorator, target);
   };
 }
 
@@ -100,14 +108,15 @@ export function Contribution(contributionId: ContributionId) {
  *
  * ```
  */
-export function createContribution<T extends object>(contributionName: string): [ContributionId, ServiceDecorator<IContributionProvider<T>>] {
+export function createContribution<T extends object>(contributionName: string): [ServiceDecorator<T>, ServiceDecorator<IContributionProvider<T>>] {
   const contributionId = Symbol.for(contributionName);
   const providerId = ContributionProvider.getProviderId(contributionId);
+  const contributionDecorator = createServiceDecorator<T>(contributionId);
   const decorator = inject(providerId) as ServiceDecorator<IContributionProvider<T>>;
 
   ServiceIdUtil.defineServiceIdForDecorator(decorator, providerId);
 
-  return [contributionId, decorator];
+  return [contributionDecorator, decorator];
 }
 
 export abstract class InjectableService extends Disposable {
@@ -122,14 +131,14 @@ export abstract class InjectableService extends Disposable {
    * 判断一个service类是否属于一个contribution
    */
   static isContribution(): boolean {
-    return Reflect.getMetadata(CONTRIBUTION_METADATA_KEY, this) !== undefined;
+    return this.getContributionId() !== undefined;
   }
 
   /**
    * 获取当前service类的contribution id
    */
   static getContributionId(): symbol | undefined {
-    return Reflect.getMetadata(CONTRIBUTION_METADATA_KEY, this);
+    return ServiceIdUtil.getServiceIdFromDecorator(Reflect.getMetadata(CONTRIBUTION_METADATA_KEY, this));
   }
 }
 

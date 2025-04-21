@@ -16,11 +16,11 @@ export class Application extends InjectableService {
   }
 
   async start() {
-    // const applicationContributions = this.applicationContributionProvider.getContributions();
+    const applicationContributions = this.applicationContributionProvider.getContributions();
 
-    // for (const contribution of applicationContributions) {
-    //   contribution.onApplicationInit?.();
-    // }
+    for (const contribution of applicationContributions) {
+      contribution.onApplicationInit?.();
+    }
 
     const host = await this.getHost();
 

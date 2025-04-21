@@ -16,5 +16,5 @@
       "path": "../../packages/getting-started"
     }
   ],
-  "include": ["src"]
+  "include": ["src", "../../packages/core/src/browser/preferences/test/test-application.ts"]
 }

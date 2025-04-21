@@ -13,3 +13,4 @@ export * from "./services";
 export * from "./markdown";
 export * from "./menu";
 export * from "./opener";
+export * from "./preferences";
