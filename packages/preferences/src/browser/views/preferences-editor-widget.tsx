@@ -36,10 +36,15 @@ export class PreferencesEditorWidget extends BaseWidget implements StatefulWidge
   // The commonly used section will duplicate preference ID's, so we'll keep a separate list of them.
   protected commonlyUsedRenderers = new Map<string, any>();
 
+  protected readonly rendererFactory: any = new Proxy(Object.create(null), {
+    get() {
+      return () => {};
+    },
+  });
+
   constructor(
     @IPreferencesManager protected readonly preferencesManager: IPreferencesManager,
     @IPreferenceTreeModel protected readonly model: IPreferenceTreeModel,
-    @IPreferenceNodeRendererFactory protected readonly rendererFactory: IPreferenceNodeRendererFactory,
     @IPreferenceNodeRendererCreatorRegistry protected readonly rendererRegistry: IPreferenceNodeRendererCreatorRegistry,
     @IPreferencesScopeTabBar protected readonly tabbar: IPreferencesScopeTabBar,
   ) {

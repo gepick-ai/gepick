@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { CompositeTreeNode as BaseCompositeTreeNode, TreeNode as BaseTreeNode, JSONValue, SelectableTreeNode } from "@gepick/core/browser";
-import { Command, JsonType, MenuPath } from "@gepick/core/common";
+import { Command, JsonType, MenuPath, createServiceDecorator } from "@gepick/core/common";
 import { PreferenceScope } from "../preference-scope";
 import { PreferenceDataProperty } from "../preference-schema";
 
@@ -135,6 +135,9 @@ export namespace Preference {
   };
 
 }
+
+export type IPreferenceNode = any;
+export const IPreferenceNode = createServiceDecorator<IPreferenceNode>("'Preference.Node'");
 
 export namespace PreferencesCommands {
   export const OPEN_PREFERENCES_JSON_TOOLBAR: Command = {

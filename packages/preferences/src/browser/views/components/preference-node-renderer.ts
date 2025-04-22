@@ -15,8 +15,8 @@
 // *****************************************************************************
 
 import { IDisposable, InjectableService, PostConstruct, URI, lodashDebounce } from '@gepick/core/common';
-import { DOMPurify, IContextMenuRenderer, IOpenerService, IPreferencesManager, JSONValue, PreferencesManager, codicon } from "@gepick/core/browser";
-import { Preference, PreferenceInspection, PreferenceMenus } from '../../util/preference-types';
+import { DOMPurify, IContextMenuRenderer, IOpenerService, IPreferencesManager, JSONValue, PreferencesManager, codicon, open } from "@gepick/core/browser";
+import { IPreferenceNode, Preference, PreferenceInspection, PreferenceMenus } from '../../util/preference-types';
 import { IPreferenceTreeLabelProvider } from '../../util/preference-tree-label-provider';
 import { PreferenceScope } from '../../preference-scope';
 import { IPreferencesSearchbarWidget } from '../preferences-searchbar-widget';
@@ -49,7 +49,7 @@ export interface GeneralPreferenceNodeRenderer extends IDisposable {
 }
 
 export abstract class PreferenceNodeRenderer extends InjectableService implements GeneralPreferenceNodeRenderer {
-  @inject(Preference.Node) protected readonly preferenceNode: Preference.Node;
+  @IPreferenceNode protected readonly preferenceNode: IPreferenceNode;
   @IPreferenceTreeLabelProvider protected readonly labelProvider: IPreferenceTreeLabelProvider;
 
   protected attached = false;
@@ -147,7 +147,7 @@ export class PreferenceHeaderRenderer extends PreferenceNodeRenderer {
 }
 
 export abstract class PreferenceLeafNodeRenderer<ValueType extends JSONValue, InteractableType extends HTMLElement> extends PreferenceNodeRenderer implements Required<GeneralPreferenceNodeRenderer> {
-  @inject(Preference.Node) protected override readonly preferenceNode: Preference.LeafNode;
+  @IPreferenceNode protected declare readonly preferenceNode: IPreferenceNode;
   @IPreferencesManager protected readonly preferencesManager: IPreferencesManager;
   @IContextMenuRenderer protected readonly menuRenderer: IContextMenuRenderer;
   @IPreferencesScopeTabBar protected readonly scopeTracker: IPreferencesScopeTabBar;
@@ -163,7 +163,7 @@ export abstract class PreferenceLeafNodeRenderer<ValueType extends JSONValue, In
   protected isModifiedFromDefault = false;
 
   get schema(): PreferenceDataProperty {
-    return this.preferenceNode.preference.data;
+    return (this.preferenceNode as any).preference.data;
   }
 
   @PostConstruct()
@@ -175,7 +175,7 @@ export abstract class PreferenceLeafNodeRenderer<ValueType extends JSONValue, In
   }
 
   protected updateInspection(): void {
-    this.inspection = this.preferencesManager.inspectPreference(this.id, this.scopeTracker.currentScope.uri);
+    this.inspection = this.preferencesManager.inspectPreference(this.id, this.scopeTracker.currentScope.uri) as any;
   }
 
   protected openLink(event: MouseEvent): void {
@@ -371,7 +371,7 @@ export abstract class PreferenceLeafNodeRenderer<ValueType extends JSONValue, In
       messageWrapper.classList.add('preference-other-modified-scope-alert');
       messageWrapper.textContent = messagePrefix;
       wrapper.appendChild(messageWrapper);
-      modifiedScopes.forEach((scopeName, i) => {
+      modifiedScopes.forEach((scopeName) => {
         const scopeWrapper = this.createModifiedScopeMessage(scopeName);
         wrapper.appendChild(scopeWrapper);
       });
@@ -440,8 +440,9 @@ export abstract class PreferenceLeafNodeRenderer<ValueType extends JSONValue, In
   protected setPreferenceWithDebounce = lodashDebounce(this.setPreferenceImmediately.bind(this), 500, { leading: false, trailing: true });
 
   protected setPreferenceImmediately(value: ValueType | undefined): Promise<void> {
-    return this.preferencesManager.set(this.id, value, this.scopeTracker.currentScope.scope, this.scopeTracker.currentScope.uri)
-      .catch(() => this.handleValueChange());
+    this.preferencesManager.set(this.id, value);
+
+    return Promise.resolve(void 0);
   }
 
   handleSearchChange(isFiltered = this.model.isFiltered): void {

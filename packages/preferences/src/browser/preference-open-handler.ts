@@ -14,14 +14,15 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { animationFrame, OpenHandler } from "@gepick/core/browser";
+import { OpenHandler, animationFrame } from "@gepick/core/browser";
 import { InjectableService, URI } from "@gepick/core/common";
+import { IPreferencesView } from "./view/preferences-view-contribution";
 
 export class PreferenceOpenHandler extends InjectableService implements OpenHandler {
   readonly id = 'preference';
 
   constructor(
-    @IPreferencesContribution protected readonly preferencesContribution: IPreferencesContribution;
+    @IPreferencesView protected readonly preferencesContribution: IPreferencesView,
   ) {
     super();
   }
@@ -31,7 +32,7 @@ export class PreferenceOpenHandler extends InjectableService implements OpenHand
   }
 
   async open(uri: URI): Promise<boolean> {
-    const preferencesWidget = await this.preferencesContribution.openView();
+    const preferencesWidget = await this.preferencesContribution.setupView();
     const selector = `li[data-pref-id="${uri.path.toString()}"]:not([data-node-id^="commonly-used@"])`;
     const element = document.querySelector(selector);
     if (element instanceof HTMLElement) {

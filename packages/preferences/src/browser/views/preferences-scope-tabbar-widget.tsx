@@ -1,5 +1,5 @@
 import { IContextMenuRenderer, ILabelProvider, Message, StatefulWidget, TabBar, Title, Widget, codicon } from "@gepick/core/browser";
-import { DisposableCollection, Emitter, ICommandRegistry, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
+import { DisposableCollection, Emitter, ICommandRegistry, IMenuModelRegistry, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
 import { Preference, PreferenceMenus } from "../util/preference-types";
 import { PreferenceScope } from "../preference-scope";
 import { IPreferenceScopeCommandManager } from "../util/preference-scope-command-manager";
@@ -29,8 +29,13 @@ export interface PreferencesScopeTabBarState {
 export class PreferencesScopeTabBar extends TabBar<Widget> implements StatefulWidget {
   static ID = 'preferences-scope-tab-bar';
 
+  protected readonly workspaceService: any = new Proxy(Object.create(null), {
+    get() {
+      return () => {};
+    },
+  });
+
   constructor(
-        @IWorkspaceService protected readonly workspaceService: IWorkspaceService,
         @IPreferenceScopeCommandManager protected readonly preferencesMenuFactory: IPreferenceScopeCommandManager,
         @IContextMenuRenderer protected readonly contextMenuRenderer: IContextMenuRenderer,
         @ILabelProvider protected readonly labelProvider: ILabelProvider,
@@ -77,10 +82,7 @@ export class PreferencesScopeTabBar extends TabBar<Widget> implements StatefulWi
         this.setNewScopeSelection(scopeDetails);
       }
     });
-    this.toDispose.pushAll([
-      this.workspaceService.onWorkspaceChanged(newRoots => this.doUpdateDisplay(newRoots)),
-      this.workspaceService.onWorkspaceLocationChanged(() => this.doUpdateDisplay(this.workspaceService.tryGetRoots())),
-    ]);
+
     const tabUnderline = document.createElement('div');
     tabUnderline.className = TABBAR_UNDERLINE_CLASSNAME;
     this.node.append(tabUnderline);
@@ -330,4 +332,4 @@ export class PreferencesScopeTabBar extends TabBar<Widget> implements StatefulWi
 }
 
 export const IPreferencesScopeTabBar = createServiceDecorator<IPreferencesScopeTabBar>(PreferencesScopeTabBar.name);
-export type IPreferencesScopeTabBar = PreferencesScopeTabBar;
+export type IPreferencesScopeTabBar = any;

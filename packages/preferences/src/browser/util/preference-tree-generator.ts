@@ -40,8 +40,8 @@ export class PreferenceTreeGenerator extends InjectableService {
 
   constructor(
     @IPreferencesManager protected readonly preferencesManager: IPreferencesManager,
-    @IPreferencesSchemaService protected readonly schemaProvider: IPreferencesSchemaService,
-    @IPreferencesConfiguration protected readonly preferenceConfigs: IPreferencesConfiguration,
+    @IPreferencesSchemaService protected readonly preferencesSchemaService: IPreferencesSchemaService,
+    @IPreferencesConfiguration protected readonly preferencesConfiguration: IPreferencesConfiguration,
     @IPreferenceLayoutProvider protected readonly layoutProvider: IPreferenceLayoutProvider,
     @IPreferenceTreeLabelProvider protected readonly labelProvider: IPreferenceTreeLabelProvider,
   ) {
@@ -58,8 +58,8 @@ export class PreferenceTreeGenerator extends InjectableService {
   }
 
   protected async doInit(): Promise<void> {
-    await this.schemaProvider.ready;
-    this.schemaProvider.onDidPreferenceSchemaChanged(() => this.handleChangedSchema());
+    await this.preferencesSchemaService.ready;
+    this.preferencesSchemaService.onDidPreferenceSchemaChanged(() => this.handleChangedSchema());
     this.handleChangedSchema();
   }
 
@@ -95,7 +95,7 @@ export class PreferenceTreeGenerator extends InjectableService {
     }
     for (const propertyName of propertyNames) {
       const property = preferencesSchema.properties[propertyName];
-      if (!property.hidden && !property.deprecationMessage && !this.preferenceConfigs.isSectionName(propertyName) && !OVERRIDE_PROPERTY_PATTERN.test(propertyName)) {
+      if (!property.hidden && !property.deprecationMessage && !this.preferencesConfiguration.isSectionName(propertyName) && !OVERRIDE_PROPERTY_PATTERN.test(propertyName)) {
         if (property.owner) {
           this.createPluginLeafNode(propertyName, property, root, groups);
         }

@@ -1,5 +1,5 @@
 import { AbstractView, IView } from "@gepick/core/browser";
-import { Contribution } from "@gepick/core/common";
+import { Contribution, createServiceDecorator } from "@gepick/core/common";
 import { PreferencesWidget } from "../views/preferences-widget";
 
 @Contribution(IView)
@@ -18,3 +18,5 @@ export class PreferencesView extends AbstractView<PreferencesWidget> implements 
     await this.setupView({ activate: true });
   }
 }
+export const IPreferencesView = createServiceDecorator<IPreferencesView>(PreferencesView.name);
+export type IPreferencesView = PreferencesView;

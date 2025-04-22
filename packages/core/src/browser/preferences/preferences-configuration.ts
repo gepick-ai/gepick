@@ -1,8 +1,5 @@
 import { IContributionProvider, InjectableService, URI, createContribution, createServiceDecorator } from "@gepick/core/common";
 
-export interface IPreferencesConfiguration {
-  name: string;
-}
 export const [IPreferencesConfigurationContribution, IPreferencesConfigurationContributionProvider] = createContribution("PreferencesConfigurationContribution");
 
 export class PreferencesConfiguration extends InjectableService {
@@ -58,3 +55,6 @@ export class PreferencesConfiguration extends InjectableService {
   }
 }
 export const IPreferencesConfiguration = createServiceDecorator<IPreferencesConfiguration>(PreferencesConfiguration.name);
+export interface IPreferencesConfiguration extends PreferencesConfiguration {
+  name: string;
+}

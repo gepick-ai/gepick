@@ -22,6 +22,9 @@ export class PreferencesSchemaService extends InjectableService {
   protected readonly preferenceSchema: IPreferencesSchema = { properties: {} };
   protected preferenceSchemaValidateFunction: Ajv.ValidateFunction;
 
+  protected readonly _onDidPreferenceSchemaChanged = this._register(new Emitter<void>());
+  readonly onDidPreferenceSchemaChanged = this._onDidPreferenceSchemaChanged.event;
+
   protected readonly _onDidPreferencesChanged = this._register(new Emitter<IPreferenceDiff[]>());
   readonly onDidPreferencesChanged = this._onDidPreferencesChanged.event;
 
