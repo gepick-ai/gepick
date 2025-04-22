@@ -1,11 +1,12 @@
-import { Message, Panel, StatefulWidget, Widget, codicon } from "@gepick/core/browser";
-import { PostConstruct } from "@gepick/core/common";
+import { IWidgetFactory, Message, Mixin, Panel, StatefulWidget, Widget, codicon } from "@gepick/core/browser";
+import { Contribution, IServiceContainer, InjectableService, PostConstruct, createServiceDecorator } from "@gepick/core/common";
 import { IPreferencesEditorWidget } from "./preferences-editor-widget";
 import { IPreferencesTreeWidget } from "./preferences-tree-widget";
 import { IPreferencesSearchbarWidget } from "./preferences-searchbar-widget";
 import { IPreferencesScopeTabBar } from "./preferences-scope-tabbar-widget";
 
-export class PreferencesWidget extends Panel implements StatefulWidget {
+export class BasePanel extends Mixin(Panel, InjectableService) {}
+export class PreferencesWidget extends BasePanel implements StatefulWidget {
   /**
    * The widget `id`.
    */
@@ -93,5 +94,16 @@ export class PreferencesWidget extends Panel implements StatefulWidget {
     this.tabBarWidget.restoreState(oldState.scopeTabBarState);
     this.editorWidget.restoreState(oldState.editorState);
     this.searchbarWidget.restoreState(oldState.searchbarWidgetState);
+  }
+}
+export const IPreferencesWidget = createServiceDecorator<IPreferencesWidget>(PreferencesWidget.name);
+export type IPreferencesWidget = PreferencesWidget;
+
+@Contribution(IWidgetFactory)
+export class PreferencesWidgetFactory extends InjectableService {
+  public readonly id = PreferencesWidget.ID;
+
+  createWidget(container: IServiceContainer) {
+    return container.get<IPreferencesWidget>(IPreferencesWidget);
   }
 }

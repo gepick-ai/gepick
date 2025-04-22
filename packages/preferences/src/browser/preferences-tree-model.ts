@@ -73,7 +73,7 @@ export class PreferenceTreeModel extends TreeModelImpl {
     super.init();
     [
       this.treeGenerator.onSchemaChanged(newTree => this.handleNewSchema(newTree)),
-      this.scopeTracker.onScopeChanged((scopeDetails) => {
+      this.scopeTracker.onScopeChanged((scopeDetails: any) => {
         this._currentScope = scopeDetails.scope;
         this.updateFilteredRows(PreferenceFilterChangeSource.Scope);
       }),

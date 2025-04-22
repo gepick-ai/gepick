@@ -23,5 +23,8 @@
   },
   "dependencies": {
     "@gepick/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@gepick/cli": "workspace:*"
   }
 }

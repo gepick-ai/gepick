@@ -1,5 +1,5 @@
-import { IContextMenuRenderer, ILabelProvider, Message, StatefulWidget, TabBar, Title, Widget, codicon } from "@gepick/core/browser";
-import { DisposableCollection, Emitter, ICommandRegistry, IMenuModelRegistry, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
+import { IContextMenuRenderer, ILabelProvider, Message, Mixin, StatefulWidget, TabBar, Title, Widget, codicon } from "@gepick/core/browser";
+import { DisposableCollection, Emitter, ICommandRegistry, IMenuModelRegistry, InjectableService, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
 import { Preference, PreferenceMenus } from "../util/preference-types";
 import { PreferenceScope } from "../preference-scope";
 import { IPreferenceScopeCommandManager } from "../util/preference-scope-command-manager";
@@ -26,7 +26,9 @@ export interface PreferencesScopeTabBarState {
   scopeDetails: Preference.SelectedScopeDetails;
 }
 
-export class PreferencesScopeTabBar extends TabBar<Widget> implements StatefulWidget {
+export class BaseTabBar extends Mixin(TabBar, InjectableService) {}
+
+export class PreferencesScopeTabBar extends BaseTabBar implements StatefulWidget {
   static ID = 'preferences-scope-tab-bar';
 
   protected readonly workspaceService: any = new Proxy(Object.create(null), {
@@ -76,7 +78,7 @@ export class PreferencesScopeTabBar extends TabBar<Widget> implements StatefulWi
     this.id = PreferencesScopeTabBar.ID;
     this.setupInitialDisplay();
 
-    this.tabActivateRequested.connect((sender, args) => {
+    this.tabActivateRequested.connect((sender, args: any) => {
       const scopeDetails = this.toScopeDetails(args.title);
       if (scopeDetails) {
         this.setNewScopeSelection(scopeDetails);
@@ -133,7 +135,7 @@ export class PreferencesScopeTabBar extends TabBar<Widget> implements StatefulWi
           this.openContextMenu(tabRect, tab, 'keypress');
         }
         else {
-          const details = this.toScopeDetails(this.titles[index]);
+          const details = this.toScopeDetails((this.titles as any)[index]);
           if (details) {
             this.setNewScopeSelection(details);
           }
@@ -294,7 +296,7 @@ export class PreferencesScopeTabBar extends TabBar<Widget> implements StatefulWi
   protected getDetailsForScope(scope: PreferenceScope.User | PreferenceScope.Workspace): Preference.SelectedScopeDetails | undefined {
     const stringifiedSelectionScope = scope.toString();
     const correspondingTitle = this.titles.find(title => title.dataset.scope === stringifiedSelectionScope);
-    return this.toScopeDetails(correspondingTitle);
+    return this.toScopeDetails(correspondingTitle as any);
   }
 
   protected getDetailsForResource(resource: URI): Preference.SelectedScopeDetails | undefined {

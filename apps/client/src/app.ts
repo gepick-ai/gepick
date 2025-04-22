@@ -5,6 +5,7 @@ import { ApplicationModule, ContextMenuModule, PluginPreferencesModule, Preferen
 import { GettingStartedModule } from "@gepick/getting-started/browser";
 import { PluginSystemModule } from "@gepick/plugin-system/browser";
 import { PluginRegistryModule } from "@gepick/plugin-registry/browser";
+import { PreferencesViewModule } from "@gepick/preferences/browser";
 
 export const { promise: moduleLoadReady, resolve, reject } = Promise.withResolvers<ServiceContainer>();
 
@@ -23,6 +24,7 @@ try {
     TestApplicationModule,
     ThemePreferencesModule,
     PluginPreferencesModule,
+    PreferencesViewModule,
   ]);
 
   resolve(container);
