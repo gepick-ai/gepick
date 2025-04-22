@@ -7,3 +7,4 @@ export * from "./previewable-widget";
 export * from "./widget-decoration";
 export * from "./widget-module";
 export * from "./widget-open-handler";
+export * from "./select-component";

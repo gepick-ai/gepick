@@ -1,4 +1,5 @@
 import { Contribution, Deferred, Emitter, InjectableService, PostConstruct, createServiceDecorator, deepFreeze, toDisposable } from "@gepick/core/common";
+import { JSONExt, JSONValue } from "@lumino/coreutils";
 import { IApplicationContribution } from "../application";
 import { IPreferencesSchema } from "./preferences-schema-contribution";
 import { IPreferenceDiff, IPreferencesSchemaService } from "./preferences-schema-service";
@@ -39,6 +40,15 @@ export class PreferencesManager extends InjectableService implements IPreference
 
   get isReady(): boolean {
     return this._isReady;
+  }
+
+  /**
+   * Handles deep equality with the possibility of `undefined`
+   */
+  static deepEqual(a: JSONValue | undefined, b: JSONValue | undefined): boolean {
+    if (a === b) { return true; }
+    if (a === undefined || b === undefined) { return false; }
+    return JSONExt.deepEqual(a, b);
   }
 
   @PostConstruct()
@@ -130,6 +140,10 @@ export class PreferencesManager extends InjectableService implements IPreference
   }
 
   inspectPreference(_preferenceName: string, _resourceUri?: string) {}
+
+  getCombinedSchema() {
+    return this.combinedPreferencesSchema;
+  }
 
   get<T>(preferenceName: string): T | undefined;
   get<T>(preferenceName: string, defaultValue: T): T;

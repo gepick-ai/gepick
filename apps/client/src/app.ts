@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { CommonModule, ServiceContainer } from "@gepick/core/common";
+import { CommonMenuModule, CommonModule, ServiceContainer } from "@gepick/core/common";
 import { ApplicationModule, ContextMenuModule, PluginPreferencesModule, PreferencesModule, ShellModule, TestApplicationModule, ThemePreferencesModule, WidgetModule } from "@gepick/core/browser";
 import { GettingStartedModule } from "@gepick/getting-started/browser";
 import { PluginSystemModule } from "@gepick/plugin-system/browser";
@@ -11,6 +11,7 @@ export const { promise: moduleLoadReady, resolve, reject } = Promise.withResolve
 try {
   const container = new ServiceContainer([
     CommonModule,
+    CommonMenuModule,
     ApplicationModule,
     WidgetModule,
     ShellModule,

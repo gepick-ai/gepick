@@ -13,8 +13,11 @@
       "path": "../../packages/plugin-registry"
     },
     {
+      "path": "../../packages/preferences"
+    },
+    {
       "path": "../../packages/getting-started"
     }
   ],
-  "include": ["src", "../../packages/core/src/browser/preferences/test/test-application.ts"]
+  "include": ["src"]
 }

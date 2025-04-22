@@ -29,3 +29,4 @@ export * from "./command";
 export * from "./uri";
 export * from "./markdown";
 export * from "./third-party";
+export * from "./json-schema";

@@ -18,25 +18,7 @@ import { DisposableCollection, IDisposable, InjectableService, MarkdownString, c
 import { IMarkdownRendererFactory, MarkdownRenderer, MarkdownRendererFactory } from '../markdown';
 
 import '../style/hover-service.css';
-
-/**
- * Resolves after the next animation frame if no parameter is given,
- * or after the given number of animation frames.
- */
-export function animationFrame(n: number = 1): Promise<void> {
-  return new Promise((resolve) => {
-    function frameFunc(): void {
-      if (n <= 0) {
-        resolve();
-      }
-      else {
-        n--;
-        requestAnimationFrame(frameFunc);
-      }
-    }
-    frameFunc();
-  });
-}
+import { animationFrame } from './browser-service';
 
 export type HoverPosition = 'left' | 'right' | 'top' | 'bottom';
 

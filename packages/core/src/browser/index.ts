@@ -14,3 +14,5 @@ export * from "./markdown";
 export * from "./menu";
 export * from "./opener";
 export * from "./preferences";
+export * from "./label";
+export * from "./services/browser-service";

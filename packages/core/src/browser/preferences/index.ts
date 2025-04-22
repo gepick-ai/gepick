@@ -3,4 +3,5 @@ export * from "./preferences-manager";
 export * from "./preferences-proxy";
 export * from "./preferences-schema-contribution";
 export * from "./preferences-schema-service";
+export * from "./preferences-configuration";
 export * from "./test";

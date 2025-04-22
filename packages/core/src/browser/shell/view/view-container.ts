@@ -9,28 +9,7 @@ import { BaseWidget, CODICON_TREE_ITEM_CLASSES, COLLAPSED_CLASS, EXPANSION_TOGGL
 import { ISplitPositionHandler, MAIN_AREA_ID, SplitPositionHandler, SplitPositionOptions } from "../side-panel";
 import { IShell } from "../shell";
 import { ITabBarToolbarFactory, ITabBarToolbarRegistry, TabBarToolbar, TabBarToolbarRegistry } from "../tab-bar-toolbar";
-
-/**
- * Parse a magnitude value (e.g. width, height, left, top) from a CSS attribute value.
- * Returns the given default value (or undefined) if the value cannot be determined,
- * e.g. because it is a relative value like `50%` or `auto`.
- */
-export function parseCssMagnitude(value: string | null, defaultValue: number): number;
-export function parseCssMagnitude(value: string | null, defaultValue?: number): number | undefined {
-  if (value) {
-    let parsed: number;
-    if (value.endsWith('px')) {
-      parsed = Number.parseFloat(value.substring(0, value.length - 2));
-    }
-    else {
-      parsed = Number.parseFloat(value);
-    }
-    if (!Number.isNaN(parsed)) {
-      return parsed;
-    }
-  }
-  return defaultValue;
-}
+import { parseCssMagnitude } from "../../services";
 
 export interface ViewContainerTitleOptions {
   label: string;

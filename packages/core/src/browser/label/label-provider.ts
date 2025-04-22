@@ -55,7 +55,7 @@ export interface LabelProviderContribution {
   /**
    * returns a short name for the given element.
    */
-  getName?: (element: object) => string | undefined;
+  getName?: (element: any) => string | undefined;
 
   /**
    * returns a long name for the given element.

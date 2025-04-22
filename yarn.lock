@@ -2320,6 +2320,7 @@ __metadata:
     "@gepick/core": "workspace:*"
     "@gepick/getting-started": "workspace:*"
     "@gepick/plugin-registry": "workspace:*"
+    "@gepick/preferences": "workspace:*"
     "@types/lodash-es": "npm:^4.17.12"
     "@vitejs/plugin-react": "npm:^4.3.4"
     "@vitejs/plugin-vue": "npm:^5.1.4"
@@ -2382,10 +2383,12 @@ __metadata:
     "@vscode/codicons": "npm:*"
     ajv: "npm:^6.5.3"
     ant-design-vue: "npm:^4.2.5"
+    async-mutex: "npm:^0.3.1"
     axios: "npm:^1.6.7"
     cors: "npm:^2.8.5"
     dompurify: "npm:^2.2.9"
     express: "npm:^4.21.1"
+    fast-deep-equal: "npm:^3.1.3"
     fast-json-stable-stringify: "npm:^2.1.0"
     file-icons-js: "npm:~1.0.3"
     font-awesome: "npm:^4.7.0"
@@ -2447,6 +2450,14 @@ __metadata:
     "@gepick/cli": "workspace:*"
     "@gepick/core": "workspace:*"
     "@gepick/plugin-api": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@gepick/preferences@workspace:*, @gepick/preferences@workspace:packages/preferences":
+  version: 0.0.0-use.local
+  resolution: "@gepick/preferences@workspace:packages/preferences"
+  dependencies:
+    "@gepick/core": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -6400,6 +6411,15 @@ __metadata:
   version: 1.0.1
   resolution: "async-limiter@npm:1.0.1"
   checksum: 10/2b849695b465d93ad44c116220dee29a5aeb63adac16c1088983c339b0de57d76e82533e8e364a93a9f997f28bbfc6a92948cefc120652bd07f3b59f8d75cf2b
+  languageName: node
+  linkType: hard
+
+"async-mutex@npm:^0.3.1":
+  version: 0.3.2
+  resolution: "async-mutex@npm:0.3.2"
+  dependencies:
+    tslib: "npm:^2.3.1"
+  checksum: 10/cf0b02f7f916d202a727e15a64d51110c3258a719588ca263875024172aa9368efa5dbec6dc4f4fd10e35744e238e1075306a93ce86549de642d5f7d0c06bc23
   languageName: node
   linkType: hard
 

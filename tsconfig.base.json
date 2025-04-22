@@ -36,6 +36,9 @@
       "@gepick/plugin-registry/*": [
         "./packages/plugin-registry/src/*"
       ],
+      "@gepick/preferences/*": [
+        "./packages/preferences/src/*"
+      ],
       "@gepick/getting-started/*": [
         "./packages/getting-started/src/*"
       ],
