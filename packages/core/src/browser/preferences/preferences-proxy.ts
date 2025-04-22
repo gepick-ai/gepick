@@ -10,7 +10,7 @@ export class PreferencesProxyFactory extends InjectableService {
     super();
   }
 
-  createPreferenceProxy<T>(schema: IPreferencesSchema, _options: any = {}): T {
+  createPreferencesProxy<T>(schema: IPreferencesSchema, _options: any = {}): T {
     const child = this.serviceContainer.createChild();
     child.bind(ServiceIdUtil.getServiceIdFromDecorator(IPreferencesSchema)).toConstantValue(schema);
     child.bind(PreferenceProxyHandler.getServiceId()).to(PreferenceProxyHandler);
@@ -93,7 +93,7 @@ export class PreferenceProxyHandler<T extends Record<string, any>> extends Injec
       const prefix = `${preferenceName}.`;
       if (Object.keys(this.preferenceSchema.properties).some(key => key.startsWith(prefix))) {
         const { style, resourceUri, overrideIdentifier } = this;
-        return this.preferencesProxyFactory.createPreferenceProxy(this.preferenceSchema, { prefix, resourceUri, style, overrideIdentifier });
+        return this.preferencesProxyFactory.createPreferencesProxy(this.preferenceSchema, { prefix, resourceUri, style, overrideIdentifier });
       }
       let value: any;
       let parentSegment = preferenceName;
@@ -135,7 +135,7 @@ export class PreferenceProxyHandler<T extends Record<string, any>> extends Injec
       const newPrefix = `${fullProperty}.`;
       for (const p of Object.keys(preferenceSchema.properties)) {
         if (p.startsWith(newPrefix)) {
-          const subProxy = this.preferencesProxyFactory.createPreferenceProxy<T>(preferenceSchema, {
+          const subProxy = this.preferencesProxyFactory.createPreferencesProxy<T>(preferenceSchema, {
             prefix: newPrefix,
             resourceUri,
             overrideIdentifier,
@@ -203,11 +203,15 @@ export abstract class PreferencesService<T> extends InjectableService {
 
   @PostConstruct()
   protected init(): void {
-    this.#proxy = this.preferencesProxyFactory.createPreferenceProxy(this.#schema);
+    this.#proxy = this.preferencesProxyFactory.createPreferencesProxy(this.#schema);
   }
 
   get<K extends keyof T>(preference: K): T[K] {
     return this.#proxy[preference];
+  }
+
+  set<K extends keyof T>(preference: K, value: any): void {
+    this.#proxy[preference] = value;
   }
 
   getPreferencesSchema() {
