@@ -19,7 +19,7 @@ export interface IPreferenceDiff {
 export class PreferencesSchemaService extends InjectableService {
   protected readonly _ready = new Deferred<IPreferenceDiff[]>();
 
-  protected readonly preferenceSchema: IPreferencesSchema = { properties: {} };
+  protected readonly preferencesSchema: IPreferencesSchema = { properties: {} };
   protected preferenceSchemaValidateFunction: Ajv.ValidateFunction;
 
   protected readonly _onDidPreferenceSchemaChanged = this._register(new Emitter<void>());
@@ -56,7 +56,7 @@ export class PreferencesSchemaService extends InjectableService {
     const preferenceDiffs: IPreferenceDiff[] = [];
 
     for (const preferenceName of Object.keys(preferenceSchema.properties)) {
-      if (this.preferenceSchema.properties[preferenceName]) {
+      if (this.preferencesSchema.properties[preferenceName]) {
         console.error(`Preference name collision detected in the schema for property: ${preferenceName}`);
       }
       else {
@@ -65,7 +65,7 @@ export class PreferencesSchemaService extends InjectableService {
           prop.overridable = true;
         }
 
-        this.preferenceSchema.properties[preferenceName] = prop;
+        this.preferencesSchema.properties[preferenceName] = prop;
 
         const defaultValue = this.getDefaultPreferenceValueBySchemaProp(prop);
         prop.default = defaultValue;
@@ -90,7 +90,7 @@ export class PreferencesSchemaService extends InjectableService {
   }
 
   protected updatePreferenceSchemaValidateFunction(): void {
-    this.preferenceSchemaValidateFunction = new Ajv().compile(this.preferenceSchema);
+    this.preferenceSchemaValidateFunction = new Ajv().compile(this.preferencesSchema);
   }
 
   protected getDefaultPreferenceValueBySchemaProp(prop: any): any {
@@ -117,7 +117,7 @@ export class PreferencesSchemaService extends InjectableService {
   }
 
   getPreferenceSchema() {
-    return this.preferenceSchema;
+    return this.preferencesSchema;
   }
 }
 

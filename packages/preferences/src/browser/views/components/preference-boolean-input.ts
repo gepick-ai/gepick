@@ -63,6 +63,6 @@ export class PreferenceBooleanInputRendererContribution extends PreferenceLeafNo
   }
 
   createLeafNodeRenderer(container: interfaces.Container): PreferenceNodeRenderer {
-    return container.get(PreferenceBooleanInputRenderer);
+    return container.get(PreferenceBooleanInputRenderer.getServiceId());
   }
 }

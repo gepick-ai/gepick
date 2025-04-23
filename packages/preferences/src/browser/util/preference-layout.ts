@@ -45,267 +45,34 @@ export const COMMONLY_USED_LAYOUT = {
 
 export const DEFAULT_LAYOUT: PreferenceLayout[] = [
   {
-    id: 'editor',
-    label: 'Text Editor',
-    settings: ['editor.*'],
+    id: 'plugin',
+    label: 'Plugin',
     children: [
       {
-        id: 'editor.cursor',
-        label: 'Cursor',
-        settings: ['editor.cursor*'],
+        id: 'plugin.registry',
+        label: 'Registry',
+        settings: ['plugin.registry*'],
       },
       {
-        id: 'editor.find',
-        label: 'Find',
-        settings: ['editor.find.*'],
-      },
-      {
-        id: 'editor.font',
-        label: 'Font',
-        settings: ['editor.font*'],
-      },
-      {
-        id: 'editor.format',
-        label: 'Formatting',
-        settings: ['editor.format*'],
-      },
-      {
-        id: 'editor.diffEditor',
-        label: 'Diff Editor',
-        settings: ['diffEditor.*'],
-      },
-      {
-        id: 'editor.multiDiffEditor',
-        label: 'Multi-File Diff Editor',
-        settings: ['multiDiffEditor.*'],
-      },
-      {
-        id: 'editor.minimap',
-        label: 'Minimap',
-        settings: ['editor.minimap.*'],
-      },
-      {
-        id: 'editor.suggestions',
-        label: 'Suggestions',
-        settings: ['editor.*suggest*'],
-      },
-      {
-        id: 'editor.files',
-        label: 'Files',
-        settings: ['files.*'],
+        id: 'plugin.proxy',
+        label: 'Proxy',
+        settings: ['plugin.proxy*'],
       },
     ],
   },
   {
-    id: 'workbench',
-    label: 'Workbench',
-    settings: ['workbench.*', 'workspace.*'],
+    id: 'theme',
+    label: 'Theme',
     children: [
       {
-        id: 'workbench.appearance',
-        label: 'Appearance',
-        settings: [
-          'workbench.activityBar.*',
-          'workbench.*color*',
-          'workbench.fontAliasing',
-          'workbench.iconTheme',
-          'workbench.sidebar.location',
-          'workbench.*.visible',
-          'workbench.tips.enabled',
-          'workbench.tree.*',
-          'workbench.view.*',
-        ],
+        id: "theme.background",
+        label: "Background",
+        settings: ['theme.background*'],
       },
       {
-        id: 'workbench.breadcrumbs',
-        label: 'Breadcrumbs',
-        settings: ['breadcrumbs.*'],
-      },
-      {
-        id: 'workbench.editor',
-        label: 'Editor Management',
-        settings: ['workbench.editor.*'],
-      },
-      {
-        id: 'workbench.settings',
-        label: 'Settings Editor',
-        settings: ['workbench.settings.*'],
-      },
-      {
-        id: 'workbench.zenmode',
-        label: 'Zen Mode',
-        settings: ['zenmode.*'],
-      },
-      {
-        id: 'workbench.screencastmode',
-        label: 'Screencast Mode',
-        settings: ['screencastMode.*'],
-      },
-    ],
-  },
-  {
-    id: 'window',
-    label: 'Window',
-    settings: ['window.*'],
-    children: [
-      {
-        id: 'window.newWindow',
-        label: 'New Window',
-        settings: ['window.*newwindow*'],
-      },
-    ],
-  },
-  {
-    id: 'features',
-    label: 'Features',
-    children: [
-      {
-        id: 'features.accessibilitySignals',
-        label: 'Accessibility Signals',
-        settings: ['accessibility.signal*'],
-      },
-      {
-        id: 'features.accessibility',
-        label: 'Accessibility',
-        settings: ['accessibility.*'],
-      },
-      {
-        id: 'features.explorer',
-        label: 'Explorer',
-        settings: ['explorer.*', 'outline.*'],
-      },
-      {
-        id: 'features.search',
-        label: 'Search',
-        settings: ['search.*'],
-      },
-      {
-        id: 'features.debug',
-        label: 'Debug',
-        settings: ['debug.*', 'launch'],
-      },
-      {
-        id: 'features.testing',
-        label: 'Testing',
-        settings: ['testing.*'],
-      },
-      {
-        id: 'features.scm',
-        label: 'Source Control',
-        settings: ['scm.*'],
-      },
-      {
-        id: 'features.extensions',
-        label: 'Extensions',
-        settings: ['extensions.*'],
-      },
-      {
-        id: 'features.terminal',
-        label: 'Terminal',
-        settings: ['terminal.*'],
-      },
-      {
-        id: 'features.task',
-        label: 'Task',
-        settings: ['task.*'],
-      },
-      {
-        id: 'features.problems',
-        label: 'Problems',
-        settings: ['problems.*'],
-      },
-      {
-        id: 'features.output',
-        label: 'Output',
-        settings: ['output.*'],
-      },
-      {
-        id: 'features.comments',
-        label: 'Comments',
-        settings: ['comments.*'],
-      },
-      {
-        id: 'features.remote',
-        label: 'Remote',
-        settings: ['remote.*'],
-      },
-      {
-        id: 'features.timeline',
-        label: 'Timeline',
-        settings: ['timeline.*'],
-      },
-      {
-        id: 'features.toolbar',
-        label: 'Toolbar',
-        settings: ['toolbar.*'],
-      },
-      {
-        id: 'features.notebook',
-        label: 'Notebook',
-        settings: ['notebook.*', 'interactiveWindow.*'],
-      },
-      {
-        id: 'features.mergeEditor',
-        label: 'Merge Editor',
-        settings: ['mergeEditor.*'],
-      },
-      {
-        id: 'features.chat',
-        label: 'Chat',
-        settings: ['chat.*', 'inlineChat.*'],
-      },
-    ],
-  },
-  {
-    id: 'application',
-    label: 'Application',
-    children: [
-      {
-        id: 'application.http',
-        label: 'HTTP',
-        settings: ['http.*'],
-      },
-      {
-        id: 'application.keyboard',
-        label: 'Keyboard',
-        settings: ['keyboard.*'],
-      },
-      {
-        id: 'application.update',
-        label: 'Update',
-        settings: ['update.*'],
-      },
-      {
-        id: 'application.telemetry',
-        label: 'Telemetry',
-        settings: ['telemetry.*'],
-      },
-      {
-        id: 'application.settingsSync',
-        label: 'Settings Sync',
-        settings: ['settingsSync.*'],
-      },
-      {
-        id: 'application.experimental',
-        label: 'Experimental',
-        settings: ['application.experimental.*'],
-      },
-      {
-        id: 'application.other',
-        label: 'Other',
-        settings: ['application.*'],
-      },
-    ],
-  },
-  {
-    id: 'security',
-    label: 'Security',
-    settings: ['security.*'],
-    children: [
-      {
-        id: 'security.workspace',
-        label: 'Workspace',
-        settings: ['security.workspace.*'],
+        id: 'theme.icon',
+        label: 'Icon',
+        settings: ['theme.icon*'],
       },
     ],
   },

@@ -71,6 +71,6 @@ export class PreferenceJSONLinkRendererContribution extends PreferenceLeafNodeRe
   }
 
   createLeafNodeRenderer(container: interfaces.Container): PreferenceNodeRenderer {
-    return container.get(PreferenceJSONLinkRenderer);
+    return container.get(PreferenceJSONLinkRenderer.getServiceId());
   }
 }

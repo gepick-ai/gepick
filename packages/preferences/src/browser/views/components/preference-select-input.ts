@@ -120,6 +120,6 @@ export class PreferenceSelectInputRendererContribution extends PreferenceLeafNod
   }
 
   createLeafNodeRenderer(container: interfaces.Container): PreferenceNodeRenderer {
-    return container.get(PreferenceSelectInputRenderer);
+    return container.get(PreferenceSelectInputRenderer.getServiceId());
   }
 }

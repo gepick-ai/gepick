@@ -7,6 +7,7 @@ import { IPreferencesSearchbarWidget, PreferencesSearchbarWidget } from "./prefe
 import { IPreferencesScopeTabBar, PreferencesScopeTabBar } from "./preferences-scope-tabbar-widget";
 import { PreferenceNodeRendererFactory } from "./components/preference-node-renderer";
 import { DefaultPreferenceNodeRendererCreatorRegistry } from "./components/preference-node-renderer-creator";
+import { PreferenceMarkdownRenderer } from "./components/preference-markdown-renderer";
 
 export class BasePanel extends Mixin(Panel, InjectableService) {}
 export class PreferencesWidget extends BasePanel implements StatefulWidget {
@@ -117,6 +118,7 @@ export class PreferencesWidgetFactory extends InjectableService {
     child.bind(PreferencesSearchbarWidget.getServiceId()).to(PreferencesSearchbarWidget);
     child.bind(PreferencesScopeTabBar.getServiceId()).to(PreferencesScopeTabBar);
     child.bind(PreferenceNodeRendererFactory.getServiceId()).to(PreferenceNodeRendererFactory);
+    child.bind(PreferenceMarkdownRenderer.getServiceId()).to(PreferenceMarkdownRenderer);
     child.bind(ServiceContainer.getServiceId()).toConstantValue(child);
 
     return child.get<IPreferencesWidget>(PreferencesWidget.getServiceId());

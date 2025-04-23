@@ -45,6 +45,6 @@ export class PreferenceNullRendererContribution extends PreferenceLeafNodeRender
   }
 
   createLeafNodeRenderer(container: interfaces.Container): PreferenceNodeRenderer {
-    return container.get(PreferenceNullInputRenderer);
+    return container.get(PreferenceNullInputRenderer.getServiceId());
   }
 }

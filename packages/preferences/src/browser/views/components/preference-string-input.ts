@@ -71,6 +71,6 @@ export class PreferenceStringInputRendererContribution extends PreferenceLeafNod
   }
 
   createLeafNodeRenderer(container: interfaces.Container): PreferenceNodeRenderer {
-    return container.get(PreferenceStringInputRenderer);
+    return container.get(PreferenceStringInputRenderer.getServiceId());
   }
 }

@@ -65,19 +65,19 @@ export class PreferenceTreeGenerator extends InjectableService {
 
   generateTree(): CompositeTreeNode {
     this._idCache.clear();
-    const preferencesSchema = this.preferencesManager.getCombinedSchema();
+    const preferencesSchema = this.preferencesSchemaService.getPreferenceSchema();
     const propertyNames = Object.keys(preferencesSchema.properties);
     const groups = new Map<string, Preference.CompositeTreeNode>();
     const root = this.createRootNode();
 
-    const commonlyUsedLayout = this.layoutProvider.getCommonlyUsedLayout();
-    const commonlyUsed = this.getOrCreatePreferencesGroup({
-      id: commonlyUsedLayout.id,
-      group: commonlyUsedLayout.id,
-      root,
-      groups,
-      label: commonlyUsedLayout.label,
-    });
+    // const commonlyUsedLayout = this.layoutProvider.getCommonlyUsedLayout();
+    // const commonlyUsed = this.getOrCreatePreferencesGroup({
+    //   id: commonlyUsedLayout.id,
+    //   group: commonlyUsedLayout.id,
+    //   root,
+    //   groups,
+    //   label: commonlyUsedLayout.label,
+    // });
 
     for (const layout of this.layoutProvider.getLayout()) {
       this.getOrCreatePreferencesGroup({
@@ -88,21 +88,22 @@ export class PreferenceTreeGenerator extends InjectableService {
         label: layout.label,
       });
     }
-    for (const preference of commonlyUsedLayout.settings ?? []) {
-      if (preference in preferencesSchema.properties) {
-        this.createLeafNode(preference, commonlyUsed, preferencesSchema.properties[preference]);
-      }
-    }
+    // for (const preference of commonlyUsedLayout.settings ?? []) {
+    //   if (preference in preferencesSchema.properties) {
+    //     this.createLeafNode(preference, commonlyUsed, preferencesSchema.properties[preference]);
+    //   }
+    // }
     for (const propertyName of propertyNames) {
       const property = preferencesSchema.properties[propertyName];
-      if (!property.hidden && !property.deprecationMessage && !this.preferencesConfiguration.isSectionName(propertyName) && !OVERRIDE_PROPERTY_PATTERN.test(propertyName)) {
-        if (property.owner) {
-          this.createPluginLeafNode(propertyName, property, root, groups);
-        }
-        else {
-          this.createBuiltinLeafNode(propertyName, property, root, groups);
-        }
-      }
+      this.createBuiltinLeafNode(propertyName, property, root, groups);
+      // if (!property.hidden && !property.deprecationMessage && !this.preferencesConfiguration.isSectionName(propertyName) && !OVERRIDE_PROPERTY_PATTERN.test(propertyName)) {
+      //   if (property.owner) {
+      //     this.createPluginLeafNode(propertyName, property, root, groups);
+      //   }
+      //   else {
+      //     this.createBuiltinLeafNode(propertyName, property, root, groups);
+      //   }
+      // }
     }
 
     for (const group of groups.values()) {

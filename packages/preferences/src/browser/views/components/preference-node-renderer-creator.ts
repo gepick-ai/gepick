@@ -116,7 +116,7 @@ export abstract class PreferenceLeafNodeRendererContribution extends InjectableS
 
   createRenderer(node: Preference.TreeNode, container: interfaces.Container): PreferenceNodeRenderer {
     const child = container.createChild();
-    child.bind(Preference.Node).toConstantValue(node);
+    child.bind(Symbol.for('Preference.Node')).toConstantValue(node);
     return this.createLeafNodeRenderer(child);
   }
 

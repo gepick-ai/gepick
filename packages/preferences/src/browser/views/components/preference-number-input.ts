@@ -179,6 +179,6 @@ export class PreferenceNumberInputRendererContribution extends PreferenceLeafNod
   }
 
   createLeafNodeRenderer(container: interfaces.Container): PreferenceNodeRenderer {
-    return container.get(PreferenceNumberInputRenderer);
+    return container.get(PreferenceNumberInputRenderer.getServiceId());
   }
 }
