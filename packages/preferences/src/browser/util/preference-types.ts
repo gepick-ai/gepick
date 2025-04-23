@@ -137,7 +137,7 @@ export namespace Preference {
 }
 
 export type IPreferenceNode = any;
-export const IPreferenceNode = createServiceDecorator<IPreferenceNode>("'Preference.Node'");
+export const IPreferenceNode = createServiceDecorator<IPreferenceNode>("Preference.Node");
 
 export namespace PreferencesCommands {
   export const OPEN_PREFERENCES_JSON_TOOLBAR: Command = {

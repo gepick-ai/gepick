@@ -213,6 +213,7 @@ export class PluginListWidgetFactory extends InjectableService {
     child.bind(PluginListWidgetOptions.getServiceId()).toConstantValue(options);
     child.bind(PluginListModel.getServiceId()).to(PluginListModel);
     child.bind(PluginListWidget.getServiceId()).to(PluginListWidget);
+    child.bind(ServiceContainer.name)
 
     const widget = child.get<IPluginListWidget>(PluginListWidget.getServiceId());
 

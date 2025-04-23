@@ -32,8 +32,12 @@ export class PreferencesScopeTabBar extends BaseTabBar implements StatefulWidget
   static ID = 'preferences-scope-tab-bar';
 
   protected readonly workspaceService: any = new Proxy(Object.create(null), {
-    get() {
-      return () => {};
+    get(target: any, key: any) {
+      if (typeof target[key] === 'function') {
+        return () => {};
+      }
+
+      return new Object();
     },
   });
 
@@ -115,9 +119,7 @@ export class PreferencesScopeTabBar extends BaseTabBar implements StatefulWidget
 
   protected setupInitialDisplay(): void {
     this.addUserTab();
-    if (this.workspaceService.workspace) {
-      this.addWorkspaceTab(this.workspaceService.workspace);
-    }
+
     this.addOrUpdateFolderTab();
   }
 
@@ -174,34 +176,34 @@ export class PreferencesScopeTabBar extends BaseTabBar implements StatefulWidget
   }
 
   protected addOrUpdateFolderTab(): void {
-    if (this.workspaceService.workspace) {
-      this.currentWorkspaceRoots = this.workspaceService.tryGetRoots();
-      const multipleFolderRootsAreAvailable = this.currentWorkspaceRoots && this.currentWorkspaceRoots.length > 1;
-      const noFolderRootsAreAvailable = this.currentWorkspaceRoots.length === 0;
-      const shouldShowFoldersSeparately = this.workspaceService.saved;
+    // if (this.workspaceService.workspace) {
+    //   this.currentWorkspaceRoots = this.workspaceService.tryGetRoots();
+    //   const multipleFolderRootsAreAvailable = this.currentWorkspaceRoots && this.currentWorkspaceRoots.length > 1;
+    //   const noFolderRootsAreAvailable = this.currentWorkspaceRoots.length === 0;
+    //   const shouldShowFoldersSeparately = this.workspaceService.saved;
 
-      if (!noFolderRootsAreAvailable) {
-        if (!this.folderTitle) {
-          this.folderTitle = new Title({
-            label: '',
-            caption: FOLDER_TAB_LABEL,
-            owner: this,
-          });
-        }
+    //   if (!noFolderRootsAreAvailable) {
+    //     if (!this.folderTitle) {
+    //       this.folderTitle = new Title({
+    //         label: '',
+    //         caption: FOLDER_TAB_LABEL,
+    //         owner: this,
+    //       });
+    //     }
 
-        this.setFolderTitleProperties(multipleFolderRootsAreAvailable);
-        if (multipleFolderRootsAreAvailable || shouldShowFoldersSeparately) {
-          this.addTab(this.folderTitle);
-        }
-      }
-      else {
-        const folderTabIndex = this.titles.findIndex(title => title.caption === FOLDER_TAB_LABEL);
+    //     this.setFolderTitleProperties(multipleFolderRootsAreAvailable);
+    //     if (multipleFolderRootsAreAvailable || shouldShowFoldersSeparately) {
+    //       this.addTab(this.folderTitle);
+    //     }
+    //   }
+    //   else {
+    //     const folderTabIndex = this.titles.findIndex(title => title.caption === FOLDER_TAB_LABEL);
 
-        if (folderTabIndex > -1) {
-          this.removeTabAt(folderTabIndex);
-        }
-      }
-    }
+    //     if (folderTabIndex > -1) {
+    //       this.removeTabAt(folderTabIndex);
+    //     }
+    //   }
+    // }
   }
 
   protected setFolderTitleProperties(multipleFolderRootsAreAvailable: boolean): void {
@@ -223,7 +225,7 @@ export class PreferencesScopeTabBar extends BaseTabBar implements StatefulWidget
 
   protected folderSelectionCallback = (newScope: Preference.SelectedScopeDetails): void => { this.setNewScopeSelection(newScope); };
 
-  protected getFolderContextMenu(workspaceRoots = this.workspaceService.tryGetRoots()): void {
+  protected getFolderContextMenu(workspaceRoots: any): void {
     this.preferencesMenuFactory.createFolderWorkspacesMenu(workspaceRoots, this.currentSelection.uri);
   }
 
@@ -233,19 +235,19 @@ export class PreferencesScopeTabBar extends BaseTabBar implements StatefulWidget
 
   protected openContextMenu(tabRect: DOMRect | ClientRect, folderTabNode: HTMLElement, source: 'click' | 'keypress'): void {
     const toDisposeOnHide = new DisposableCollection();
-    for (const root of this.workspaceService.tryGetRoots()) {
-      const id = `set-scope-to-${root.resource.toString()}`;
-      toDisposeOnHide.pushAll([
-        this.commandRegistry.registerCommand(
-          { id },
-          { execute: () => this.setScope(root.resource) },
-        ),
-        this.menuModelRegistry.registerMenuAction(PreferenceMenus.FOLDER_SCOPE_MENU_PATH, {
-          commandId: id,
-          label: this.labelProvider.getName(root),
-        }),
-      ]);
-    }
+    // for (const root of this.workspaceService.tryGetRoots()) {
+    //   const id = `set-scope-to-${root.resource.toString()}`;
+    //   toDisposeOnHide.pushAll([
+    //     this.commandRegistry.registerCommand(
+    //       { id },
+    //       { execute: () => this.setScope(root.resource) },
+    //     ),
+    //     this.menuModelRegistry.registerMenuAction(PreferenceMenus.FOLDER_SCOPE_MENU_PATH, {
+    //       commandId: id,
+    //       label: this.labelProvider.getName(root),
+    //     }),
+    //   ]);
+    // }
     this.contextMenuRenderer.render({
       menuPath: PreferenceMenus.FOLDER_SCOPE_MENU_PATH,
       anchor: { x: tabRect.left, y: tabRect.bottom },
@@ -271,15 +273,15 @@ export class PreferencesScopeTabBar extends BaseTabBar implements StatefulWidget
   }
 
   protected updateWorkspaceTab(): void {
-    const currentWorkspace = this.workspaceService.workspace;
-    if (currentWorkspace) {
-      const workspaceTitle = this.titles.find(title => title.label === WORKSPACE_TAB_LABEL) ?? this.addWorkspaceTab(currentWorkspace);
-      const scopeDetails = this.getWorkspaceDataset(currentWorkspace);
-      workspaceTitle.dataset = this.toDataSet(scopeDetails);
-      if (this.currentSelection.scope === PreferenceScope.Workspace) {
-        this.setNewScopeSelection(scopeDetails);
-      }
-    }
+    // const currentWorkspace = this.workspaceService.workspace;
+    // if (currentWorkspace) {
+    //   const workspaceTitle = this.titles.find(title => title.label === WORKSPACE_TAB_LABEL) ?? this.addWorkspaceTab(currentWorkspace);
+    //   const scopeDetails = this.getWorkspaceDataset(currentWorkspace);
+    //   workspaceTitle.dataset = this.toDataSet(scopeDetails);
+    //   if (this.currentSelection.scope === PreferenceScope.Workspace) {
+    //     this.setNewScopeSelection(scopeDetails);
+    //   }
+    // }
   }
 
   protected emitNewScope(): void {
@@ -299,14 +301,15 @@ export class PreferencesScopeTabBar extends BaseTabBar implements StatefulWidget
     return this.toScopeDetails(correspondingTitle as any);
   }
 
-  protected getDetailsForResource(resource: URI): Preference.SelectedScopeDetails | undefined {
-    const parent = this.workspaceService.getWorkspaceRootUri(resource);
+  protected getDetailsForResource(_resource: URI): Preference.SelectedScopeDetails | undefined {
+    // const parent = this.workspaceService.getWorkspaceRootUri(resource);
+    const parent: any = null;
     if (!parent) {
       return undefined;
     }
-    if (!this.workspaceService.isMultiRootWorkspaceOpened) {
-      return this.getDetailsForScope(PreferenceScope.Workspace);
-    }
+    // if (!this.workspaceService.isMultiRootWorkspaceOpened) {
+    return this.getDetailsForScope(PreferenceScope.Workspace);
+    // }
     return ({ scope: PreferenceScope.Folder, uri: parent.toString(), activeScopeIsFolder: true });
   }
 

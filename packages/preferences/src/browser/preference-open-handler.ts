@@ -14,11 +14,12 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { OpenHandler, animationFrame } from "@gepick/core/browser";
-import { InjectableService, URI } from "@gepick/core/common";
+import { IOpenHandler, animationFrame } from "@gepick/core/browser";
+import { Contribution, InjectableService, URI } from "@gepick/core/common";
 import { IPreferencesView } from "./view/preferences-view-contribution";
 
-export class PreferenceOpenHandler extends InjectableService implements OpenHandler {
+@Contribution(IOpenHandler)
+export class PreferenceOpenHandler extends InjectableService implements IOpenHandler {
   readonly id = 'preference';
 
   constructor(

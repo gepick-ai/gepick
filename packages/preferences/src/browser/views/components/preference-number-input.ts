@@ -14,10 +14,10 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { interfaces, isBoolean, isNumber } from '@gepick/core/common';
+import { Contribution, interfaces, isBoolean, isNumber } from '@gepick/core/common';
 import { Preference } from '../../util/preference-types';
 import { PreferenceLeafNodeRenderer, PreferenceNodeRenderer } from './preference-node-renderer';
-import { PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
+import { IPreferenceNodeRendererContribution, PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
 
 interface PreferenceNumberInputValidation {
   /**
@@ -168,6 +168,7 @@ export class PreferenceNumberInputRenderer extends PreferenceLeafNodeRenderer<nu
   }
 }
 
+@Contribution(IPreferenceNodeRendererContribution)
 export class PreferenceNumberInputRendererContribution extends PreferenceLeafNodeRendererContribution {
   static ID = 'preference-number-input-renderer';
   id = PreferenceNumberInputRendererContribution.ID;

@@ -15,10 +15,10 @@
 // *****************************************************************************
 
 import { JSONValue } from '@gepick/core/browser';
-import { ICommandRegistry, interfaces } from '@gepick/core/common';
+import { Contribution, ICommandRegistry, interfaces } from '@gepick/core/common';
 import { Preference, PreferencesCommands } from '../../util/preference-types';
 import { PreferenceLeafNodeRenderer, PreferenceNodeRenderer } from './preference-node-renderer';
-import { PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
+import { IPreferenceNodeRendererContribution, PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
 
 export class PreferenceJSONLinkRenderer extends PreferenceLeafNodeRenderer<JSONValue, HTMLAnchorElement> {
   @ICommandRegistry protected readonly commandRegistry: ICommandRegistry;
@@ -61,6 +61,7 @@ export class PreferenceJSONLinkRenderer extends PreferenceLeafNodeRenderer<JSONV
   }
 }
 
+@Contribution(IPreferenceNodeRendererContribution)
 export class PreferenceJSONLinkRendererContribution extends PreferenceLeafNodeRendererContribution {
   static ID = 'preference-json-link-renderer';
   id = PreferenceJSONLinkRendererContribution.ID;

@@ -14,11 +14,12 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { InjectableService, createServiceDecorator } from '@gepick/core/common';
-import { LabelProviderContribution, TreeNode } from '@gepick/core/browser';
+import { Contribution, InjectableService, createServiceDecorator } from '@gepick/core/common';
+import { ILabelProviderContribution, LabelProviderContribution, TreeNode } from '@gepick/core/browser';
 import { IPreferenceLayoutProvider } from './preference-layout';
 import { Preference } from './preference-types';
 
+@Contribution(ILabelProviderContribution)
 export class PreferenceTreeLabelProvider extends InjectableService implements LabelProviderContribution {
   constructor(@IPreferenceLayoutProvider protected readonly layoutProvider: IPreferenceLayoutProvider) {
     super();

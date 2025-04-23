@@ -14,10 +14,10 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { escapeInvisibleChars, interfaces } from '@gepick/core/common';
+import { Contribution, escapeInvisibleChars, interfaces } from '@gepick/core/common';
 import { JSONValue, PreferencesManager, React, SelectComponent, SelectOption, createRoot } from '@gepick/core/browser';
 import { Preference } from '../../util/preference-types';
-import { PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
+import { IPreferenceNodeRendererContribution, PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
 import { PreferenceLeafNodeRenderer, PreferenceNodeRenderer } from './preference-node-renderer';
 
 export class PreferenceSelectInputRenderer extends PreferenceLeafNodeRenderer<JSONValue, HTMLDivElement> {
@@ -110,6 +110,7 @@ export class PreferenceSelectInputRenderer extends PreferenceLeafNodeRenderer<JS
   }
 }
 
+@Contribution(IPreferenceNodeRendererContribution)
 export class PreferenceSelectInputRendererContribution extends PreferenceLeafNodeRendererContribution {
   static ID = 'preference-select-input-renderer';
   id = PreferenceSelectInputRendererContribution.ID;

@@ -4,7 +4,7 @@ import { Preference } from "../util/preference-types";
 import { IPreferenceTreeModel, PreferenceFilterChangeEvent, PreferenceFilterChangeSource } from "../preferences-tree-model";
 import { COMMONLY_USED_SECTION_PREFIX } from "../util/preference-layout";
 import { IPreferencesScopeTabBar } from "./preferences-scope-tabbar-widget";
-import { GeneralPreferenceNodeRenderer } from "./components/preference-node-renderer";
+import { GeneralPreferenceNodeRenderer, IPreferenceNodeRendererFactory } from "./components/preference-node-renderer";
 import { IPreferenceNodeRendererCreatorRegistry } from "./components/preference-node-renderer-creator";
 
 export interface PreferencesEditorState {
@@ -36,13 +36,8 @@ export class PreferencesEditorWidget extends BaseWidget implements StatefulWidge
   // The commonly used section will duplicate preference ID's, so we'll keep a separate list of them.
   protected commonlyUsedRenderers = new Map<string, any>();
 
-  protected readonly rendererFactory: any = new Proxy(Object.create(null), {
-    get() {
-      return () => {};
-    },
-  });
-
   constructor(
+    @IPreferenceNodeRendererFactory protected readonly rendererFactory: IPreferenceNodeRendererFactory,
     @IPreferencesManager protected readonly preferencesManager: IPreferencesManager,
     @IPreferenceTreeModel protected readonly model: IPreferenceTreeModel,
     @IPreferenceNodeRendererCreatorRegistry protected readonly rendererRegistry: IPreferenceNodeRendererCreatorRegistry,
@@ -120,11 +115,11 @@ export class PreferencesEditorWidget extends BaseWidget implements StatefulWidge
     }
     if (this.model.root) {
       const nodeIterator = Array.from(this.scrollContainer.children)[Symbol.iterator]();
-      let nextNode: Element | undefined = nodeIterator.next().value;
+      let nextNode: HTMLElement | undefined = nodeIterator.next().value as HTMLElement | undefined;
       for (const node of new TopDownTreeIterator(this.model.root)) {
         if (Preference.TreeNode.is(node)) {
           const { collection, id } = this.analyzeIDAndGetRendererGroup(node.id);
-          const renderer = collection.get(id) ?? this.rendererFactory(node);
+          const renderer = collection.get(id) ?? this.rendererFactory.createNodeReaderer(node);
           if (!renderer.node.parentElement) { // If it hasn't been attached yet, it hasn't been checked for the current search.
             this.hideIfFailsFilters(renderer, isFiltered);
             collection.set(id, renderer);
@@ -138,7 +133,7 @@ export class PreferencesEditorWidget extends BaseWidget implements StatefulWidge
             }
           }
           else {
-            nextNode = nodeIterator.next().value;
+            nextNode = nodeIterator.next().value as HTMLElement;
           }
         }
       }

@@ -1,10 +1,10 @@
-import { IContributionProvider, InjectableService, URI, createContribution, createServiceDecorator } from "@gepick/core/common";
+import { IContributionProvider, InjectableService, Optional, URI, createContribution, createServiceDecorator } from "@gepick/core/common";
 
 export const [IPreferencesConfigurationContribution, IPreferencesConfigurationContributionProvider] = createContribution("PreferencesConfigurationContribution");
 
 export class PreferencesConfiguration extends InjectableService {
   constructor(
-    @IPreferencesConfigurationContributionProvider protected readonly provider: IContributionProvider<IPreferencesConfiguration>,
+    @Optional() @IPreferencesConfigurationContributionProvider protected readonly provider: IContributionProvider<IPreferencesConfiguration>,
   ) {
     super();
   }

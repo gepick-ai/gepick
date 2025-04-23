@@ -14,10 +14,10 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { interfaces, isObject } from '@gepick/core/common';
+import { Contribution, interfaces, isObject } from '@gepick/core/common';
 import { Preference } from '../../util/preference-types';
 import { PreferenceNodeRenderer } from './preference-node-renderer';
-import { PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
+import { IPreferenceNodeRendererContribution, PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
 import { PreferenceStringInputRenderer } from './preference-string-input';
 
 export interface FileNodeTypeDetails {
@@ -31,6 +31,7 @@ export namespace FileNodeTypeDetails {
   }
 }
 
+@Contribution(IPreferenceNodeRendererContribution)
 export class PreferenceSingleFilePathInputRendererContribution extends PreferenceLeafNodeRendererContribution {
   static ID = 'preference-single-file-path-input-renderer';
   id = PreferenceSingleFilePathInputRendererContribution.ID;

@@ -15,10 +15,10 @@
 // *****************************************************************************
 
 import { codiconArray } from '@gepick/core/browser';
-import { interfaces } from '@gepick/core/common';
+import { Contribution, interfaces } from '@gepick/core/common';
 import { Preference } from '../../util/preference-types';
 import { PreferenceLeafNodeRenderer, PreferenceNodeRenderer } from './preference-node-renderer';
-import { PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
+import { IPreferenceNodeRendererContribution, PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
 
 export class PreferenceArrayInputRenderer extends PreferenceLeafNodeRenderer<string[], HTMLInputElement> {
   existingValues = new Map<string, { node: HTMLElement; index: number }>();
@@ -156,6 +156,9 @@ export class PreferenceArrayInputRenderer extends PreferenceLeafNodeRenderer<str
     super.dispose();
   }
 }
+
+
+@Contribution(IPreferenceNodeRendererContribution)
 
 export class PreferenceArrayInputRendererContribution extends PreferenceLeafNodeRendererContribution {
   static ID = 'preference-array-input-renderer';

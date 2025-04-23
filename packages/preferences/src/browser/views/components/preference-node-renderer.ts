@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { IDisposable, InjectableService, PostConstruct, URI, lodashDebounce } from '@gepick/core/common';
+import { Container, IDisposable, IServiceContainer, InjectableService, PostConstruct, URI, createServiceDecorator, lodashDebounce } from '@gepick/core/common';
 import { DOMPurify, IContextMenuRenderer, IOpenerService, IPreferencesManager, JSONValue, PreferencesManager, codicon, open } from "@gepick/core/browser";
 import { IPreferenceNode, Preference, PreferenceInspection, PreferenceMenus } from '../../util/preference-types';
 import { IPreferenceTreeLabelProvider } from '../../util/preference-tree-label-provider';
@@ -24,9 +24,8 @@ import { IPreferenceTreeModel } from '../../preferences-tree-model';
 import { IPreferencesScopeTabBar } from '../preferences-scope-tabbar-widget';
 import { PreferenceDataProperty } from '../../preference-schema';
 import { IPreferenceMarkdownRenderer } from './preference-markdown-renderer';
+import { DefaultPreferenceNodeRendererCreatorRegistry, IPreferenceNodeRendererCreatorRegistry } from './preference-node-renderer-creator';
 
-export const PreferenceNodeRendererFactory = Symbol('PreferenceNodeRendererFactory');
-export type PreferenceNodeRendererFactory = (node: Preference.TreeNode) => PreferenceNodeRenderer;
 export const HEADER_CLASS = 'settings-section-category-title';
 export const SUBHEADER_CLASS = 'settings-section-subcategory-title';
 
@@ -474,3 +473,19 @@ export abstract class PreferenceLeafNodeRenderer<ValueType extends JSONValue, In
    */
   protected abstract doHandleValueChange(): void;
 }
+
+export class PreferenceNodeRendererFactory extends InjectableService {
+  constructor(
+    @IServiceContainer protected readonly serviceContainer: Container,
+  ) {
+    super();
+  }
+
+  createNodeReaderer(node: Preference.TreeNode) {
+    const registry = this.serviceContainer.get<IPreferenceNodeRendererCreatorRegistry>(DefaultPreferenceNodeRendererCreatorRegistry.getServiceId());
+    const creator = registry.getPreferenceNodeRendererCreator(node);
+    return creator.createRenderer(node, this.serviceContainer);
+  }
+}
+export const IPreferenceNodeRendererFactory = createServiceDecorator<IPreferenceNodeRendererFactory>(PreferenceNodeRendererFactory.name);
+export type IPreferenceNodeRendererFactory = PreferenceNodeRendererFactory;

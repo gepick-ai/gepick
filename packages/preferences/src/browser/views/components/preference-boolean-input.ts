@@ -14,10 +14,10 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { interfaces } from '@gepick/core/common';
+import { Contribution, interfaces } from '@gepick/core/common';
 import { Preference } from '../../util/preference-types';
 import { PreferenceLeafNodeRenderer, PreferenceNodeRenderer } from './preference-node-renderer';
-import { PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
+import { IPreferenceNodeRendererContribution, PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
 
 export class PreferenceBooleanInputRenderer extends PreferenceLeafNodeRenderer<boolean, HTMLInputElement> {
   protected createInteractable(parent: HTMLElement): void {
@@ -53,6 +53,7 @@ export class PreferenceBooleanInputRenderer extends PreferenceLeafNodeRenderer<b
   }
 }
 
+@Contribution(IPreferenceNodeRendererContribution)
 export class PreferenceBooleanInputRendererContribution extends PreferenceLeafNodeRendererContribution {
   static ID = 'preference-boolean-input-renderer';
   id = PreferenceBooleanInputRendererContribution.ID;

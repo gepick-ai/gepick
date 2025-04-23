@@ -14,8 +14,8 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Emitter, Event, IContributionProvider, IDisposable, InjectableService, Prioritizeable, createContribution, createServiceDecorator, interfaces, toDisposable } from '@gepick/core/common';
-import { Preference } from '../../util/preference-types';
+import { Contribution, Emitter, Event, IContributionProvider, IDisposable, InjectableService, Prioritizeable, createContribution, createServiceDecorator, interfaces, toDisposable } from '@gepick/core/common';
+import { IPreferenceNode, Preference } from '../../util/preference-types';
 import { PreferenceHeaderRenderer, PreferenceNodeRenderer } from './preference-node-renderer';
 
 export const PreferenceNodeRendererCreatorRegistry = Symbol('PreferenceNodeRendererCreatorRegistry');
@@ -30,6 +30,7 @@ export const PreferenceNodeRendererContribution = Symbol('PreferenceNodeRenderer
 export interface PreferenceNodeRendererContribution {
   registerPreferenceNodeRendererCreator: (registry: PreferenceNodeRendererCreatorRegistry) => void;
 }
+
 export type IPreferenceNodeRendererContribution = PreferenceNodeRendererContribution;
 export const [IPreferenceNodeRendererContribution, IPreferenceNodeRendererContributionProvider] = createContribution<IPreferenceNodeRendererContribution>("PreferenceNodeRendererContribution");
 
@@ -122,6 +123,7 @@ export abstract class PreferenceLeafNodeRendererContribution extends InjectableS
   abstract createLeafNodeRenderer(container: interfaces.Container): PreferenceNodeRenderer;
 }
 
+@Contribution(IPreferenceNodeRendererContribution)
 export class PreferenceHeaderRendererContribution extends InjectableService implements PreferenceNodeRendererCreator, PreferenceNodeRendererContribution {
   static ID = 'preference-header-renderer';
   id = PreferenceHeaderRendererContribution.ID;
@@ -136,7 +138,7 @@ export class PreferenceHeaderRendererContribution extends InjectableService impl
 
   createRenderer(node: Preference.TreeNode, container: interfaces.Container): PreferenceNodeRenderer {
     const grandchild = container.createChild();
-    grandchild.bind(Preference.Node).toConstantValue(node);
-    return grandchild.get(PreferenceHeaderRenderer);
+    grandchild.bind(Symbol.for("Preference.Node")).toConstantValue(node);
+    return grandchild.get(PreferenceHeaderRenderer.getServiceId());
   }
 }

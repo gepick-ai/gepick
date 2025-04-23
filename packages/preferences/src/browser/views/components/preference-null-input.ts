@@ -14,10 +14,10 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { interfaces } from '@gepick/core/common';
+import { Contribution, interfaces } from '@gepick/core/common';
 import { Preference } from '../../util/preference-types';
 import { PreferenceLeafNodeRenderer, PreferenceNodeRenderer } from './preference-node-renderer';
-import { PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
+import { IPreferenceNodeRendererContribution, PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
 
 /** For rendering preference items for which the only interesting feature is the description */
 export class PreferenceNullInputRenderer extends PreferenceLeafNodeRenderer<null, HTMLElement> {
@@ -34,6 +34,7 @@ export class PreferenceNullInputRenderer extends PreferenceLeafNodeRenderer<null
   protected override doHandleValueChange(): void { }
 }
 
+@Contribution(IPreferenceNodeRendererContribution)
 export class PreferenceNullRendererContribution extends PreferenceLeafNodeRendererContribution {
   static ID = 'preference-null-renderer';
   id = PreferenceNullRendererContribution.ID;

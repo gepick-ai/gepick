@@ -34,6 +34,10 @@ export class ServiceContainer extends Container {
 
     return super.get(serviceId) as T;
   }
+
+  static getServiceId() {
+    return Symbol.for(this.name);
+  }
 }
 export const IServiceContainer = createServiceDecorator<IServiceContainer>("ServiceContainer");
 export type IServiceContainer = ServiceContainer;
