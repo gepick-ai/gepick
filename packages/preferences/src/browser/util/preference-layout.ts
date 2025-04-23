@@ -47,122 +47,12 @@ export const DEFAULT_LAYOUT: PreferenceLayout[] = [
   {
     id: 'plugin',
     label: 'Plugin',
-    children: [
-      {
-        id: 'plugin.registry',
-        label: 'Registry',
-        settings: ['plugin.registry*'],
-      },
-      {
-        id: 'plugin.proxy',
-        label: 'Proxy',
-        settings: ['plugin.proxy*'],
-      },
-    ],
+    settings: ['plugin.registry', 'plugin.proxy'],
   },
   {
     id: 'theme',
     label: 'Theme',
-    children: [
-      {
-        id: "theme.background",
-        label: "Background",
-        settings: ['theme.background*'],
-      },
-      {
-        id: 'theme.icon',
-        label: 'Icon',
-        settings: ['theme.icon*'],
-      },
-    ],
-  },
-  {
-    id: 'ai-features',
-    label: 'AI Features',
-    children: [
-      {
-        id: 'ai-features.aiEnablement',
-        label: 'AI Enablement',
-        settings: ['ai-features.AiEnable.*'],
-      },
-      {
-        id: 'ai-features.anthropic',
-        label: 'Anthropic',
-        settings: ['ai-features.anthropic.*'],
-      },
-      {
-        id: 'ai-features.chat',
-        label: ('Chat'),
-        settings: ['ai-features.chat.*'],
-      },
-      {
-        id: 'ai-features.codeCompletion',
-        label: 'Code Completion',
-        settings: ['ai-features.codeCompletion.*'],
-      },
-      {
-        id: 'ai-features.huggingFace',
-        label: 'Hugging Face',
-        settings: ['ai-features.huggingFace.*'],
-      },
-      {
-        id: 'ai-features.mcp',
-        label: 'MCP',
-        settings: ['ai-features.mcp.*'],
-      },
-      {
-        id: 'ai-features.modelSettings',
-        label: 'Model Settings',
-        settings: ['ai-features.modelSettings.*'],
-      },
-      {
-        id: 'ai-features.ollama',
-        label: 'Ollama',
-        settings: ['ai-features.ollama'],
-      },
-      {
-        id: 'ai-features.llamafile',
-        label: 'Llamafile',
-        settings: ['ai-features.llamafile.*'],
-      },
-      {
-        id: 'ai-features.openAiCustom',
-        label: 'Open AI Custom Models',
-        settings: ['ai-features.openAiCustom.*'],
-      },
-      {
-        id: 'ai-features.openAiOfficial',
-        label: 'Open AI Official Models',
-        settings: ['ai-features.openAiOfficial.*'],
-      },
-      {
-        id: 'ai-features.promptTemplates',
-        label: 'Prompt Templates',
-        settings: ['ai-features.promptTemplates.*'],
-      },
-      {
-        id: 'ai-features.SCANOSS',
-        label: 'SCANOSS',
-        settings: ['ai-features.SCANOSS.*'],
-      },
-      {
-        id: 'ai-features.workspaceFunctions',
-        label: 'Workspace Functions',
-        settings: ['ai-features.workspaceFunctions.*'],
-      },
-    ],
-
-  },
-  {
-    id: 'extensions',
-    label: ('Extensions'),
-    children: [
-      {
-        id: 'extensions.hosted-plugin',
-        label: 'Hosted Plugin',
-        settings: ['hosted-plugin.*'],
-      },
-    ],
+    settings: ['theme.background', 'theme.icon'],
   },
 ];
 

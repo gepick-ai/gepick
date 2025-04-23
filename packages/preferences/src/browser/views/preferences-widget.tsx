@@ -1,4 +1,4 @@
-import { IWidgetFactory, Message, Mixin, Panel, StatefulWidget, TreeModelImpl, TreeModule, Widget, codicon } from "@gepick/core/browser";
+import { IWidgetFactory, Message, Mixin, Panel, StatefulWidget, TreeImpl, TreeModelImpl, TreeModule, Widget, codicon } from "@gepick/core/browser";
 import { Contribution, IServiceContainer, InjectableService, PostConstruct, ServiceContainer, createServiceDecorator } from "@gepick/core/common";
 import { PreferenceTreeModel } from "../preferences-tree-model";
 import { IPreferencesEditorWidget, PreferencesEditorWidget } from "./preferences-editor-widget";
@@ -110,7 +110,7 @@ export class PreferencesWidgetFactory extends InjectableService {
   createWidget(container: IServiceContainer) {
     const child = container.createChild({ defaultScope: "Singleton" });
     child.load(new TreeModule(child as any));
-
+    child.rebind(TreeImpl.getServiceId()).to(TreeImpl);
     child.bind(PreferenceTreeModel.getServiceId()).to(PreferenceTreeModel);
     child.bind(PreferencesTreeWidget.getServiceId()).to(PreferencesTreeWidget);
     child.bind(PreferencesWidget.getServiceId()).to(PreferencesWidget);
