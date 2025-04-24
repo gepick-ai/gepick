@@ -1,9 +1,9 @@
 /* eslint-disable ts/no-wrapper-object-types */
 /* eslint-disable ts/no-unsafe-function-type */
 
-// #region BindingToSyntax
+// ========================================BindingToSyntax========================================
 
-export const CONSTANT_VALUE_METADATA_KEY = 'constant';
+export const CONSTANT_VALUE_METADATA_KEY = 'BindingToSyntax.toConstantValue';
 
 /**
  * ```typescript
@@ -28,9 +28,7 @@ export function getConstantValue(target: Object) {
   return constantValue;
 }
 
-// #endregion
-
-// #region BindingInSyntax
+// ========================================BindingInSyntax========================================
 
 export enum BindingScope {
   Singleton = 'Singleton',
@@ -38,24 +36,47 @@ export enum BindingScope {
   Request = 'Request',
 }
 
-export const SCOPE_METADATA_KEY = 'scope';
+export const SCOPE_METADATA_KEY = 'BindingInSyntax:Scope';
+
 /**
  * ```typescript
  *
- * @Scope(BindingScope.Singleton)
+ * @InSingletonScope()
  * class MyService1 extends InjectableService{}
- *
- * @Scope(BindingScope.Transient)
- * class MyService2 extends InjectableService{}
- *
- * @Scope(BindingScope.Request)
- * class MyService2 extends InjectableService{}
  *
  * ```
  */
-export function Scope(scope: BindingScope) {
+export function InSingletonScope() {
   return function (target: Function) {
-    Reflect.defineMetadata(SCOPE_METADATA_KEY, scope, target);
+    Reflect.defineMetadata(SCOPE_METADATA_KEY, BindingScope.Singleton, target);
+  };
+}
+
+/**
+ * ```typescript
+ *
+ * @InTransientScope()
+ * class MyService1 extends InjectableService{}
+ *
+ * ```
+ */
+export function InTransientScope() {
+  return function (target: Function) {
+    Reflect.defineMetadata(SCOPE_METADATA_KEY, BindingScope.Transient, target);
+  };
+}
+
+/**
+ * ```typescript
+ *
+ * @InRequestScope()
+ * class MyService1 extends InjectableService{}
+ *
+ * ```
+ */
+export function InRequestScope() {
+  return function (target: Function) {
+    Reflect.defineMetadata(SCOPE_METADATA_KEY, BindingScope.Request, target);
   };
 }
 
@@ -65,12 +86,67 @@ export function getBindingScope(target: Object): BindingScope {
   return scope;
 }
 
+// ========================================BindingOnSyntax========================================
+export const BindingOnSyntax = {
+  onActivation: 'BindingOnSyntax.onActivation',
+  onDeactivation: 'BindingOnSyntax.onDeactivation',
+};
+
+// #region onActivation
+
+/**
+ * ```typescript
+ *
+ * class MyService1 extends InjectableService {
+ *     @OnActivation()
+ *     handleActivation(context: interfaces.Context, service:MyService1 ) {
+ *         return service
+ *     }
+ * }
+ *
+ * ```
+ */
+export function OnActivation() {
+  return function (target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
+    Reflect.defineMetadata(BindingOnSyntax.onActivation, descriptor.value, target.constructor);
+    return descriptor.value;
+  };
+}
+
+export function getActivationHandler(target: Object) {
+  const activationHandler = Reflect.getMetadata(BindingOnSyntax.onActivation, target);
+
+  return activationHandler;
+}
+
 // #endregion
 
-// #region BindingOnSyntax
+// #region onDeactivation
+
+/**
+ * ```typescript
+ *
+ * class MyService1 extends InjectableService {
+ *     @OnDeactivation()
+ *     handleDeactivation(context: interfaces.Context, service:MyService1 ) {
+ *         return service
+ *     }
+ * }
+ *
+ * ```
+ */
+export function onDeactivation() {
+  return function (target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
+    Reflect.defineMetadata(BindingOnSyntax.onDeactivation, descriptor.value, target.constructor);
+    return descriptor.value;
+  };
+}
+
+export function getDeactivationHandler(target: Object) {
+  const deactivationHandler = Reflect.getMetadata(BindingOnSyntax.onDeactivation, target);
+  return deactivationHandler;
+}
 
 // #endregion
 
-// #region BindingWhenSyntax
-
-// #endregion
+// ========================================BindingWhenSyntax========================================

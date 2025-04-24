@@ -1,4 +1,4 @@
-import { Contribution, Module, ServiceModule, createServiceDecorator } from "@gepick/core/common";
+import { Contribution, InjectableService, Module, OnActivation, ServiceModule, createServiceDecorator, interfaces, onDeactivation } from "@gepick/core/common";
 import { IPreferencesSchema, PreferencesSchema } from "../preferences-schema-contribution";
 import { PreferencesService } from "../preferences-proxy";
 
@@ -62,6 +62,16 @@ export class PluginPreferencesService extends PreferencesService<PluginPreferenc
     @IPluginPreferencesSchema protected readonly pluginPreferencesSchema: IPluginPreferencesSchema,
   ) {
     super(pluginPreferencesSchema);
+  }
+
+  @OnActivation()
+  handleActivation(context: interfaces.Context, injectable: PluginPreferencesService) {
+    // eslint-disable-next-line no-console
+    console.log("🚀 ~ PluginPreferencesService ~ handleActivation ~ injectable:", injectable);
+    // eslint-disable-next-line no-console
+    console.log("🚀 ~ PluginPreferencesService ~ handleActivation ~ context:", context);
+
+    return injectable;
   }
 }
 

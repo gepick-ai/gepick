@@ -1,4 +1,4 @@
-import { inject } from 'inversify';
+import { inject, interfaces } from 'inversify';
 import { Disposable } from '../lifecycle';
 import { ContributionProvider, IContributionProvider } from './contribution-provider';
 

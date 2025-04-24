@@ -15,12 +15,12 @@
 // *****************************************************************************
 
 import { codiconArray } from '@gepick/core/browser';
-import { BindingScope, Contribution, Scope, interfaces } from '@gepick/core/common';
+import { Contribution, InTransientScope, interfaces } from '@gepick/core/common';
 import { Preference } from '../../util/preference-types';
 import { PreferenceLeafNodeRenderer, PreferenceNodeRenderer } from './preference-node-renderer';
 import { IPreferenceNodeRendererContribution, PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
 
-@Scope(BindingScope.Transient)
+@InTransientScope()
 export class PreferenceArrayInputRenderer extends PreferenceLeafNodeRenderer<string[], HTMLInputElement> {
   existingValues = new Map<string, { node: HTMLElement; index: number }>();
   wrapper: HTMLElement;

@@ -3,7 +3,7 @@ import "reflect-metadata";
 import { Container, ContainerModule, decorate, injectable, interfaces } from "inversify";
 import { ServiceConstructor, ServiceIdUtil } from './instantiation';
 import { ContributionProvider } from './contribution-provider';
-import { BindingScope, getBindingScope, getConstantValue } from "./binding-syntax";
+import { BindingScope, getActivationHandler, getBindingScope, getConstantValue, getDeactivationHandler } from "./binding-syntax";
 
 export type ServiceModuleConstructor = (new (container: Container) => ServiceModule);
 
@@ -104,7 +104,8 @@ export abstract class ServiceModule extends ContainerModule {
     const bindingToSyntax = container.bind<T>(serviceId);
 
     if (!this.resolveBindingToConstantValue(bindingToSyntax, target)) {
-      this.resolveBindingInScope<T>(bindingToSyntax, target);
+      const bindingWhenOnSyntax = this.resolveBindingInScope<T>(bindingToSyntax, target);
+      this.resolveBindingOnEvent(bindingWhenOnSyntax, target);
     }
 
     this.resolveBindingToContribution(container, target);
@@ -114,7 +115,9 @@ export abstract class ServiceModule extends ContainerModule {
     const constantValue = getConstantValue(target);
 
     if (constantValue) {
-      bindingToSyntax.toConstantValue(constantValue);
+      const bindingWhenOnSyntax = bindingToSyntax.toConstantValue(constantValue);
+
+      this.resolveBindingOnEvent(bindingWhenOnSyntax, target);
 
       return true;
     }
@@ -157,6 +160,19 @@ export abstract class ServiceModule extends ContainerModule {
       }
 
       container.bind(contributionId).toService(serviceId);
+    }
+  }
+
+  private resolveBindingOnEvent<T extends ServiceConstructor>(bindingOnSyntax: interfaces.BindingOnSyntax<T>, target: T) {
+    const activationHandler = getActivationHandler(target);
+    const deactivationHandler = getDeactivationHandler(target);
+
+    if (activationHandler) {
+      bindingOnSyntax.onActivation(activationHandler);
+    }
+
+    if (deactivationHandler) {
+      bindingOnSyntax.onDeactivation(deactivationHandler);
     }
   }
 }
