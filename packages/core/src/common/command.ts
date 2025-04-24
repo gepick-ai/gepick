@@ -182,6 +182,7 @@ export type ICommandContribution = CommandContribution;
 /**
  * The command registry manages commands and handlers.
  */
+
 export class CommandRegistry extends InjectableService implements CommandService {
   protected readonly _commands: { [id: string]: Command } = {};
   protected readonly _handlers: { [id: string]: CommandHandler[] } = {};
