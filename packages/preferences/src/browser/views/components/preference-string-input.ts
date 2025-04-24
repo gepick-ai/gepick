@@ -14,11 +14,12 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Contribution, interfaces } from '@gepick/core/common';
+import { BindingScope, Contribution, Scope, interfaces } from '@gepick/core/common';
 import { Preference } from '../../util/preference-types';
 import { PreferenceLeafNodeRenderer, PreferenceNodeRenderer } from './preference-node-renderer';
 import { IPreferenceNodeRendererContribution, PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
 
+@Scope(BindingScope.Transient)
 export class PreferenceStringInputRenderer extends PreferenceLeafNodeRenderer<string, HTMLInputElement> {
   protected createInteractable(parent: HTMLElement): void {
     const interactable = document.createElement('input');

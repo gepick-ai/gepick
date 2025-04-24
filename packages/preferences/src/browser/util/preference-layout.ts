@@ -45,14 +45,14 @@ export const COMMONLY_USED_LAYOUT = {
 
 export const DEFAULT_LAYOUT: PreferenceLayout[] = [
   {
-    id: 'plugin',
-    label: 'Plugin',
-    settings: ['plugin.registry', 'plugin.proxy'],
-  },
-  {
     id: 'theme',
     label: 'Theme',
-    settings: ['theme.background', 'theme.icon'],
+    settings: ['theme.*'],
+  },
+  {
+    id: 'plugin',
+    label: 'Plugin',
+    settings: ['plugin.*'],
   },
 ];
 

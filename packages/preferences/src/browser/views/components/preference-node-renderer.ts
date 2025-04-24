@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Container, IDisposable, IServiceContainer, InjectableService, PostConstruct, URI, createServiceDecorator, lodashDebounce } from '@gepick/core/common';
+import { BindingScope, Container, IDisposable, IServiceContainer, InjectableService, PostConstruct, Scope, URI, createServiceDecorator, lodashDebounce } from '@gepick/core/common';
 import { DOMPurify, IContextMenuRenderer, IOpenerService, IPreferencesManager, JSONValue, PreferencesManager, codicon, open } from "@gepick/core/browser";
 import { IPreferenceNode, Preference, PreferenceInspection, PreferenceMenus } from '../../util/preference-types';
 import { IPreferenceTreeLabelProvider } from '../../util/preference-tree-label-provider';
@@ -129,6 +129,7 @@ export abstract class PreferenceNodeRenderer extends InjectableService implement
   }
 }
 
+@Scope(BindingScope.Transient)
 export class PreferenceHeaderRenderer extends PreferenceNodeRenderer {
   protected createDomNode(): HTMLElement {
     const wrapper = document.createElement('ul');

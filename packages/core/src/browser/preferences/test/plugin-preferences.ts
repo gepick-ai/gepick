@@ -16,6 +16,36 @@ export class PluginPreferencesSchema extends PreferencesSchema {
       description: "set the plugin proxy",
       default: 'http://localhost:7890',
     },
+    'plugin.uri': {
+      type: "string",
+      description: "set the plugin uri",
+      default: 'http://localhost:7890',
+    },
+    'plugin.name': {
+      type: "string",
+      description: "set the plugin name",
+      default: 'http://localhost:7890',
+    },
+    'plugin.icon': {
+      type: "string",
+      description: "set the plugin icon",
+      default: 'http://localhost:7890',
+    },
+    'plugin.foo': {
+      type: "string",
+      description: "set the plugin icon",
+      default: 'http://localhost:7890',
+    },
+    'plugin.bar': {
+      type: "string",
+      description: "set the plugin icon",
+      default: 'http://localhost:7890',
+    },
+    'plugin.boo': {
+      type: "string",
+      description: "set the plugin icon",
+      default: 'http://localhost:7890',
+    },
   };
 }
 export const IPluginPreferencesSchema = createServiceDecorator<IPluginPreferencesSchema>(PluginPreferencesSchema.name);
