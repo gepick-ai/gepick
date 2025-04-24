@@ -58,19 +58,19 @@ export abstract class ServiceModule extends ContainerModule {
 
   constructor(container: Container) {
     super((bind) => {
-      this.bindServices(bind, container);
+      this.bindServices(container);
       this.bindFactories(bind, container);
     });
   }
 
-  private bindServices(bind: interfaces.Bind, container: Container) {
+  private bindServices(container: Container) {
     const services = this.getServices();
 
     services.forEach((service) => {
       if (!ServiceIdUtil.isInjectable(service)) {
         decorate(injectable(), service);
       }
-      this.registerService(bind, container, service);
+      this.resolveBinding(container, service);
     });
   }
 
@@ -88,46 +88,43 @@ export abstract class ServiceModule extends ContainerModule {
     return Reflect.getMetadata(MODULE_METADATA.FACTORIES, this.constructor.prototype);
   }
 
-  protected registerService<T extends ServiceConstructor>(bind: interfaces.Bind, container: Container, serviceConstructor: T): void {
-    this.resolveBinding(container, serviceConstructor);
-  }
-
   protected registerFactory<T extends ServiceFactory>(bind: interfaces.Bind, _container: Container, factory: T): void {
     bind(factory.id).toFactory(context => () => factory.handler(context));
   }
 
+  /**
+   * - `bindingToSyntax.toConstantValue`: 可以设计一个ConstantValue装饰器来绑定constant value
+   * - `bindingToSyntax.to`: 默认的服务绑定
+   * - `bindingToSyntax.toFactory`: 我们不需要factory，设计service得时候本身就可以拿到service container，我们可以设计一个create方法，直接绑定service factory class，然后获得的实例来调用create方法也能够获得跟toFactory一样的效果
+   * - `bindingToSyntax.toDynamicValue`: 我们不需要DynamicValue，理由跟toFactory一样
+   * - `bindingToSyntax.toService`: 我们已经设计了contribution这个概念，它就是toService
+   */
   private resolveBinding<T extends ServiceConstructor>(container: Container, target: T) {
-    // bindingToSyntax.toConstantValue
-    // 可以设计一个ConstantValue装饰器来绑定constant value
-
-    // bindingToSyntax.to
-    // 默认的服务绑定
-
-    // bindingToSyntax.toFactory [X]
-    // 我们不需要factory，设计service得时候本身就可以拿到service container，我们可以设计一个create方法，直接绑定service factory class，
-    // 然后获得的实例来调用create方法也能够获得跟toFactory一样的效果
-
-    // bindingToSyntax.toDynamicValue [X]
-    // 我们不需要DynamicValue，理由跟toFactory一样
-
-    // bindingToSyntax.toService [X]
-    // 我们已经设计了contribution这个概念，它就是toService
     const serviceId = target.getServiceId();
     const bindingToSyntax = container.bind<T>(serviceId);
-    const constantValue = getConstantValue(target);
-    if (constantValue) {
-      bindingToSyntax.toConstantValue(constantValue);
-    }
-    else {
-      const bindingInWhenOnSyntax = bindingToSyntax.to(target);
-      this.resolveBindingToScope<T>(bindingInWhenOnSyntax, target);
+
+    if (!this.resolveBindingToConstantValue(bindingToSyntax, target)) {
+      this.resolveBindingInScope<T>(bindingToSyntax, target);
     }
 
     this.resolveBindingToContribution(container, target);
   }
 
-  private resolveBindingToScope<T extends ServiceConstructor>(bindingInWhenOnSyntax: interfaces.BindingInWhenOnSyntax<T>, target: T): interfaces.BindingWhenOnSyntax<T> {
+  private resolveBindingToConstantValue<T extends ServiceConstructor>(bindingToSyntax: interfaces.BindingToSyntax<T>, target: T): boolean {
+    const constantValue = getConstantValue(target);
+
+    if (constantValue) {
+      bindingToSyntax.toConstantValue(constantValue);
+
+      return true;
+    }
+
+    return false;
+  };
+
+  private resolveBindingInScope<T extends ServiceConstructor>(bindingToSyntax: interfaces.BindingToSyntax<T>, target: T): interfaces.BindingWhenOnSyntax<T> {
     const scope = getBindingScope(target);
+    const bindingInWhenOnSyntax = bindingToSyntax.to(target);
 
     switch (scope) {
       case BindingScope.Singleton: {

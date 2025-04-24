@@ -17,7 +17,7 @@
 import debounce from "p-debounce";
 import { Emitter, Event, WaitUntilEvent } from './event';
 import { isObject } from './types';
-import { IContributionProvider, InjectableService, Optional, createContribution, createServiceDecorator } from './instantiation';
+import { IContributionProvider, InjectableService, Optional, createContribution, createServiceDecorator } from './dependency-injection';
 import { DisposableStore, IDisposable, toDisposable } from './lifecycle';
 
 /**

@@ -8,15 +8,15 @@ export const CONSTANT_VALUE_METADATA_KEY = 'constant';
 /**
  * ```typescript
  *
- * @ConstantValue({foo: 'bar'})
+ * @ToConstant({foo: 'bar'})
  * class MyService1 extends InjectableService{}
  *
- * @ConstantValue("foo")
+ * @ToConstant("foo")
  * class MyService2 extends InjectableService{}
  *
  * ```
  */
-export function ConstantValue(value: any) {
+export function ToConstantValue(value: any) {
   return function (target: Function) {
     Reflect.defineMetadata(CONSTANT_VALUE_METADATA_KEY, value, target);
   };

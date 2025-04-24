@@ -16,7 +16,7 @@
 
 import { ICommandRegistry } from '../command';
 import { IDisposable, toDisposable } from '../lifecycle';
-import { InjectableService, createServiceDecorator } from '../instantiation';
+import { InjectableService, createServiceDecorator } from '../dependency-injection';
 import { MenuPath } from './menu-types';
 
 export type MenuCommandArguments = [menuPath: MenuPath, command: string, ...commandArgs: unknown[]];

@@ -1,4 +1,4 @@
-import { Module, ServiceModule } from "../instantiation";
+import { Module, ServiceModule } from "../dependency-injection";
 import { MenuCommandAdapterRegistryImpl, MenuCommandExecutorImpl } from "./menu-adapter";
 import { MenuModelRegistry } from "./menu-model-registry";
 

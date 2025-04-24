@@ -16,7 +16,7 @@
 
 import { Command, ICommandRegistry } from '../command';
 import { Emitter, Event } from '../event';
-import { IContributionProvider, InjectableService, Optional, createContribution, createServiceDecorator } from '../instantiation';
+import { IContributionProvider, InjectableService, Optional, createContribution, createServiceDecorator } from '../dependency-injection';
 import { IDisposable, toDisposable } from '../lifecycle';
 import { CompoundMenuNode, MenuAction, MenuNode, MenuNodeMetadata, MenuPath, MutableCompoundMenuNode, SubMenuOptions } from './menu-types';
 import { CompositeMenuNode, CompositeMenuNodeWrapper } from './composite-menu-node';
