@@ -14,11 +14,12 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { DisposableCollection, Emitter, Event, MenuPath } from "@gepick/core/common";
+import { DisposableCollection, Emitter, Event, IContributionProvider, MenuPath, Optional } from "@gepick/core/common";
 import React from "react";
 import { ReactWidget } from "../widget";
 import { IContextMenuRenderer } from "../menu";
 import { IHoverService } from "../services";
+import { IApplicationContribution, IApplicationContributionProvider } from "../application";
 
 export const SidebarTopMenuWidgetFactory = Symbol('SidebarTopMenuWidgetFactory');
 export const SidebarBottomMenuWidgetFactory = Symbol('SidebarBottomMenuWidgetFactory');
@@ -143,6 +144,7 @@ export class SidebarMenuWidget extends ReactWidget {
   protected onClick(e: React.MouseEvent<HTMLElement, MouseEvent>, menuPath: MenuPath): void {
     this.preservingContext = true;
     const button = e.currentTarget.getBoundingClientRect();
+
     this.contextMenuRenderer.render({
       menuPath,
       includeAnchorArg: false,

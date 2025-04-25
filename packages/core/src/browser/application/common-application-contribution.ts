@@ -1,7 +1,50 @@
-import { Command, Contribution, InjectableService, MANAGE_MENU, createContribution } from '@gepick/core/common';
-import { IShell } from '../shell';
+import { Command, Contribution, IMenuContribution, InjectableService, MAIN_MENU_BAR, MANAGE_MENU, MenuModelRegistry } from '@gepick/core/common';
+import { IShell, SHELL_TABBAR_CONTEXT_CLOSE, SHELL_TABBAR_CONTEXT_COPY, SHELL_TABBAR_CONTEXT_PIN, SHELL_TABBAR_CONTEXT_SPLIT } from '../shell';
 import { codicon } from '../widget';
 import { IApplicationContribution } from './application-contribution';
+
+export namespace CommonMenus {
+
+  export const FILE = [...MAIN_MENU_BAR, '1_file'];
+  export const FILE_NEW_TEXT = [...FILE, '1_new_text'];
+  export const FILE_NEW = [...FILE, '1_new'];
+  export const FILE_OPEN = [...FILE, '2_open'];
+  export const FILE_SAVE = [...FILE, '3_save'];
+  export const FILE_AUTOSAVE = [...FILE, '4_autosave'];
+  export const FILE_SETTINGS = [...FILE, '5_settings'];
+  export const FILE_SETTINGS_SUBMENU = [...FILE_SETTINGS, '1_settings_submenu'];
+  export const FILE_SETTINGS_SUBMENU_OPEN = [...FILE_SETTINGS_SUBMENU, '1_settings_submenu_open'];
+  export const FILE_SETTINGS_SUBMENU_THEME = [...FILE_SETTINGS_SUBMENU, '2_settings_submenu_theme'];
+  export const FILE_CLOSE = [...FILE, '6_close'];
+
+  export const FILE_NEW_CONTRIBUTIONS = 'file/newFile';
+
+  export const EDIT = [...MAIN_MENU_BAR, '2_edit'];
+  export const EDIT_UNDO = [...EDIT, '1_undo'];
+  export const EDIT_CLIPBOARD = [...EDIT, '2_clipboard'];
+  export const EDIT_FIND = [...EDIT, '3_find'];
+
+  export const VIEW = [...MAIN_MENU_BAR, '4_view'];
+  export const VIEW_PRIMARY = [...VIEW, '0_primary'];
+  export const VIEW_APPEARANCE = [...VIEW, '1_appearance'];
+  export const VIEW_APPEARANCE_SUBMENU = [...VIEW_APPEARANCE, '1_appearance_submenu'];
+  export const VIEW_APPEARANCE_SUBMENU_SCREEN = [...VIEW_APPEARANCE_SUBMENU, '2_appearance_submenu_screen'];
+  export const VIEW_APPEARANCE_SUBMENU_BAR = [...VIEW_APPEARANCE_SUBMENU, '3_appearance_submenu_bar'];
+  export const VIEW_EDITOR_SUBMENU = [...VIEW_APPEARANCE, '2_editor_submenu'];
+  export const VIEW_EDITOR_SUBMENU_SPLIT = [...VIEW_EDITOR_SUBMENU, '1_editor_submenu_split'];
+  export const VIEW_EDITOR_SUBMENU_ORTHO = [...VIEW_EDITOR_SUBMENU, '2_editor_submenu_ortho'];
+  export const VIEW_VIEWS = [...VIEW, '2_views'];
+  export const VIEW_LAYOUT = [...VIEW, '3_layout'];
+  export const VIEW_TOGGLE = [...VIEW, '4_toggle'];
+
+  export const MANAGE_GENERAL = [...MANAGE_MENU, '1_manage_general'];
+  export const MANAGE_SETTINGS = [...MANAGE_MENU, '2_manage_settings'];
+  export const MANAGE_SETTINGS_THEMES = [...MANAGE_SETTINGS, '1_manage_settings_themes'];
+
+  // last menu item
+  export const HELP = [...MAIN_MENU_BAR, '9_help'];
+
+}
 
 export namespace CommonCommands {
 
@@ -283,6 +326,182 @@ export class CommonApplicationContribution extends InjectableService implements 
         menuPath: MANAGE_MENU,
         order: 0,
       });
+    });
+  }
+}
+
+@Contribution(IMenuContribution)
+export class CommonMenusContribution extends InjectableService implements IMenuContribution {
+  registerMenus(registry: MenuModelRegistry): void {
+    registry.registerSubmenu(CommonMenus.FILE, 'File');
+    registry.registerSubmenu(CommonMenus.EDIT, 'Edit');
+    registry.registerSubmenu(CommonMenus.VIEW, 'View');
+    registry.registerSubmenu(CommonMenus.HELP, 'Help');
+
+    // For plugins contributing create new file commands/menu-actions
+    registry.registerIndependentSubmenu(CommonMenus.FILE_NEW_CONTRIBUTIONS, 'New File...');
+
+    registry.registerMenuAction(CommonMenus.FILE_SAVE, {
+      commandId: CommonCommands.SAVE.id,
+    });
+    registry.registerMenuAction(CommonMenus.FILE_SAVE, {
+      commandId: CommonCommands.SAVE_ALL.id,
+    });
+
+    registry.registerMenuAction(CommonMenus.FILE_AUTOSAVE, {
+      commandId: CommonCommands.AUTO_SAVE.id,
+    });
+
+    registry.registerSubmenu(CommonMenus.FILE_SETTINGS_SUBMENU, CommonCommands.PREFERENCES_CATEGORY);
+
+    registry.registerMenuAction(CommonMenus.EDIT_UNDO, {
+      commandId: CommonCommands.UNDO.id,
+      order: '0',
+    });
+    registry.registerMenuAction(CommonMenus.EDIT_UNDO, {
+      commandId: CommonCommands.REDO.id,
+      order: '1',
+    });
+
+    registry.registerMenuAction(CommonMenus.EDIT_FIND, {
+      commandId: CommonCommands.FIND.id,
+      order: '0',
+    });
+    registry.registerMenuAction(CommonMenus.EDIT_FIND, {
+      commandId: CommonCommands.REPLACE.id,
+      order: '1',
+    });
+
+    registry.registerMenuAction(CommonMenus.EDIT_CLIPBOARD, {
+      commandId: CommonCommands.CUT.id,
+      order: '0',
+    });
+    registry.registerMenuAction(CommonMenus.EDIT_CLIPBOARD, {
+      commandId: CommonCommands.COPY.id,
+      order: '1',
+    });
+    registry.registerMenuAction(CommonMenus.EDIT_CLIPBOARD, {
+      commandId: CommonCommands.PASTE.id,
+      order: '2',
+    });
+    registry.registerMenuAction(CommonMenus.EDIT_CLIPBOARD, {
+      commandId: CommonCommands.COPY_PATH.id,
+      order: '3',
+    });
+
+    registry.registerMenuAction(CommonMenus.VIEW_APPEARANCE_SUBMENU_BAR, {
+      commandId: CommonCommands.TOGGLE_BOTTOM_PANEL.id,
+      order: '1',
+    });
+    registry.registerMenuAction(CommonMenus.VIEW_APPEARANCE_SUBMENU_BAR, {
+      commandId: CommonCommands.TOGGLE_STATUS_BAR.id,
+      order: '2',
+      label: 'Toggle Status Bar Visibility',
+    });
+    registry.registerMenuAction(CommonMenus.VIEW_APPEARANCE_SUBMENU_BAR, {
+      commandId: CommonCommands.COLLAPSE_ALL_PANELS.id,
+      order: '3',
+    });
+
+    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_CLOSE, {
+      commandId: CommonCommands.CLOSE_TAB.id,
+      label: 'Close',
+      order: '0',
+    });
+    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_CLOSE, {
+      commandId: CommonCommands.CLOSE_OTHER_TABS.id,
+      label: 'Close Others',
+      order: '1',
+    });
+    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_CLOSE, {
+      commandId: CommonCommands.CLOSE_RIGHT_TABS.id,
+      label: 'Close to the Right',
+      order: '2',
+    });
+    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_CLOSE, {
+      commandId: CommonCommands.CLOSE_SAVED_TABS.id,
+      label: 'Close Saved',
+      order: '3',
+    });
+    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_CLOSE, {
+      commandId: CommonCommands.CLOSE_ALL_TABS.id,
+      label: 'Close All',
+      order: '4',
+    });
+    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_SPLIT, {
+      commandId: CommonCommands.COLLAPSE_PANEL.id,
+      label: CommonCommands.COLLAPSE_PANEL.label,
+      order: '5',
+    });
+    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_SPLIT, {
+      commandId: CommonCommands.TOGGLE_MAXIMIZED.id,
+      label: CommonCommands.TOGGLE_MAXIMIZED.label,
+      order: '6',
+    });
+    registry.registerMenuAction(CommonMenus.VIEW_APPEARANCE_SUBMENU_SCREEN, {
+      commandId: CommonCommands.TOGGLE_MAXIMIZED.id,
+      label: CommonCommands.TOGGLE_MAXIMIZED.label,
+      order: '6',
+    });
+    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_COPY, {
+      commandId: CommonCommands.COPY_PATH.id,
+      label: CommonCommands.COPY_PATH.label,
+      order: '1',
+    });
+    registry.registerMenuAction(CommonMenus.VIEW_APPEARANCE_SUBMENU_BAR, {
+      commandId: CommonCommands.SHOW_MENU_BAR.id,
+      label: 'Toggle Menu Bar',
+      order: '0',
+    });
+    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_PIN, {
+      commandId: CommonCommands.PIN_TAB.id,
+      label: 'Pin',
+      order: '7',
+    });
+    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_PIN, {
+      commandId: CommonCommands.UNPIN_TAB.id,
+      label: 'Unpin',
+      order: '8',
+    });
+    registry.registerMenuAction(CommonMenus.HELP, {
+      commandId: CommonCommands.ABOUT_COMMAND.id,
+      label: CommonCommands.ABOUT_COMMAND.label,
+      order: '9',
+    });
+
+    registry.registerMenuAction(CommonMenus.VIEW_PRIMARY, {
+      commandId: CommonCommands.OPEN_VIEW.id,
+    });
+
+    registry.registerMenuAction(CommonMenus.FILE_SETTINGS_SUBMENU_THEME, {
+      commandId: CommonCommands.SELECT_COLOR_THEME.id,
+    });
+    registry.registerMenuAction(CommonMenus.FILE_SETTINGS_SUBMENU_THEME, {
+      commandId: CommonCommands.SELECT_ICON_THEME.id,
+    });
+
+    registry.registerSubmenu(CommonMenus.MANAGE_SETTINGS_THEMES, 'Themes', { order: 'a50' });
+    registry.registerMenuAction(CommonMenus.MANAGE_SETTINGS_THEMES, {
+      commandId: CommonCommands.SELECT_COLOR_THEME.id,
+      order: '0',
+    });
+    registry.registerMenuAction(CommonMenus.MANAGE_SETTINGS_THEMES, {
+      commandId: CommonCommands.SELECT_ICON_THEME.id,
+      order: '1',
+    });
+
+    registry.registerSubmenu(CommonMenus.VIEW_APPEARANCE_SUBMENU, 'Appearance');
+
+    registry.registerMenuAction(CommonMenus.FILE_NEW_TEXT, {
+      commandId: CommonCommands.NEW_UNTITLED_TEXT_FILE.id,
+      label: 'New Text File',
+      order: 'a',
+    });
+
+    registry.registerMenuAction(CommonMenus.FILE_NEW_TEXT, {
+      commandId: CommonCommands.PICK_NEW_FILE.id,
+      label: 'New File...',
+      order: 'a1',
     });
   }
 }

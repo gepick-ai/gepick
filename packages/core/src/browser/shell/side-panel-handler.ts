@@ -404,6 +404,7 @@ export class SidePanelHandler extends InjectableService {
 
     const sidebarLayout = new PanelLayout();
     sidebarLayout.addWidget(this.tabBar);
+    sidebarLayout.addWidget(this.bottomMenu);
     const sidebarPanel = new Panel({ layout: sidebarLayout });
     sidebarPanel.addClass('theia-app-sidebar-container');
 
@@ -411,7 +412,6 @@ export class SidePanelHandler extends InjectableService {
     // 往container layout添加两个widget，分别是sidebarContainer和contentPanel
     containerLayout.addWidget(sidebarPanel);
     containerLayout.addWidget(contentPanel);
-    containerLayout.addWidget(this.bottomMenu);
 
     BoxPanel.setStretch(sidebarPanel, 0);
     BoxPanel.setStretch(contentPanel, 1);

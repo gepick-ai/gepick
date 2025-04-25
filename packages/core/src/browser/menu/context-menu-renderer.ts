@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { DisposableCollection, DisposableStore, IDisposable, InjectableService, MenuPath } from '@gepick/core/common';
+import { DisposableCollection, IDisposable, InjectableService, MenuPath } from '@gepick/core/common';
 import { ContextMatcher } from './context-key-service';
 
 export interface Coordinate { x: number; y: number }
@@ -46,7 +46,7 @@ export abstract class ContextMenuAccess implements IDisposable {
 
 export abstract class ContextMenuRenderer extends InjectableService {
   protected _current: ContextMenuAccess | undefined;
-  protected readonly toDisposeOnSetCurrent = new DisposableStore();
+  protected readonly toDisposeOnSetCurrent = new DisposableCollection();
   /**
    * Currently opened context menu.
    * Rendering a new context menu will close the current.
@@ -62,10 +62,10 @@ export abstract class ContextMenuRenderer extends InjectableService {
     this.toDisposeOnSetCurrent.dispose();
     this._current = current;
     if (current) {
-      this.toDisposeOnSetCurrent.add(current.onDispose(() => {
+      this.toDisposeOnSetCurrent.push(current.onDispose(() => {
         this._current = undefined;
       }));
-      this.toDisposeOnSetCurrent.add(current);
+      this.toDisposeOnSetCurrent.push(current);
     }
   }
 

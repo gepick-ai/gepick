@@ -1,4 +1,4 @@
-import { IContributionProvider, InjectableService, Optional, createServiceDecorator, isOSX } from '@gepick/core/common';
+import { IContributionProvider, IMenuModelRegistry, InjectableService, Optional, createServiceDecorator, isOSX } from '@gepick/core/common';
 import { Widget } from '../widget';
 import { IShell, IView, IViewProvider } from "../shell";
 import { animationFrame, preventNavigation } from '../services';
@@ -14,6 +14,7 @@ export class Application extends InjectableService {
     @IApplicationStateService protected readonly stateService: IApplicationStateService,
     @IShell private readonly shell: IShell,
     @IViewProvider private readonly viewProvider: IContributionProvider<IView>,
+    @IMenuModelRegistry protected readonly menuModelRegistry: IMenuModelRegistry,
   ) {
     super();
   }
@@ -71,7 +72,7 @@ export class Application extends InjectableService {
   protected async initializeLayout(): Promise<void> {
     const views = this.viewProvider.getContributions();
     views.forEach(view => view.onShellLayoutInit());
-
+    this.menuModelRegistry.onStart();
     await this.shell.pendingUpdates;
   }
 

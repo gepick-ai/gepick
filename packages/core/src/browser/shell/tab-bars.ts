@@ -32,6 +32,17 @@ import { TabBarToolbar, TabBarToolbarRegistry } from './tab-bar-toolbar';
 import { MAIN_AREA_ID, TheiaDockPanel } from './side-panel-handler';
 import { ITabBarDecoratorService } from './tab-bar-decorator';
 
+/** The class name added to hidden content nodes, which are required to render vertical side bars. */
+const HIDDEN_CONTENT_CLASS = 'theia-TabBar-hidden-content';
+
+/** Menu path for tab bars used throughout the application shell. */
+export const SHELL_TABBAR_CONTEXT_MENU: MenuPath = ['shell-tabbar-context-menu'];
+export const SHELL_TABBAR_CONTEXT_CLOSE: MenuPath = [...SHELL_TABBAR_CONTEXT_MENU, '0_close'];
+export const SHELL_TABBAR_CONTEXT_COPY: MenuPath = [...SHELL_TABBAR_CONTEXT_MENU, '1_copy'];
+// Kept here in anticipation of tab pinning behavior implemented in tab-bars.ts
+export const SHELL_TABBAR_CONTEXT_PIN: MenuPath = [...SHELL_TABBAR_CONTEXT_MENU, '4_pin'];
+export const SHELL_TABBAR_CONTEXT_SPLIT: MenuPath = [...SHELL_TABBAR_CONTEXT_MENU, '5_split'];
+
 export interface TabBarPrivateMethods {
   _releaseMouse: () => void;
 }
@@ -39,9 +50,6 @@ export interface TabBarPrivateMethods {
 export function notEmpty<T>(arg: T | undefined | null): arg is T {
   return arg !== undefined && arg !== null;
 }
-
-/** The class name added to hidden content nodes, which are required to render vertical side bars. */
-const HIDDEN_CONTENT_CLASS = 'theia-TabBar-hidden-content';
 
 // export const TabBarRendererFactory = Symbol('TabBarRendererFactory');
 

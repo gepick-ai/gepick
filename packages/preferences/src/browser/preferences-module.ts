@@ -18,6 +18,7 @@ import { PreferenceJSONLinkRenderer, PreferenceJSONLinkRendererContribution } fr
 import { PreferenceHeaderRenderer } from "./views/components/preference-node-renderer";
 import { DefaultPreferenceNodeRendererCreatorRegistry, PreferenceHeaderRendererContribution } from "./views/components/preference-node-renderer-creator";
 import { PreferenceSingleFilePathInputRenderer, PreferenceSingleFilePathInputRendererContribution } from "./views/components/preference-file-input";
+import { PreferencesMenuContribution } from "./view/preferences-menu-contribution";
 
 @Module({
   services: [
@@ -79,6 +80,8 @@ import { PreferenceSingleFilePathInputRenderer, PreferenceSingleFilePathInputRen
     // #region DefaultPreferenceNodeRendererCreatorRegistry
     DefaultPreferenceNodeRendererCreatorRegistry,
     // #endregion
+
+    PreferencesMenuContribution,
   ],
 })
 export class PreferencesViewModule extends ServiceModule {}
