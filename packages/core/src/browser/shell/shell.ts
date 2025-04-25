@@ -180,13 +180,11 @@ export class Shell extends BaseWidget {
     this.mainPanel = this.createMainPanel();
 
     // 创建一个左中右分割布局面板
-    const leftRightLayoutPanel = new SplitPanel({ layout: this.createSplitLayout([this.leftPanel, this.mainPanel], [1, 3], { orientation: 'horizontal', spacing: 0 }) });
+    const leftRightLayoutPanel = new SplitPanel({ layout: this.createSplitLayout([this.leftPanel, this.mainPanel], [0, 1], { orientation: 'horizontal', spacing: 0 }) });
     leftRightLayoutPanel.id = 'theia-left-right-split-panel';
 
     // 创建一个从上到下的单列布局
-    const boxLayout = this.createBoxLayout([leftRightLayoutPanel], [1], { direction: 'top-to-bottom', spacing: 0 });
-
-    return boxLayout;
+    return this.createBoxLayout([leftRightLayoutPanel]);
   }
 
   protected createSidePanel(): BoxPanel {

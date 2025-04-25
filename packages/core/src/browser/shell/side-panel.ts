@@ -167,7 +167,7 @@ export class SidePanelHandler {
    */
   createSidePanel(options: SidePanel.Options): void {
     this.options = options;
-    this.tabBar = this.createTabBar();
+    this.tabBar = this.createSideBar();
     this.dockPanel = this.createDockPanel();
     this.container = this.createContainer();
 
@@ -197,7 +197,7 @@ export class SidePanelHandler {
     return boxPanel;
   }
 
-  protected createTabBar(): SideTabBar {
+  protected createSideBar(): SideTabBar {
     const tabBarRenderer = new TabBarRenderer();
     const sideBar = new SideTabBar({
       // Tab bar options
@@ -225,7 +225,7 @@ export class SidePanelHandler {
       }
     }, this);
     sideBar.tabCloseRequested.connect((sender, { title }) => title.owner.close());
-    sideBar.collapseRequested.connect(() => this.collapse(), this);
+    sideBar.collapseRequested.connect(() => { this.collapse(); }, this);
     sideBar.currentChanged.connect(this.handleCurrentTabChanged, this);
     sideBar.tabDetachRequested.connect(this.handleTabDetachRequested, this);
 
