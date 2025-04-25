@@ -30,3 +30,4 @@ export * from "./tree-label-provider";
 export * from "./tree-selection-impl";
 export * from "./search-box";
 export * from "./fuzzy-search";
+export * from "./tree-preference";

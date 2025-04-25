@@ -1,6 +1,6 @@
-import { IWidgetFactory, IWidgetManager, Message, PanelLayout, ViewContainer, ViewContainerIdentifier, ViewContainerPart, codicon } from "@gepick/core/browser";
+import { IWidgetFactory, IWidgetManager, Message, PanelLayout, ViewContainer, ViewContainerIdentifier, ViewContainerPart, WidgetManager, codicon } from "@gepick/core/browser";
 import { Contribution, IServiceContainer, InjectableService, PostConstruct, createServiceDecorator } from "@gepick/core/common";
-import { IPluginSearchBarWidget, IPluginSearchModel, PluginSearchMode } from "../search";
+import { IPluginSearchBarWidget, IPluginSearchModel, PluginSearchBarWidget, PluginSearchMode } from "../search";
 import { PluginListModelOptions, PluginListWidget } from "../plugin";
 
 export class PluginRegistryViewContainer extends ViewContainer {
@@ -170,11 +170,16 @@ export class PluginRegistryViewContainerFactory extends InjectableService {
   }
 
   async createWidget(container: IServiceContainer) {
-    const viewContainer = container.get<IPluginsViewContainer>(IPluginsViewContainer);
-    const widgetManager = container.get<IWidgetManager>(IWidgetManager);
+    const child = container.createChild();
+
+    child.bind(PluginRegistryViewContainer.getServiceId()).to(PluginRegistryViewContainer);
+    child.bind(PluginSearchBarWidget.getServiceId()).to(PluginSearchBarWidget).inSingletonScope();
+    const viewContainer = child.get<IPluginsViewContainer>(PluginRegistryViewContainer.getServiceId());
+    const widgetManager = child.get<IWidgetManager>(WidgetManager.getServiceId());
     for (const id of [
       PluginListModelOptions.SEARCH_RESULT,
       PluginListModelOptions.INSTALLED,
+      PluginListModelOptions.RECOMMENDED,
       PluginListModelOptions.BUILT_IN,
     ]) {
       const widget = await widgetManager.getOrCreateWidget(PluginListWidget.ID, { id });

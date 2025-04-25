@@ -7,4 +7,9 @@ export interface IApplicationContribution {
    */
   onApplicationInit?: () => void;
 
+  /**
+   * 应用启动
+   */
+  onApplicationStart?: () => void;
+
 }

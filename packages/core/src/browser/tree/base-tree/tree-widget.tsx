@@ -14,38 +14,26 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Message } from '@lumino/messaging';
-import * as React from 'react';
-import { Virtuoso, VirtuosoHandle, VirtuosoProps } from 'react-virtuoso';
-import { ElementExt } from '@lumino/domutils';
-import { useEffect } from 'react';
-import debounce from 'lodash.debounce';
-import { ISelectionService, InjectableService, Key, KeyCode, KeyModifier, MaybePromise, MenuPath, PostConstruct, createServiceDecorator, isOSX, notEmpty, toDisposable } from '@gepick/core/common';
-import { IContextMenuRenderer } from '../../menu';
-import { StatefulWidget } from '../../shell';
-import {
-  BUSY_CLASS,
-  CODICON_LOADING_CLASSES,
-  CODICON_TREE_ITEM_CLASSES,
-  COLLAPSED_CLASS,
-  EXPANSION_TOGGLE_CLASS,
-  FOCUS_CLASS,
-  ReactWidget,
-  SELECTED_CLASS,
-  UnsafeWidgetUtilities,
-  Widget,
-} from '../../widget';
-import { ILabelProvider } from '../../label';
-import { CompositeTreeNode, TreeNode } from './tree';
-import { ITreeModel, TreeModel } from './tree-model';
-import { ExpandableTreeNode } from './tree-expansion';
-import { SelectableTreeNode, TreeSelection } from './tree-selection';
-import { DecoratedTreeNode, INoopTreeDecoratorService, TreeDecoration } from './tree-decorator';
-import { TopDownTreeIterator } from './tree-iterator';
-import { ISearchBoxFactory, SearchBox, SearchBoxProps } from './search-box';
-import { ITreeSearch } from './tree-search';
-import { TreeWidgetSelection } from './tree-widget-selection';
-import { ITreeFocusService } from './tree-focus-service';
+import { ISelectionService, InjectableService, Key, KeyCode, KeyModifier, MaybePromise, MenuPath, PostConstruct, createServiceDecorator, isOSX, lodashDebounce, notEmpty, toDisposable } from "@gepick/core/common";
+import { Virtuoso, VirtuosoHandle, VirtuosoProps } from "react-virtuoso";
+import React, { useEffect } from "react";
+import { ElementExt } from "@lumino/domutils";
+import { BUSY_CLASS, CODICON_LOADING_CLASSES, CODICON_TREE_ITEM_CLASSES, COLLAPSED_CLASS, EXPANSION_TOGGLE_CLASS, FOCUS_CLASS, Message, ReactWidget, SELECTED_CLASS, UnsafeWidgetUtilities, Widget } from "../../widget";
+import { StatefulWidget } from "../../shell";
+import { ILabelProvider } from "../../label";
+import { IContextMenuRenderer } from "../../menu";
+import { IPreferenceDiff, IPreferencesManager } from "../../preferences";
+import { ISearchBoxFactory, SearchBox, SearchBoxProps } from "./search-box";
+import { DecoratedTreeNode, INoopTreeDecoratorService, TreeDecoration } from "./tree-decorator";
+import { TreeWidgetSelection } from "./tree-widget-selection";
+import { TopDownTreeIterator } from "./tree-iterator";
+import { CompositeTreeNode, TreeNode } from "./tree";
+import { SelectableTreeNode, TreeSelection } from "./tree-selection";
+import { ITreeModel, TreeModel } from "./tree-model";
+import { ExpandableTreeNode } from "./tree-expansion";
+import { ITreeSearch } from "./tree-search";
+import { ITreeFocusService } from "./tree-focus-service";
+import { PREFERENCE_NAME_TREE_INDENT } from "./tree-preference";
 
 export const TREE_CLASS = 'theia-Tree';
 export const TREE_CONTAINER_CLASS = 'theia-TreeContainer';
@@ -128,14 +116,6 @@ export interface NodeProps {
 
 }
 
-/**
- * The default tree properties.
- */
-export const defaultTreeProps: TreeProps = {
-  leftPadding: 8,
-  expansionTogglePadding: 22,
-};
-
 export class DefaultTreeProps extends InjectableService {
   static override name = 'TreeProps';
 
@@ -150,12 +130,45 @@ export class DefaultTreeProps extends InjectableService {
 export const ITreeProps = createServiceDecorator<ITreeProps>(DefaultTreeProps.name);
 export interface ITreeProps extends TreeProps {}
 
+/**
+ * The default tree properties.
+ */
+export const defaultTreeProps: TreeProps = {
+  leftPadding: 8,
+  expansionTogglePadding: 22,
+};
+
+export namespace TreeWidget {
+
+  /**
+   * Bare minimum common interface of the keyboard and the mouse event with respect to the key maskings.
+   */
+  export interface ModifierAwareEvent {
+    /**
+     * Determines if the modifier aware event has the `meta` key masking.
+     */
+    readonly metaKey: boolean;
+    /**
+     * Determines if the modifier aware event has the `ctrl` key masking.
+     */
+    readonly ctrlKey: boolean;
+    /**
+     * Determines if the modifier aware event has the `shift` key masking.
+     */
+    readonly shiftKey: boolean;
+  }
+
+}
+
 export class TreeWidget extends ReactWidget implements StatefulWidget {
   protected searchBox: SearchBox;
   protected searchHighlights: Map<string, TreeDecoration.CaptionHighlight>;
-  protected shouldScrollToRow = true;
-  protected treeIndent: number = 8;
+
   protected decorations: Map<string, TreeDecoration.Data[]> = new Map();
+
+  protected shouldScrollToRow = true;
+
+  protected treeIndent: number = 8;
 
   constructor(
     @INoopTreeDecoratorService protected readonly decoratorService: INoopTreeDecoratorService,
@@ -167,6 +180,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
     @ISearchBoxFactory protected readonly searchBoxFactory: ISearchBoxFactory,
     @ITreeProps readonly props: ITreeProps,
     @IContextMenuRenderer protected readonly contextMenuRenderer: IContextMenuRenderer,
+    @IPreferencesManager protected readonly preferenceService: IPreferencesManager,
   ) {
     super();
     this.scrollOptions = {
@@ -179,12 +193,13 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
 
   @PostConstruct()
   protected init(): void {
+    this.treeIndent = this.preferenceService.get(PREFERENCE_NAME_TREE_INDENT, this.treeIndent);
     if (this.props.search) {
       this.searchBox = this.searchBoxFactory.createSearchBox({ ...SearchBoxProps.DEFAULT, showButtons: true, showFilter: true });
       this.searchBox.node.addEventListener('focus', () => {
         this.node.focus();
       });
-      [
+      this.toDispose.pushAll([
         this.searchBox,
         this.searchBox.onTextChange(async (data) => {
           await this.treeSearch.filter(data);
@@ -196,7 +211,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
           });
           this.update();
         }),
-        this.searchBox.onClose(() => this.treeSearch.filter(undefined)),
+        this.searchBox.onClose(_data => this.treeSearch.filter(undefined)),
         this.searchBox.onNext(() => {
           // Enable next selection if there are currently highlights.
           if (this.searchHighlights.size > 1) {
@@ -222,12 +237,12 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
             this.model.selectNode(node);
           }
         }),
-      ].forEach(d => this.toDispose.push(d));
+      ]);
     }
     this.node.addEventListener('mousedown', this.handleMiddleClickEvent.bind(this));
     this.node.addEventListener('mouseup', this.handleMiddleClickEvent.bind(this));
     this.node.addEventListener('auxclick', this.handleMiddleClickEvent.bind(this));
-    [
+    this.toDispose.pushAll([
       this.model,
       this.model.onChanged(() => this.updateRows()),
       this.model.onSelectionChanged(() => this.scheduleUpdateScrollToRow()),
@@ -246,13 +261,19 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
           }
         }
       }),
-    ].forEach(d => this.toDispose.push(d));
+      this.preferenceService.onPreferenceChanged((event: IPreferenceDiff) => {
+        if (event.preferenceName === PREFERENCE_NAME_TREE_INDENT) {
+          this.treeIndent = event.newValue;
+          this.update();
+        }
+      }),
+    ]);
     setTimeout(() => {
       this.updateRows();
       this.updateDecorations();
     });
     if (this.props.globalSelection) {
-      [
+      this.toDispose.pushAll([
         this.model.onSelectionChanged(() => {
           if (this.node.contains(document.activeElement)) {
             this.updateGlobalSelection();
@@ -265,14 +286,14 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
         }),
         toDisposable(() => {
           const selection = this.selectionService.selection;
-          if (TreeWidgetSelection.isSource(selection, this)) {
+          if (TreeWidgetSelection.isSource(selection, this as any)) {
             this.selectionService.selection = undefined;
           }
         }),
-      ].forEach(d => this.toDispose.push(d));
+      ]);
 
       this.node.addEventListener('focusin', () => {
-        if (this.model.selectedNodes.length && (!this.selectionService.selection || !TreeWidgetSelection.isSource(this.selectionService.selection, this))) {
+        if (this.model.selectedNodes.length && (!this.selectionService.selection || !TreeWidgetSelection.isSource(this.selectionService.selection, this as any))) {
           this.updateGlobalSelection();
         }
       });
@@ -283,11 +304,11 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
    * Update the global selection for the tree.
    */
   protected updateGlobalSelection(): void {
-    this.selectionService.selection = TreeWidgetSelection.create(this);
+    this.selectionService.selection = TreeWidgetSelection.create(this as any);
   }
 
   protected rows = new Map<string, TreeWidget.NodeRow>();
-  protected updateRows = debounce(() => this.doUpdateRows(), 10);
+  protected updateRows = lodashDebounce(() => this.doUpdateRows(), 10);
   protected doUpdateRows(): void {
     const root = this.model.root;
     const rowsToUpdate: Array<[string, TreeWidget.NodeRow]> = [];
@@ -307,7 +328,6 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
         }
       }
     }
-
     this.rows = new Map(rowsToUpdate);
     this.update();
   }
@@ -339,7 +359,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
     this.update();
   }
 
-  protected scheduleUpdateScrollToRow = debounce(this.updateScrollToRow);
+  protected scheduleUpdateScrollToRow = lodashDebounce(this.updateScrollToRow);
 
   /**
    * Get the `scrollToRow`.
@@ -358,9 +378,10 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
    * Update tree decorations.
    * - Updating decorations are debounced in order to limit the number of expensive updates.
    */
-  protected readonly updateDecorations = debounce(() => this.doUpdateDecorations(), 150);
+  protected readonly updateDecorations = lodashDebounce(() => this.doUpdateDecorations(), 150);
   protected async doUpdateDecorations(): Promise<void> {
-    this.decorations = await this.decoratorService.getDecorations();
+    // @ts-ignore
+    this.decorations = await this.decoratorService.getDecorations(this.model);
     this.update();
   }
 
@@ -457,10 +478,11 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
         return <this.ScrollingRowRenderer rows={rows} />;
       }
       return (
+      // @ts-ignore
         <TreeWidget.View
           ref={view => this.view = (view || undefined)}
-          width={this.node.offsetWidth as any}
-          height={this.node.offsetHeight as any}
+          width={this.node.offsetWidth}
+          height={this.node.offsetHeight}
           rows={rows}
           renderNodeRow={this.renderNodeRow}
           scrollToRow={this.scrollToRow}
@@ -762,7 +784,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
    * @param props the node properties.
    * @param affixKey the affix key.
    */
-  protected renderCaptionAffixes(node: TreeNode, _props: NodeProps, affixKey: 'captionPrefixes' | 'captionSuffixes'): React.ReactNode {
+  protected renderCaptionAffixes(node: TreeNode, props: NodeProps, affixKey: 'captionPrefixes' | 'captionSuffixes'): React.ReactNode {
     const suffix = affixKey === 'captionSuffixes';
     const affixClass = suffix ? TreeDecoration.Styles.CAPTION_SUFFIX_CLASS : TreeDecoration.Styles.CAPTION_PREFIX_CLASS;
     const classes = [TREE_NODE_SEGMENT_CLASS, affixClass];
@@ -847,7 +869,7 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
     return this.renderTailDecorationsForNode(node, props, tailDecorations);
   }
 
-  protected renderTailDecorationsForNode(node: TreeNode, _props: NodeProps, tailDecorations: TreeDecoration.TailDecoration.AnyPartial[]): React.ReactNode {
+  protected renderTailDecorationsForNode(node: TreeNode, props: NodeProps, tailDecorations: TreeDecoration.TailDecoration.AnyPartial[]): React.ReactNode {
     let dotDecoration: TreeDecoration.TailDecoration.AnyPartial | undefined;
     const otherDecorations: TreeDecoration.TailDecoration.AnyPartial[] = [];
     tailDecorations.reverse().forEach((decoration) => {
@@ -1045,7 +1067,6 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
    */
   protected getDefaultNodeStyle(node: TreeNode, props: NodeProps): React.CSSProperties | undefined {
     const paddingLeft = `${this.getPaddingLeft(node, props)}px`;
-
     return { paddingLeft };
   }
 
@@ -1480,7 +1501,8 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
    * Store the tree state.
    */
   storeState(): object {
-    const decorations = this.decoratorService.deflateDecorators();
+    // @ts-ignore
+    const decorations = this.decoratorService.deflateDecorators(this.decorations);
     let state: object = {
       decorations,
     };
@@ -1506,7 +1528,8 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
       this.model.root = this.inflateFromStorage(root);
     }
     if (decorations) {
-      this.decorations = this.decoratorService.inflateDecorators();
+      // @ts-ignore
+      this.decorations = this.decoratorService.inflateDecorators(decorations);
     }
     if (model) {
       this.model.restoreState(model);
@@ -1538,7 +1561,6 @@ export class TreeWidget extends ReactWidget implements StatefulWidget {
     return depth * this.treeIndent;
   }
 }
-
 export namespace TreeWidget {
   /**
    * Representation of a tree node row.
@@ -1560,6 +1582,7 @@ export namespace TreeWidget {
   /**
    * Representation of the tree view properties.
    */
+  // @ts-ignore
   export interface ViewProps extends VirtuosoProps<unknown, unknown> {
     /**
      * The width property.
@@ -1573,9 +1596,10 @@ export namespace TreeWidget {
      * The scroll to row value.
      */
     scrollToRow?: number;
-
-    rows: any;
-
+    /**
+     * The list of node rows.
+     */
+    rows: NodeRow[];
     renderNodeRow: (row: NodeRow) => React.ReactNode;
   }
   export class View extends React.Component<ViewProps> {
@@ -1603,23 +1627,5 @@ export namespace TreeWidget {
         />
       );
     }
-  }
-
-  /**
-   * Bare minimum common interface of the keyboard and the mouse event with respect to the key maskings.
-   */
-  export interface ModifierAwareEvent {
-    /**
-     * Determines if the modifier aware event has the `meta` key masking.
-     */
-    readonly metaKey: boolean;
-    /**
-     * Determines if the modifier aware event has the `ctrl` key masking.
-     */
-    readonly ctrlKey: boolean;
-    /**
-     * Determines if the modifier aware event has the `shift` key masking.
-     */
-    readonly shiftKey: boolean;
   }
 }

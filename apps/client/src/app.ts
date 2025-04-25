@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 import { CommonMenuModule, CommonModule, ServiceContainer } from "@gepick/core/common";
-import { ApplicationModule, ContextMenuModule, PluginPreferencesModule, PreferencesModule, ShellModule, TestApplicationModule, ThemePreferencesModule, WidgetModule } from "@gepick/core/browser";
+import { ApplicationModule, ContextMenuModule, PluginPreferencesModule, PreferencesModule, ShellModule, TestApplicationModule, ThemePreferencesModule, TreePreferencesModule, WidgetModule } from "@gepick/core/browser";
 import { GettingStartedModule } from "@gepick/getting-started/browser";
 import { PluginSystemModule } from "@gepick/plugin-system/browser";
 import { PluginRegistryModule } from "@gepick/plugin-registry/browser";
@@ -25,6 +25,7 @@ try {
     ThemePreferencesModule,
     PluginPreferencesModule,
     PreferencesViewModule,
+    TreePreferencesModule,
   ]);
 
   resolve(container);
