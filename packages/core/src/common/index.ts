@@ -30,3 +30,5 @@ export * from "./uri";
 export * from "./markdown";
 export * from "./third-party";
 export * from "./json-schema";
+export * from "./color";
+export * from "./ternary-search-tree";

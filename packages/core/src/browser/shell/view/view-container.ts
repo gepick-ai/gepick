@@ -6,7 +6,7 @@ import { isEmpty } from "lodash-es";
 import { MimeData } from "@lumino/coreutils";
 import { Drag } from "@lumino/dragdrop";
 import { BaseWidget, CODICON_TREE_ITEM_CLASSES, COLLAPSED_CLASS, EXPANSION_TOGGLE_CLASS, IWidgetManager, Message, MessageLoop, PINNED_CLASS, UnsafeWidgetUtilities, addEventListener, addKeyListener, waitForRevealed } from "../../widget";
-import { ISplitPositionHandler, MAIN_AREA_ID, SplitPositionHandler, SplitPositionOptions } from "../side-panel";
+import { ISplitPositionHandler, MAIN_AREA_ID, SplitPositionHandler, SplitPositionOptions } from "../side-panel-handler";
 import { IShell } from "../shell";
 import { ITabBarToolbarFactory, ITabBarToolbarRegistry, TabBarToolbar, TabBarToolbarRegistry } from "../tab-bar-toolbar";
 import { parseCssMagnitude } from "../../services";

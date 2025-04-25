@@ -1,10 +1,10 @@
-import { PostConstruct, createServiceDecorator } from "@gepick/core/common";
+import { Deferred, IServiceContainer, InjectableService, PostConstruct, createServiceDecorator } from "@gepick/core/common";
 import { Signal } from "@lumino/signaling";
 import { ArrayExt, find, toArray } from "@lumino/algorithm";
 import { IDragEvent } from "@lumino/dragdrop";
 import { BaseWidget, BoxLayout, BoxPanel, DockLayout, DockPanel, FocusTracker, Layout, Message, SplitLayout, SplitPanel, TabBar, Widget, waitForClosed } from "../widget";
-import { GepickDockPanel, SidePanel, SidePanelHandler } from "./side-panel";
-import { ScrollableTabBar, TabBarRenderer } from "./tab-bars";
+import { ISidePanelHandlerFactory, SidePanel, SidePanelHandler, TheiaDockPanel } from "./side-panel-handler";
+import { ITabBarRendererFactory, ScrollableTabBar, TabBarRenderer } from "./tab-bars";
 
 /**
  * Data stored while dragging widgets in the shell.
@@ -28,11 +28,17 @@ export type RecursivePartial<T> = {
 /**
  * A renderer for dock panels that supports context menus on tabs.
  */
-export class DockPanelRenderer implements DockLayout.IRenderer {
+export class DockPanelRenderer extends InjectableService implements DockLayout.IRenderer {
   readonly tabBarClasses: string[] = [];
 
+  constructor(
+    @ITabBarRendererFactory protected readonly tabBarRendererFactory: ITabBarRendererFactory,
+  ) {
+    super();
+  }
+
   createTabBar(): TabBar<Widget> {
-    const renderer = new TabBarRenderer();
+    const renderer = this.tabBarRendererFactory.createTabBarRenderer();
     const tabBar = new ScrollableTabBar({
       renderer,
       // Scroll bar options
@@ -57,6 +63,23 @@ export class DockPanelRenderer implements DockLayout.IRenderer {
     }
   }
 }
+
+export class DockPanelRendererFactory extends InjectableService {
+  constructor(
+    @IServiceContainer protected readonly serviceContainer: IServiceContainer,
+  ) {
+    super();
+  }
+
+  createDockPanelRenderer() {
+    const child = this.serviceContainer.createChild();
+    child.bind(DockPanelRenderer.getServiceId()).to(DockPanelRenderer);
+
+    return child.get<DockPanelRenderer>(DockPanelRenderer.getServiceId());
+  }
+}
+export const IDockPanelRendererFactory = createServiceDecorator<IDockPanelRendererFactory>(DockPanelRendererFactory.name);
+export type IDockPanelRendererFactory = DockPanelRendererFactory;
 
 /**
  * The namespace for `ApplicationShell` class statics.
@@ -93,6 +116,19 @@ export class Shell extends BaseWidget {
    * A signal emitted whenever the `activeWidget` property is changed.
    */
   readonly activeChanged = new Signal<this, FocusTracker.IChangedArgs<Widget>>(this);
+
+  protected initializedDeferred = new Deferred<void>();
+
+  constructor(
+    @ISidePanelHandlerFactory protected readonly sidePanelHandlerFactory: ISidePanelHandlerFactory,
+    @IDockPanelRendererFactory protected readonly dockPanelRendererFactory: IDockPanelRendererFactory,
+  ) {
+    super();
+  }
+
+  get ready() {
+    return this.initializedDeferred.promise;
+  }
 
   /**
    * The current widget in the application shell. The current widget is the last widget that
@@ -170,6 +206,8 @@ export class Shell extends BaseWidget {
 
     this.tracker.currentChanged.connect(this.handleCurrentChanged, this);
     this.tracker.activeChanged.connect(this.handleActiveChanged, this);
+
+    this.initializedDeferred.resolve();
   }
 
   protected createLayout(): Layout {
@@ -188,7 +226,7 @@ export class Shell extends BaseWidget {
   }
 
   protected createSidePanel(): BoxPanel {
-    const sidebarHandler = new SidePanelHandler();
+    const sidebarHandler = this.sidePanelHandlerFactory.createSidePanelHandler();
     sidebarHandler.createSidePanel(this.options.leftPanel);
     this.leftPanelHandler = sidebarHandler;
     return sidebarHandler.container;
@@ -198,9 +236,9 @@ export class Shell extends BaseWidget {
    * Create the dock panel in the main shell area.
    */
   protected createMainPanel(): DockPanel {
-    const renderer = new DockPanelRenderer();
+    const renderer = this.dockPanelRendererFactory.createDockPanelRenderer();
     renderer.tabBarClasses.push(MAIN_BOTTOM_AREA_CLASS);
-    const dockPanel = new GepickDockPanel({
+    const dockPanel = new TheiaDockPanel({
       mode: 'multiple-document',
       renderer,
       spacing: 0,

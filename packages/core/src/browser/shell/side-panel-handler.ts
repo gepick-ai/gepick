@@ -1,12 +1,15 @@
 import { Signal } from "@lumino/signaling";
-import { BoxLayout, BoxPanel, DockPanel, Panel, PanelLayout, SplitLayout, SplitPanel, TabBar, Title, Widget } from "@lumino/widgets";
+import { BoxLayout, BoxPanel, DockLayout, DockPanel, Panel, PanelLayout, SplitLayout, SplitPanel, TabBar, Title, Widget } from "@lumino/widgets";
 import { find, map, some, toArray } from '@lumino/algorithm';
 import { AttachedProperty } from '@lumino/properties';
 import { MimeData } from '@lumino/coreutils';
 import { Drag } from '@lumino/dragdrop';
 
-import { InjectableService, createServiceDecorator } from "@gepick/core/common";
-import { SideTabBar, TabBarRenderer } from "./tab-bars";
+import { DisposableCollection, Emitter, Event, IServiceContainer, InjectableService, createServiceDecorator, toDisposable } from "@gepick/core/common";
+import { UnsafeWidgetUtilities } from "../widget";
+import { ITabBarRendererFactory, SideTabBar, TabBarRenderer } from "./tab-bars";
+import { SidebarMenu, SidebarMenuWidget } from "./sidebar-menu-widget";
+import { ISidebarBottomMenuWidgetFactory, SidebarBottomMenuWidget } from "./sidebar-bottom-menu-widget";
 
 export namespace SidePanel {
   /**
@@ -102,7 +105,7 @@ export const VISIBLE_MENU_MAXIMIZED_CLASS = 'theia-visible-menu-maximized';
 export const MAIN_AREA_ID = 'theia-main-content-panel';
 export const BOTTOM_AREA_ID = 'theia-bottom-content-panel';
 
-export class GepickDockPanel extends DockPanel {
+export class TheiaDockPanel extends DockPanel {
   /**
    * Emitted when a widget is added to the panel.
    */
@@ -116,26 +119,232 @@ export class GepickDockPanel extends DockPanel {
    */
   readonly widgetRemoved = new Signal<this, Widget>(this);
 
-  override addWidget(widget: Widget, options?: DockPanel.IAddOptions): void {
+  protected readonly onDidToggleMaximizedEmitter = new Emitter<Widget>();
+  readonly onDidToggleMaximized = this.onDidToggleMaximizedEmitter.event;
+  protected readonly onDidChangeCurrentEmitter = new Emitter<Title<Widget> | undefined>();
+  get onDidChangeCurrent(): Event<Title<Widget> | undefined> {
+    return this.onDidChangeCurrentEmitter.event;
+  }
+
+  constructor(options?: DockPanel.IOptions, protected readonly preferences?: any,
+  ) {
+    super(options);
+    // @ts-ignore
+    this._onCurrentChanged = (sender: TabBar<Widget>, args: TabBar.ICurrentChangedArgs<Widget>) => {
+      this.markAsCurrent(args.currentTitle || undefined);
+      // @ts-ignore
+      super._onCurrentChanged(sender, args);
+    };
+    // @ts-ignore
+    this._onTabActivateRequested = (sender: TabBar<Widget>, args: TabBar.ITabActivateRequestedArgs<Widget>) => {
+      this.markAsCurrent(args.title);
+      // @ts-ignore
+      super._onTabActivateRequested(sender, args);
+    };
+    if (preferences) {
+      // @ts-ignore
+      preferences.onPreferenceChanged((preference) => {
+        if (!this.isElectron() && preference.preferenceName === 'window.menuBarVisibility' && (preference.newValue === 'visible' || preference.oldValue === 'visible')) {
+          this.handleMenuBarVisibility(preference.newValue);
+        }
+      });
+    }
+  }
+
+  isElectron(): boolean {
+    return false;
+  }
+
+  protected handleMenuBarVisibility(newValue: string): void {
+    const areaContainer = this.node.parentElement;
+    const maximizedElement = this.getMaximizedElement();
+
+    if (areaContainer === maximizedElement) {
+      if (newValue === 'visible') {
+        this.addClass(VISIBLE_MENU_MAXIMIZED_CLASS);
+      }
+      else {
+        this.removeClass(VISIBLE_MENU_MAXIMIZED_CLASS);
+      }
+    }
+  }
+
+  protected _currentTitle: Title<Widget> | undefined;
+  get currentTitle(): Title<Widget> | undefined {
+    return this._currentTitle;
+  }
+
+  get currentTabBar(): TabBar<Widget> | undefined {
+    return this._currentTitle && this.findTabBar(this._currentTitle);
+  }
+
+  findTabBar(title: Title<Widget>): TabBar<Widget> | undefined {
+    return find(this.tabBars(), bar => bar.titles.includes(title));
+  }
+
+  protected readonly toDisposeOnMarkAsCurrent = new DisposableCollection();
+  markAsCurrent(title: Title<Widget> | undefined): void {
+    this.toDisposeOnMarkAsCurrent.dispose();
+    this._currentTitle = title;
+    this.markActiveTabBar(title);
+    if (title) {
+      const resetCurrent = () => this.markAsCurrent(undefined);
+      title.owner.disposed.connect(resetCurrent);
+      this.toDisposeOnMarkAsCurrent.push(toDisposable(() =>
+        title.owner.disposed.disconnect(resetCurrent),
+      ));
+    }
+    this.onDidChangeCurrentEmitter.fire(title);
+  }
+
+  markActiveTabBar(title?: Title<Widget>): void {
+    const tabBars = toArray(this.tabBars());
+    tabBars.forEach(tabBar => tabBar.removeClass(ACTIVE_TABBAR_CLASS));
+    const activeTabBar = title && this.findTabBar(title);
+    if (activeTabBar) {
+      activeTabBar.addClass(ACTIVE_TABBAR_CLASS);
+    }
+    else if (tabBars.length > 0) {
+      // At least one tabbar needs to be active
+      tabBars[0].addClass(ACTIVE_TABBAR_CLASS);
+    }
+  }
+
+  override addWidget(widget: Widget, options?: TheiaDockPanel.AddOptions): void {
     if (this.mode === 'single-document' && widget.parent === this) {
       return;
     }
     super.addWidget(widget, options);
+    if (options?.closeRef) {
+      options.ref?.close();
+    }
     this.widgetAdded.emit(widget);
+    this.markActiveTabBar(widget.title);
   }
 
   override activateWidget(widget: Widget): void {
     super.activateWidget(widget);
     this.widgetActivated.emit(widget);
+    this.markActiveTabBar(widget.title);
   }
 
   protected override onChildRemoved(msg: Widget.ChildMessage): void {
     super.onChildRemoved(msg);
     this.widgetRemoved.emit(msg.child);
   }
+
+  nextTabBarWidget(widget: Widget): Widget | undefined {
+    const current = this.findTabBar(widget.title);
+    const next = current && this.nextTabBarInPanel(current);
+    return next && next.currentTitle && next.currentTitle.owner || undefined;
+  }
+
+  nextTabBarInPanel(tabBar: TabBar<Widget>): TabBar<Widget> | undefined {
+    const tabBars = toArray(this.tabBars());
+    const index = tabBars.indexOf(tabBar);
+    if (index !== -1) {
+      return tabBars[index + 1];
+    }
+    return undefined;
+  }
+
+  previousTabBarWidget(widget: Widget): Widget | undefined {
+    const current = this.findTabBar(widget.title);
+    const previous = current && this.previousTabBarInPanel(current);
+    return previous && previous.currentTitle && previous.currentTitle.owner || undefined;
+  }
+
+  previousTabBarInPanel(tabBar: TabBar<Widget>): TabBar<Widget> | undefined {
+    const tabBars = toArray(this.tabBars());
+    const index = tabBars.indexOf(tabBar);
+    if (index !== -1) {
+      return tabBars[index - 1];
+    }
+    return undefined;
+  }
+
+  protected readonly toDisposeOnToggleMaximized = new DisposableCollection();
+  toggleMaximized(): void {
+    const areaContainer = this.node.parentElement;
+    if (!areaContainer) {
+      return;
+    }
+    const maximizedElement = this.getMaximizedElement();
+    if (areaContainer === maximizedElement) {
+      this.toDisposeOnToggleMaximized.dispose();
+      return;
+    }
+    if (this.isAttached) {
+      UnsafeWidgetUtilities.detach(this);
+    }
+    maximizedElement.style.display = 'block';
+    this.addClass(MAXIMIZED_CLASS);
+    const preference = this.preferences?.get('window.menuBarVisibility');
+    if (!this.isElectron() && preference === 'visible') {
+      this.addClass(VISIBLE_MENU_MAXIMIZED_CLASS);
+    }
+    UnsafeWidgetUtilities.attach(this, maximizedElement);
+    this.fit();
+    this.onDidToggleMaximizedEmitter.fire(this);
+    this.toDisposeOnToggleMaximized.push(toDisposable(() => {
+      maximizedElement.style.display = 'none';
+      this.removeClass(MAXIMIZED_CLASS);
+      this.onDidToggleMaximizedEmitter.fire(this);
+      if (!this.isElectron()) {
+        this.removeClass(VISIBLE_MENU_MAXIMIZED_CLASS);
+      }
+      if (this.isAttached) {
+        UnsafeWidgetUtilities.detach(this);
+      }
+      UnsafeWidgetUtilities.attach(this, areaContainer);
+      this.fit();
+    }));
+
+    const layout = this.layout;
+    if (layout instanceof DockLayout) {
+      // @ts-ignore
+      const onResize = layout.onResize;
+      // @ts-ignore
+      layout.onResize = () => onResize.bind(layout)(Widget.ResizeMessage.UnknownSize);
+      // @ts-ignore
+      this.toDisposeOnToggleMaximized.push(toDisposable(() => layout.onResize = onResize));
+    }
+
+    const removedListener = () => {
+      if (!this.widgets().next()) {
+        this.toDisposeOnToggleMaximized.dispose();
+      }
+    };
+    this.widgetRemoved.connect(removedListener);
+    this.toDisposeOnToggleMaximized.push(toDisposable(() => this.widgetRemoved.disconnect(removedListener)));
+  }
+
+  protected maximizedElement: HTMLElement | undefined;
+  protected getMaximizedElement(): HTMLElement {
+    if (!this.maximizedElement) {
+      this.maximizedElement = document.createElement('div');
+      this.maximizedElement.style.display = 'none';
+      document.body.appendChild(this.maximizedElement);
+    }
+    return this.maximizedElement;
+  }
 }
 
-export class SidePanelHandler {
+export namespace TheiaDockPanel {
+  export const Factory = Symbol('TheiaDockPanel#Factory');
+  export interface Factory {
+    (options?: DockPanel.IOptions): TheiaDockPanel;
+  }
+
+  export interface AddOptions extends DockPanel.IAddOptions {
+    /**
+     * Whether to also close the widget referenced by `ref`.
+     */
+    closeRef?: boolean;
+  }
+}
+
+export class SidePanelHandler extends InjectableService {
   /**
    * A property that can be attached to widgets in order to determine the insertion index
    * of their title in the tab bar.
@@ -150,6 +359,12 @@ export class SidePanelHandler {
   dockPanel: DockPanel;
   container: BoxPanel;
   /**
+   * The menu placed on the sidebar bottom.
+   * Displayed as icons.
+   * Open menus when on clicks.
+   */
+  bottomMenu: SidebarMenuWidget;
+  /**
    * Options that control the behavior of the side panel.
    */
   protected options: SidePanel.Options;
@@ -162,6 +377,13 @@ export class SidePanelHandler {
     pendingUpdate: Promise.resolve(),
   };
 
+  constructor(
+    @ISidebarBottomMenuWidgetFactory protected readonly sidebarBottomWidgetFactory: ISidebarBottomMenuWidgetFactory,
+    @ITabBarRendererFactory protected readonly tabBarRendererFactory: ITabBarRendererFactory,
+  ) {
+    super();
+  }
+
   /**
    * Create the side bar and dock panel widgets.
    */
@@ -169,6 +391,7 @@ export class SidePanelHandler {
     this.options = options;
     this.tabBar = this.createSideBar();
     this.dockPanel = this.createDockPanel();
+    this.bottomMenu = this.createSidebarBottomMenu();
     this.container = this.createContainer();
 
     this.refresh();
@@ -188,6 +411,7 @@ export class SidePanelHandler {
     // 往container layout添加两个widget，分别是sidebarContainer和contentPanel
     containerLayout.addWidget(sidebarPanel);
     containerLayout.addWidget(contentPanel);
+    containerLayout.addWidget(this.bottomMenu);
 
     BoxPanel.setStretch(sidebarPanel, 0);
     BoxPanel.setStretch(contentPanel, 1);
@@ -198,7 +422,7 @@ export class SidePanelHandler {
   }
 
   protected createSideBar(): SideTabBar {
-    const tabBarRenderer = new TabBarRenderer();
+    const tabBarRenderer = this.tabBarRendererFactory.createTabBarRenderer();
     const sideBar = new SideTabBar({
       // Tab bar options
       orientation: 'vertical',
@@ -232,8 +456,8 @@ export class SidePanelHandler {
     return sideBar;
   }
 
-  protected createDockPanel(): GepickDockPanel {
-    const sidePanel = new GepickDockPanel({
+  protected createDockPanel(): TheiaDockPanel {
+    const sidePanel = new TheiaDockPanel({
       mode: 'single-document',
     });
     sidePanel.id = 'theia-left-side-panel';
@@ -296,6 +520,31 @@ export class SidePanelHandler {
     }));
     const size = currentTitle !== null ? this.getPanelSize() : this.state.lastPanelSize;
     return { type: 'sidepanel', items, size };
+  }
+
+  protected createSidebarBottomMenu(): SidebarBottomMenuWidget {
+    const menu = this.sidebarBottomWidgetFactory.createSidebarBottomMenuWidget();
+    menu.addClass('theia-sidebar-menu');
+
+    return menu;
+  }
+
+  /**
+   * Add a menu to the sidebar bottom.
+   *
+   * If the menu is already added, it will be ignored.
+   */
+  addBottomMenu(menu: SidebarMenu): void {
+    this.bottomMenu.addMenu(menu);
+  }
+
+  /**
+   * Remove a menu from the sidebar bottom.
+   *
+   * @param menuId id of the menu to remove
+   */
+  removeBottomMenu(menuId: string): void {
+    this.bottomMenu.removeMenu(menuId);
   }
 
   /**
@@ -598,6 +847,24 @@ export class SidePanelHandler {
     this.dockPanel.addWidget(widget);
   }
 }
+
+export class SidePanelHandlerFactory extends InjectableService {
+  constructor(
+    @IServiceContainer protected readonly serviceContainer: IServiceContainer,
+  ) {
+    super();
+  }
+
+  createSidePanelHandler() {
+    const child = this.serviceContainer.createChild();
+
+    child.bind(SidePanelHandler.getServiceId()).to(SidePanelHandler);
+
+    return child.get<SidePanelHandler>(SidePanelHandler.getServiceId());
+  }
+}
+export const ISidePanelHandlerFactory = createServiceDecorator<ISidePanelHandlerFactory>(SidePanelHandlerFactory.name);
+export type ISidePanelHandlerFactory = SidePanelHandlerFactory;
 
 export interface SplitPositionOptions {
   /** The side of the side panel that shall be resized. */

@@ -21,13 +21,16 @@ import { Signal, Slot } from '@lumino/signaling';
 import { Message } from '@lumino/messaging';
 import { ArrayExt } from '@lumino/algorithm';
 import { ElementExt } from '@lumino/domutils';
-import { ArrayUtils, DisposableCollection, DisposableStore, toDisposable } from '@gepick/core/common';
+import { ArrayUtils, CommandService, DisposableCollection, ICommandRegistry, ISelectionService, IServiceContainer, InjectableService, MenuPath, SelectionService, createServiceDecorator, toDisposable } from '@gepick/core/common';
 import { Root, createRoot } from 'react-dom/client';
 import { createElement } from 'react';
 import { Drag } from '@lumino/dragdrop';
-import { EnhancedPreviewWidget, PreviewableWidget, SelectComponent, WidgetDecoration } from '../widget';
-import { isContextMenuEvent } from '../services';
+import { EnhancedPreviewWidget, LOCKED_CLASS, PINNED_CLASS, PreviewableWidget, SelectComponent, WidgetDecoration } from '../widget';
+import { HoverService, IHoverService, NavigatableWidget, isContextMenuEvent } from '../services';
+import { ContextKeyService, ContextMenuRenderer, IContextKeyService, IContextMenuRenderer } from '../menu';
 import { TabBarToolbar, TabBarToolbarRegistry } from './tab-bar-toolbar';
+import { MAIN_AREA_ID, TheiaDockPanel } from './side-panel-handler';
+import { ITabBarDecoratorService } from './tab-bar-decorator';
 
 export interface TabBarPrivateMethods {
   _releaseMouse: () => void;
@@ -40,7 +43,7 @@ export function notEmpty<T>(arg: T | undefined | null): arg is T {
 /** The class name added to hidden content nodes, which are required to render vertical side bars. */
 const HIDDEN_CONTENT_CLASS = 'theia-TabBar-hidden-content';
 
-export const TabBarRendererFactory = Symbol('TabBarRendererFactory');
+// export const TabBarRendererFactory = Symbol('TabBarRendererFactory');
 
 /**
  * Size information of DOM elements used for rendering tabs in side bars.
@@ -73,51 +76,70 @@ export interface ScrollableRenderData extends TabBar.IRenderData<Widget> {
  * automatically.
  */
 export class TabBarRenderer extends TabBar.Renderer {
-  protected readonly toDispose = new DisposableStore();
-  protected readonly toDisposeOnTabBar = new DisposableStore();
+  /**
+   * The menu path used to render the context menu.
+   */
+  contextMenuPath?: MenuPath;
+
+  protected readonly toDispose = new DisposableCollection();
+
+  // TODO refactor shell, rendered should only receive props with event handlers
+  // events should be handled by clients, like ApplicationShell
+  // right now it is mess: (1) client logic belong to renderer, (2) cyclic dependencies between renderers and clients
+  constructor(
+    protected readonly contextMenuRenderer?: ContextMenuRenderer,
+    protected readonly decoratorService?: any,
+    protected readonly iconThemeService?: any,
+    protected readonly selectionService?: SelectionService,
+    protected readonly commandService?: CommandService,
+    protected readonly corePreferences?: any,
+    protected readonly hoverService?: HoverService,
+    protected readonly contextKeyService?: ContextKeyService,
+  ) {
+    super();
+    if (this.decoratorService) {
+      this.toDispose.push(toDisposable(() => this.resetDecorations()));
+      this.toDispose.push(this.decoratorService.onDidChangeDecorations(() => this.resetDecorations()));
+    }
+    if (this.iconThemeService) {
+      this.toDispose.push(this.iconThemeService.onDidChangeCurrent(() => {
+        if (this._tabBar) {
+          this._tabBar.update();
+        }
+      }));
+    }
+  }
+
+  dispose(): void {
+    this.toDispose.dispose();
+  }
 
   protected _tabBar?: TabBar<Widget>;
-
+  protected readonly toDisposeOnTabBar = new DisposableCollection();
   /**
    * A reference to the tab bar is required in order to activate it when a context menu
    * is requested.
    */
   set tabBar(tabBar: TabBar<Widget> | undefined) {
-    if (this.toDispose.isDisposed) {
+    if (this.toDispose.disposed) {
       throw new Error('disposed');
     }
     if (this._tabBar === tabBar) {
       return;
     }
     this.toDisposeOnTabBar.dispose();
-    this.toDispose.add(this.toDisposeOnTabBar);
+    this.toDispose.push(this.toDisposeOnTabBar);
     this._tabBar = tabBar;
     if (tabBar) {
       const listener: Slot<Widget, TabBar.ITabCloseRequestedArgs<Widget>> = (_, { title }) => this.resetDecorations(title);
       tabBar.tabCloseRequested.connect(listener);
-      // this.toDisposeOnTabBar.add(toDisposable(() => tabBar.tabCloseRequested.disconnect(listener)));
+      this.toDisposeOnTabBar.push(toDisposable(() => tabBar.tabCloseRequested.disconnect(listener)));
     }
     this.resetDecorations();
   }
 
   get tabBar(): TabBar<Widget> | undefined {
     return this._tabBar;
-  }
-
-  constructor() {
-    super();
-
-    // if (this.decoratorService) {
-    //   this.toDispose.push(Disposable.create(() => this.resetDecorations()));
-    //   this.toDispose.push(this.decoratorService.onDidChangeDecorations(() => this.resetDecorations()));
-    // }
-    // if (this.iconThemeService) {
-    //   this.toDispose.push(this.iconThemeService.onDidChangeCurrent(() => {
-    //     if (this._tabBar) {
-    //       this._tabBar.update();
-    //     }
-    //   }));
-    // }
   }
 
   /**
@@ -134,14 +156,13 @@ export class TabBarRenderer extends TabBar.Renderer {
     const style = this.createTabStyle(data);
     const className = this.createTabClass(data);
     const dataset = this.createTabDataset(data);
-    const closeIconTitle = data.title.className.includes('theia-mod-pinned') ? "Unpin" : "Close";
-    const hover
-    // this.tabBar && (this.tabBar.orientation === 'horizontal' && this.corePreferences?.['window.tabbar.enhancedPreview'] === 'classic')
-    //   ? { title: title.caption }
-    //   :
-      = {
-        onmouseenter: this.handleMouseEnterEvent,
-      };
+    const closeIconTitle = data.title.className.includes(PINNED_CLASS)
+      ? 'Unpin'
+      : 'Close';
+
+    const hover = {
+      onmouseenter: this.handleMouseEnterEvent,
+    };
 
     return h.li(
       {
@@ -189,7 +210,7 @@ export class TabBarRenderer extends TabBar.Renderer {
    *      If yes, add a suffix to differentiate it's ID from the entry in the visible tab bar
    * @returns {string} DOM element ID
    */
-  createTabId(title: Title<Widget>, isPartOfHiddenTabBar: boolean = false): string {
+  createTabId(title: Title<Widget>, isPartOfHiddenTabBar = false): string {
     return `shell-tab-${title.owner.id}${isPartOfHiddenTabBar ? '-hidden' : ''}`;
   }
 
@@ -221,64 +242,6 @@ export class TabBarRenderer extends TabBar.Renderer {
       width = '';
     }
     return { zIndex, height, minWidth: width, maxWidth: width };
-  }
-
-  // ====render UI start====
-
-  /**
-   * If size information is available for the icon, set it as inline style. Tab padding
-   * is also considered in the `top` position.
-   * @param {SideBarRenderData} data Data used to render the tab icon.
-   * @param {boolean} isInSidePanel An optional check which determines if the tab is in the side-panel.
-   */
-  override renderIcon(data: SideBarRenderData, isInSidePanel?: boolean): VirtualElement {
-    // if (!isInSidePanel && this.iconThemeService && this.iconThemeService.current === 'none') {
-    //   return h.div();
-    // }
-    let top: string | undefined;
-    if (data.paddingTop) {
-      top = `${data.paddingTop || 0}px`;
-    }
-    const style: ElementInlineStyle = { top };
-    const baseClassName = this.createIconClass(data);
-
-    const overlayIcons: VirtualElement[] = [];
-    const decorationData = this.getDecorationData(data.title, 'iconOverlay');
-
-    // Check if the tab has decoration markers to be rendered on top.
-    if (decorationData.length > 0) {
-      const baseIcon: VirtualElement = h.div({ className: baseClassName, style }, data.title.iconLabel);
-      const wrapperClassName: string = WidgetDecoration.Styles.ICON_WRAPPER_CLASS;
-      const decoratorSizeClassName: string = isInSidePanel ? WidgetDecoration.Styles.DECORATOR_SIDEBAR_SIZE_CLASS : WidgetDecoration.Styles.DECORATOR_SIZE_CLASS;
-
-      decorationData
-        .filter(notEmpty)
-        .map(overlay => [overlay.position, overlay] as [WidgetDecoration.IconOverlayPosition, WidgetDecoration.IconOverlay | WidgetDecoration.IconClassOverlay])
-        .forEach(([position, overlay]) => {
-          const iconAdditionalClasses: string[] = [decoratorSizeClassName, WidgetDecoration.IconOverlayPosition.getStyle(position, isInSidePanel)];
-          const overlayIconStyle = (color?: string) => {
-            if (color === undefined) {
-              return {};
-            }
-            return { color };
-          };
-          // Parse the optional background (if it exists) of the overlay icon.
-          if (overlay.background) {
-            const backgroundIconClassName = this.getIconClass(overlay.background.shape, iconAdditionalClasses);
-            overlayIcons.push(
-              h.div({ key: `${data.title.label}-background`, className: backgroundIconClassName, style: overlayIconStyle(overlay.background.color) }),
-            );
-          }
-          // Parse the overlay icon.
-          const overlayIcon = (overlay as WidgetDecoration.IconOverlay).icon || (overlay as WidgetDecoration.IconClassOverlay).iconClass;
-          const overlayIconClassName = this.getIconClass(overlayIcon, iconAdditionalClasses);
-          overlayIcons.push(
-            h.span({ key: data.title.label, className: overlayIconClassName, style: overlayIconStyle(overlay.color) }),
-          );
-        });
-      return h.div({ className: wrapperClassName, style }, [baseIcon, ...overlayIcons]);
-    }
-    return h.div({ className: baseClassName, style }, data.title.iconLabel);
   }
 
   /**
@@ -322,16 +285,16 @@ export class TabBarRenderer extends TabBar.Renderer {
   }
 
   protected renderTailDecorations(renderData: SideBarRenderData, _isInSidePanel?: boolean): VirtualElement[] {
-    // if (!this.corePreferences?.get('workbench.editor.decorations.badges')) {
-    //   return [];
-    // }
+    if (!this.corePreferences?.get('workbench.editor.decorations.badges')) {
+      return [];
+    }
     const tailDecorations = ArrayUtils.coalesce(this.getDecorationData(renderData.title, 'tailDecorations')).flat();
     if (tailDecorations === undefined || tailDecorations.length === 0) {
       return [];
     }
     let dotDecoration: WidgetDecoration.TailDecoration.AnyPartial | undefined;
     const otherDecorations: WidgetDecoration.TailDecoration.AnyPartial[] = [];
-    tailDecorations.reverse().forEach((decoration: any) => {
+    tailDecorations.reverse().forEach((decoration) => {
       const partial = decoration as WidgetDecoration.TailDecoration.AnyPartial;
       if (WidgetDecoration.TailDecoration.isDotDecoration(partial)) {
         dotDecoration ||= partial;
@@ -365,87 +328,62 @@ export class TabBarRenderer extends TabBar.Renderer {
   }
 
   renderLock(data: SideBarRenderData, isInSidePanel?: boolean): VirtualElement {
-    return !isInSidePanel && data.title.className.includes('theia-mod-locked')
+    return !isInSidePanel && data.title.className.includes(LOCKED_CLASS)
       ? h.div({ className: 'lm-TabBar-tabLock' })
       : h.div({});
   }
 
-  protected renderEnhancedPreview = (title: Title<Widget>) => {
-    const hoverBox = document.createElement('div');
-    hoverBox.classList.add('theia-horizontal-tabBar-hover-div');
-    const labelElement = document.createElement('p');
-    labelElement.classList.add('theia-horizontal-tabBar-hover-title');
-    labelElement.textContent = title.label;
-    hoverBox.append(labelElement);
-    const widget = title.owner;
-    if (EnhancedPreviewWidget.is(widget)) {
-      const enhancedPreviewNode = widget.getEnhancedPreviewNode();
-      if (enhancedPreviewNode) {
-        hoverBox.appendChild(enhancedPreviewNode);
-      }
+  protected readonly decorations = new Map<Title<Widget>, WidgetDecoration.Data[]>();
+
+  protected resetDecorations(title?: Title<Widget>): void {
+    if (title) {
+      this.decorations.delete(title);
     }
-    else if (title.caption) {
-      const captionElement = document.createElement('p');
-      captionElement.classList.add('theia-horizontal-tabBar-hover-caption');
-      captionElement.textContent = title.caption;
-      hoverBox.appendChild(captionElement);
+    else {
+      this.decorations.clear();
     }
-    return hoverBox;
-  };
-
-  protected renderVisualPreview(desiredWidth: number, title: Title<Widget>): HTMLElement | undefined {
-    const widget = title.owner;
-    // Check that the widget is not currently shown, is a PreviewableWidget and it was already loaded before
-    if (this.tabBar && this.tabBar.currentTitle !== title && PreviewableWidget.isPreviewable(widget)) {
-      const html = document.getElementById(widget.id);
-      if (html) {
-        const previewNode: Node | undefined = widget.getPreviewNode();
-        if (previewNode) {
-          const clonedNode = previewNode.cloneNode(true);
-          const visualPreviewDiv = document.createElement('div');
-          visualPreviewDiv.classList.add('enhanced-preview-container');
-          // Add the clonedNode and get it from the children to have a HTMLElement instead of a Node
-          visualPreviewDiv.append(clonedNode);
-          const visualPreview = visualPreviewDiv.children.item(visualPreviewDiv.children.length - 1);
-          if (visualPreview instanceof HTMLElement) {
-            visualPreview.classList.remove('lm-mod-hidden');
-            visualPreview.classList.add('enhanced-preview');
-            visualPreview.id = `preview:${widget.id}`;
-
-            // Use the current visible editor as a fallback if not available
-            const height: number = visualPreview.style.height === '' ? this.tabBar.currentTitle!.owner.node.offsetHeight : Number.parseFloat(visualPreview.style.height);
-            const width: number = visualPreview.style.width === '' ? this.tabBar.currentTitle!.owner.node.offsetWidth : Number.parseFloat(visualPreview.style.width);
-            const desiredRatio = 9 / 16;
-            const desiredHeight = desiredWidth * desiredRatio;
-            const ratio = height / width;
-            visualPreviewDiv.style.width = `${desiredWidth}px`;
-            visualPreviewDiv.style.height = `${desiredHeight}px`;
-
-            // If the view is wider than the desiredRatio scale the width and crop the height. If the view is longer its the other way around.
-            const scale = ratio < desiredRatio ? (desiredHeight / height) : (desiredWidth / width);
-            visualPreview.style.transform = `scale(${scale},${scale})`;
-            visualPreview.style.removeProperty('top');
-            visualPreview.style.removeProperty('left');
-
-            // Copy canvases (They are cloned empty)
-            const originalCanvases = html.getElementsByTagName('canvas');
-            const previewCanvases = visualPreview.getElementsByTagName('canvas');
-            // If this is not given, something went wrong during the cloning
-            if (originalCanvases.length === previewCanvases.length) {
-              for (let i = 0; i < originalCanvases.length; i++) {
-                previewCanvases[i].getContext('2d')?.drawImage(originalCanvases[i], 0, 0);
-              }
-            }
-
-            return visualPreviewDiv;
-          }
-        }
-      }
+    if (this.tabBar) {
+      this.tabBar.update();
     }
-    return undefined;
   }
 
-  // ====render UI end====
+  /**
+   * Get all available decorations of a given tab.
+   * @param {string} title The widget title.
+   */
+  protected getDecorations(title: Title<Widget>): WidgetDecoration.Data[] {
+    if (this.tabBar && this.decoratorService) {
+      const owner: { resetTabBarDecorations?: () => void } & Widget = title.owner;
+      if (!owner.resetTabBarDecorations) {
+        owner.resetTabBarDecorations = () => this.decorations.delete(title);
+        title.owner.disposed.connect(owner.resetTabBarDecorations);
+      }
+
+      const decorations = this.decorations.get(title) || this.decoratorService.getDecorations(title);
+      this.decorations.set(title, decorations);
+      return decorations;
+    }
+    return [];
+  }
+
+  /**
+   * Get the decoration data given the tab URI and the decoration data type.
+   * @param {string} title The title.
+   * @param {K} key The type of the decoration data.
+   */
+  protected getDecorationData<K extends keyof WidgetDecoration.Data>(title: Title<Widget>, key: K): WidgetDecoration.Data[K][] {
+    return this.getDecorations(title).filter(data => data[key] !== undefined).map(data => data[key]);
+  }
+
+  /**
+   * Get the class of an icon.
+   * @param {string | string[]} iconName The name of the icon.
+   * @param {string[]} additionalClasses Additional classes of the icon.
+   */
+  protected getIconClass(iconName: string | string[], additionalClasses: string[] = []): string {
+    const iconClass = (typeof iconName === 'string') ? ['a', 'fa', `fa-${iconName}`] : ['a'].concat(iconName);
+    return iconClass.concat(additionalClasses).join(' ');
+  }
 
   /**
    * Find duplicate labels from the currently opened tabs in the tab bar.
@@ -535,144 +473,239 @@ export class TabBarRenderer extends TabBar.Renderer {
   }
 
   /**
-   * Get all available decorations of a given tab.
-   * @param {string} title The widget title.
+   * If size information is available for the icon, set it as inline style. Tab padding
+   * is also considered in the `top` position.
+   * @param {SideBarRenderData} data Data used to render the tab icon.
+   * @param {boolean} isInSidePanel An optional check which determines if the tab is in the side-panel.
    */
-  protected getDecorations(_title: Title<Widget>): WidgetDecoration.Data[] {
-    // if (this.tabBar && this.decoratorService) {
-    //   const owner: { resetTabBarDecorations?: () => void } & Widget = title.owner;
-    //   if (!owner.resetTabBarDecorations) {
-    //     owner.resetTabBarDecorations = () => this.decorations.delete(title);
-    //     title.owner.disposed.connect(owner.resetTabBarDecorations);
-    //   }
-
-    //   const decorations = this.decorations.get(title) || this.decoratorService.getDecorations(title);
-    //   this.decorations.set(title, decorations);
-    //   return decorations;
-    // }
-    return [];
-  }
-
-  /**
-   * Get the decoration data given the tab URI and the decoration data type.
-   * @param {string} title The title.
-   * @param {K} key The type of the decoration data.
-   */
-  protected getDecorationData<K extends keyof WidgetDecoration.Data>(title: Title<Widget>, key: K): WidgetDecoration.Data[K][] {
-    return this.getDecorations(title).filter(data => data[key] !== undefined).map(data => data[key]);
-  }
-
-  /**
-   * Get the class of an icon.
-   * @param {string | string[]} iconName The name of the icon.
-   * @param {string[]} additionalClasses Additional classes of the icon.
-   */
-  protected getIconClass(iconName: string | string[], additionalClasses: string[] = []): string {
-    const iconClass = (typeof iconName === 'string') ? ['a', 'fa', `fa-${iconName}`] : ['a'].concat(iconName);
-    return iconClass.concat(additionalClasses).join(' ');
-  }
-
-  protected readonly decorations = new Map<Title<Widget>, WidgetDecoration.Data[]>();
-
-  protected resetDecorations(title?: Title<Widget>): void {
-    if (title) {
-      this.decorations.delete(title);
+  override renderIcon(data: SideBarRenderData, isInSidePanel?: boolean): VirtualElement {
+    if (!isInSidePanel && this.iconThemeService && this.iconThemeService.current === 'none') {
+      return h.div();
     }
-    else {
-      this.decorations.clear();
+    let top: string | undefined;
+    if (data.paddingTop) {
+      top = `${data.paddingTop || 0}px`;
     }
-    if (this.tabBar) {
-      this.tabBar.update();
+    const style: ElementInlineStyle = { top };
+    const baseClassName = this.createIconClass(data);
+
+    const overlayIcons: VirtualElement[] = [];
+    const decorationData = this.getDecorationData(data.title, 'iconOverlay');
+
+    // Check if the tab has decoration markers to be rendered on top.
+    if (decorationData.length > 0) {
+      const baseIcon: VirtualElement = h.div({ className: baseClassName, style }, data.title.iconLabel);
+      const wrapperClassName: string = WidgetDecoration.Styles.ICON_WRAPPER_CLASS;
+      const decoratorSizeClassName: string = isInSidePanel ? WidgetDecoration.Styles.DECORATOR_SIDEBAR_SIZE_CLASS : WidgetDecoration.Styles.DECORATOR_SIZE_CLASS;
+
+      decorationData
+        .filter(notEmpty)
+        .map(overlay => [overlay.position, overlay] as [WidgetDecoration.IconOverlayPosition, WidgetDecoration.IconOverlay | WidgetDecoration.IconClassOverlay])
+        .forEach(([position, overlay]) => {
+          const iconAdditionalClasses: string[] = [decoratorSizeClassName, WidgetDecoration.IconOverlayPosition.getStyle(position, isInSidePanel)];
+          const overlayIconStyle = (color?: string) => {
+            if (color === undefined) {
+              return {};
+            }
+            return { color };
+          };
+          // Parse the optional background (if it exists) of the overlay icon.
+          if (overlay.background) {
+            const backgroundIconClassName = this.getIconClass(overlay.background.shape, iconAdditionalClasses);
+            overlayIcons.push(
+              h.div({ key: `${data.title.label}-background`, className: backgroundIconClassName, style: overlayIconStyle(overlay.background.color) }),
+            );
+          }
+          // Parse the overlay icon.
+          const overlayIcon = (overlay as WidgetDecoration.IconOverlay).icon || (overlay as WidgetDecoration.IconClassOverlay).iconClass;
+          const overlayIconClassName = this.getIconClass(overlayIcon, iconAdditionalClasses);
+          overlayIcons.push(
+            h.span({ key: data.title.label, className: overlayIconClassName, style: overlayIconStyle(overlay.color) }),
+          );
+        });
+      return h.div({ className: wrapperClassName, style }, [baseIcon, ...overlayIcons]);
     }
+    return h.div({ className: baseClassName, style }, data.title.iconLabel);
   }
 
-  // ====handle event start====
-
-  protected handleMouseEnterEvent = (_event: MouseEvent) => {
-    // if (this.tabBar && this.hoverService && event.currentTarget instanceof HTMLElement) {
-    //     const id = event.currentTarget.id;
-    //     const title = this.tabBar.titles.find(t => this.createTabId(t) === id);
-    //     if (title) {
-    //         if (this.tabBar.orientation === 'horizontal') {
-    //             this.hoverService.requestHover({
-    //                 content: this.renderEnhancedPreview(title),
-    //                 target: event.currentTarget,
-    //                 position: 'bottom',
-    //                 cssClasses: ['extended-tab-preview'],
-    //                 visualPreview: this.corePreferences?.['window.tabbar.enhancedPreview'] === 'visual' ? width => this.renderVisualPreview(width, title) : undefined
-    //             });
-    //         } else if (title.caption) {
-    //             this.hoverService.requestHover({
-    //                 content: title.caption,
-    //                 target: event.currentTarget,
-    //                 position: 'right'
-    //             });
-    //         }
-    //     }
-    // }
+  protected renderEnhancedPreview = (title: Title<Widget>) => {
+    const hoverBox = document.createElement('div');
+    hoverBox.classList.add('theia-horizontal-tabBar-hover-div');
+    const labelElement = document.createElement('p');
+    labelElement.classList.add('theia-horizontal-tabBar-hover-title');
+    labelElement.textContent = title.label;
+    hoverBox.append(labelElement);
+    const widget = title.owner;
+    if (EnhancedPreviewWidget.is(widget)) {
+      const enhancedPreviewNode = widget.getEnhancedPreviewNode();
+      if (enhancedPreviewNode) {
+        hoverBox.appendChild(enhancedPreviewNode);
+      }
+    }
+    else if (title.caption) {
+      const captionElement = document.createElement('p');
+      captionElement.classList.add('theia-horizontal-tabBar-hover-caption');
+      captionElement.textContent = title.caption;
+      hoverBox.appendChild(captionElement);
+    }
+    return hoverBox;
   };
 
-  protected handleContextMenuEvent = (_event: MouseEvent) => {
-    // if (this.contextMenuRenderer && this.contextMenuPath && event.currentTarget instanceof HTMLElement) {
-    //   event.stopPropagation();
-    //   event.preventDefault();
-    //   let widget: Widget | undefined;
-    //   if (this.tabBar) {
-    //     const titleIndex = Array.from(this.tabBar.contentNode.getElementsByClassName('lm-TabBar-tab'))
-    //       .findIndex(node => node.contains(event.currentTarget as HTMLElement));
-    //     if (titleIndex !== -1) {
-    //       widget = this.tabBar.titles[titleIndex].owner;
-    //     }
-    //   }
+  protected renderVisualPreview(desiredWidth: number, title: Title<Widget>): HTMLElement | undefined {
+    const widget = title.owner;
+    // Check that the widget is not currently shown, is a PreviewableWidget and it was already loaded before
+    if (this.tabBar && this.tabBar.currentTitle !== title && PreviewableWidget.isPreviewable(widget)) {
+      const html = document.getElementById(widget.id);
+      if (html) {
+        const previewNode: Node | undefined = widget.getPreviewNode();
+        if (previewNode) {
+          const clonedNode = previewNode.cloneNode(true);
+          const visualPreviewDiv = document.createElement('div');
+          visualPreviewDiv.classList.add('enhanced-preview-container');
+          // Add the clonedNode and get it from the children to have a HTMLElement instead of a Node
+          visualPreviewDiv.append(clonedNode);
+          const visualPreview = visualPreviewDiv.children.item(visualPreviewDiv.children.length - 1);
+          if (visualPreview instanceof HTMLElement) {
+            visualPreview.classList.remove('lm-mod-hidden');
+            visualPreview.classList.add('enhanced-preview');
+            visualPreview.id = `preview:${widget.id}`;
 
-    //   const oldSelection = this.selectionService?.selection;
-    //   if (widget && this.selectionService) {
-    //     this.selectionService.selection = NavigatableWidget.is(widget) ? { uri: widget.getResourceUri() } : widget;
-    //   }
+            // Use the current visible editor as a fallback if not available
+            const height: number = visualPreview.style.height === '' ? this.tabBar.currentTitle!.owner.node.offsetHeight : Number.parseFloat(visualPreview.style.height);
+            const width: number = visualPreview.style.width === '' ? this.tabBar.currentTitle!.owner.node.offsetWidth : Number.parseFloat(visualPreview.style.width);
+            const desiredRatio = 9 / 16;
+            const desiredHeight = desiredWidth * desiredRatio;
+            const ratio = height / width;
+            visualPreviewDiv.style.width = `${desiredWidth}px`;
+            visualPreviewDiv.style.height = `${desiredHeight}px`;
 
-    //   const contextKeyServiceOverlay = this.contextKeyService?.createOverlay([['isTerminalTab', widget && 'terminalId' in widget]]);
-    //   this.contextMenuRenderer.render({
-    //     menuPath: this.contextMenuPath!,
-    //     anchor: event,
-    //     args: [event],
-    //     context: event.currentTarget,
-    //     contextKeyService: contextKeyServiceOverlay,
-    //     // We'd like to wait until the command triggered by the context menu has been run, but this should let it get through the preamble, at least.
-    //     onHide: () => setTimeout(() => { if (this.selectionService) { this.selectionService.selection = oldSelection; } }),
-    //   });
-    // }
+            // If the view is wider than the desiredRatio scale the width and crop the height. If the view is longer its the other way around.
+            const scale = ratio < desiredRatio ? (desiredHeight / height) : (desiredWidth / width);
+            visualPreview.style.transform = `scale(${scale},${scale})`;
+            visualPreview.style.removeProperty('top');
+            visualPreview.style.removeProperty('left');
+
+            // Copy canvases (They are cloned empty)
+            const originalCanvases = html.getElementsByTagName('canvas');
+            const previewCanvases = visualPreview.getElementsByTagName('canvas');
+            // If this is not given, something went wrong during the cloning
+            if (originalCanvases.length === previewCanvases.length) {
+              for (let i = 0; i < originalCanvases.length; i++) {
+                previewCanvases[i].getContext('2d')?.drawImage(originalCanvases[i], 0, 0);
+              }
+            }
+
+            return visualPreviewDiv;
+          }
+        }
+      }
+    }
+    return undefined;
+  }
+
+  protected handleMouseEnterEvent = (event: MouseEvent) => {
+    if (this.tabBar && this.hoverService && event.currentTarget instanceof HTMLElement) {
+      const id = event.currentTarget.id;
+      const title = this.tabBar.titles.find(t => this.createTabId(t) === id);
+      if (title) {
+        if (this.tabBar.orientation === 'horizontal') {
+          this.hoverService.requestHover({
+            content: this.renderEnhancedPreview(title),
+            target: event.currentTarget,
+            position: 'bottom',
+            cssClasses: ['extended-tab-preview'],
+            visualPreview: this.corePreferences?.['window.tabbar.enhancedPreview'] === 'visual' ? width => this.renderVisualPreview(width, title) : undefined,
+          });
+        }
+        else if (title.caption) {
+          this.hoverService.requestHover({
+            content: title.caption,
+            target: event.currentTarget,
+            position: 'right',
+          });
+        }
+      }
+    }
   };
 
-  protected handleDblClickEvent = (_event: MouseEvent) => {
-    // if (!this.corePreferences?.get('workbench.tab.maximize')) {
-    //     return;
-    // }
-    // if (this.tabBar && event.currentTarget instanceof HTMLElement) {
-    //     const id = event.currentTarget.id;
-    //     const title = this.tabBar.titles.find(t => this.createTabId(t) === id);
-    //     const area = title?.owner.parent;
-    //     if (area instanceof TheiaDockPanel && (area.id === BOTTOM_AREA_ID || area.id === MAIN_AREA_ID)) {
-    //         area.toggleMaximized();
-    //     }
-    // }
+  protected handleContextMenuEvent = (event: MouseEvent) => {
+    if (this.contextMenuRenderer && this.contextMenuPath && event.currentTarget instanceof HTMLElement) {
+      event.stopPropagation();
+      event.preventDefault();
+      let widget: Widget | undefined;
+      if (this.tabBar) {
+        const titleIndex = Array.from(this.tabBar.contentNode.getElementsByClassName('lm-TabBar-tab'))
+          .findIndex(node => node.contains(event.currentTarget as HTMLElement));
+        if (titleIndex !== -1) {
+          widget = this.tabBar.titles[titleIndex].owner;
+        }
+      }
+
+      const oldSelection = this.selectionService?.selection;
+      if (widget && this.selectionService) {
+        this.selectionService.selection = NavigatableWidget.is(widget) ? { uri: widget.getResourceUri() } : widget;
+      }
+
+      const contextKeyServiceOverlay = this.contextKeyService?.createOverlay([['isTerminalTab', widget && 'terminalId' in widget]]);
+      this.contextMenuRenderer.render({
+        menuPath: this.contextMenuPath!,
+        anchor: event,
+        args: [event],
+        context: event.currentTarget,
+        contextKeyService: contextKeyServiceOverlay,
+        // We'd like to wait until the command triggered by the context menu has been run, but this should let it get through the preamble, at least.
+        onHide: () => setTimeout(() => { if (this.selectionService) { this.selectionService.selection = oldSelection; } }),
+      });
+    }
   };
 
   protected handleCloseClickEvent = (event: MouseEvent) => {
     if (this.tabBar && event.currentTarget instanceof HTMLElement) {
-      // const id = event.currentTarget.parentElement!.id;
-      // const title = this.tabBar.titles.find(t => this.createTabId(t) === id);
-      // if (title?.closable === false && title?.className.includes(PINNED_CLASS) && this.commandService) {
-      //   this.commandService.executeCommand('workbench.action.unpinEditor', event);
-      // }
+      const id = event.currentTarget.parentElement!.id;
+      const title = this.tabBar.titles.find(t => this.createTabId(t) === id);
+      if (title?.closable === false && title?.className.includes(PINNED_CLASS) && this.commandService) {
+        this.commandService.executeCommand('workbench.action.unpinEditor', event);
+      }
     }
   };
 
-  // ====handle event end====
+  protected handleDblClickEvent = (event: MouseEvent) => {
+    if (!this.corePreferences?.get('workbench.tab.maximize')) {
+      return;
+    }
+    if (this.tabBar && event.currentTarget instanceof HTMLElement) {
+      const id = event.currentTarget.id;
+      const title = this.tabBar.titles.find(t => this.createTabId(t) === id);
+      const area = title?.owner.parent;
+      if (area instanceof TheiaDockPanel && (area.id === MAIN_AREA_ID)) {
+        area.toggleMaximized();
+      }
+    }
+  };
+}
 
-  dispose(): void {
-    this.toDispose.dispose();
+export class TabBarRendererFactory extends InjectableService {
+  constructor(
+    @IServiceContainer protected readonly container: IServiceContainer,
+  ) {
+    super();
+  }
+
+  createTabBarRenderer() {
+    const contextMenuRenderer = this.container.get<IContextMenuRenderer>(IContextMenuRenderer);
+    const tabBarDecoratorService = this.container.get<ITabBarDecoratorService>(ITabBarDecoratorService);
+    const iconThemeService = undefined;
+    const selectionService = this.container.get<ISelectionService>(ISelectionService);
+    const commandService = this.container.get<ICommandRegistry>(ICommandRegistry);
+    const corePreferences = undefined;
+    const hoverService = this.container.get<IHoverService>(IHoverService);
+    const contextKeyService: ContextKeyService = this.container.get<IContextKeyService>(IContextKeyService);
+
+    return new TabBarRenderer(contextMenuRenderer, tabBarDecoratorService, iconThemeService, selectionService, commandService, corePreferences, hoverService, contextKeyService);
   }
 }
+export const ITabBarRendererFactory = createServiceDecorator<ITabBarRendererFactory>(TabBarRendererFactory.name);
+export type ITabBarRendererFactory = TabBarRendererFactory;
 
 /**
  * A specialized tab bar for the main and bottom areas.

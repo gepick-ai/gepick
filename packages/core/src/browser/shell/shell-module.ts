@@ -3,10 +3,15 @@ import { LabelParser, LabelProvider } from "../label";
 import { HoverService } from "../services";
 import { MarkdownRendererFactory, MarkdownRendererImpl } from "../markdown";
 import { DefaultOpenerService } from "../opener";
-import { SplitPositionHandler } from "./side-panel";
-import { Shell } from "./shell";
+import { ColorRegistry } from "../services/color-registry";
+import { DecorationsServiceImpl } from "../services/decorations-service";
+import { SidePanelHandlerFactory, SplitPositionHandler } from "./side-panel-handler";
+import { DockPanelRenderer, DockPanelRendererFactory, Shell } from "./shell";
 import { ViewContainer } from "./view/view-container";
 import { TabBarToolbar, TabBarToolbarFactory, TabBarToolbarRegistry } from "./tab-bar-toolbar";
+import { SidebarBottomMenuWidget, SidebarBottomMenuWidgetFactory } from "./sidebar-bottom-menu-widget";
+import { TabBarRendererFactory } from "./tab-bars";
+import { TabBarDecoratorService } from "./tab-bar-decorator";
 
 @Module({
   services: [
@@ -22,6 +27,15 @@ import { TabBarToolbar, TabBarToolbarFactory, TabBarToolbarRegistry } from "./ta
     MarkdownRendererImpl,
     MarkdownRendererFactory,
     DefaultOpenerService,
+    SidebarBottomMenuWidget,
+    SidebarBottomMenuWidgetFactory,
+    SidePanelHandlerFactory,
+    TabBarRendererFactory,
+    TabBarDecoratorService,
+    ColorRegistry,
+    DecorationsServiceImpl,
+    DockPanelRendererFactory,
   ],
+
 })
 export class ShellModule extends ServiceModule {}
