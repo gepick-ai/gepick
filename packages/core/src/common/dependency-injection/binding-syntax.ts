@@ -1,7 +1,7 @@
 /* eslint-disable ts/no-wrapper-object-types */
 /* eslint-disable ts/no-unsafe-function-type */
 
-// ========================================BindingToSyntax========================================
+// ========================================BindingToSyntax(https://inversify.io/docs/6.x/api/binding-syntax/#bindingtosyntax)========================================
 
 export const CONSTANT_VALUE_METADATA_KEY = 'BindingToSyntax.toConstantValue';
 
@@ -28,7 +28,7 @@ export function getConstantValue(target: Object) {
   return constantValue;
 }
 
-// ========================================BindingInSyntax========================================
+// ========================================BindingInSyntax(https://inversify.io/docs/6.x/api/binding-syntax/#bindinginsyntax)========================================
 
 export enum BindingScope {
   Singleton = 'Singleton',
@@ -36,7 +36,7 @@ export enum BindingScope {
   Request = 'Request',
 }
 
-export const SCOPE_METADATA_KEY = 'BindingInSyntax:Scope';
+export const SCOPE_METADATA_KEY = 'BindingInSyntax.InScope';
 
 /**
  * ```typescript
@@ -86,7 +86,7 @@ export function getBindingScope(target: Object): BindingScope {
   return scope;
 }
 
-// ========================================BindingOnSyntax========================================
+// ========================================BindingOnSyntax(https://inversify.io/docs/6.x/api/binding-syntax/#bindingonsyntax)========================================
 export const BindingOnSyntax = {
   onActivation: 'BindingOnSyntax.onActivation',
   onDeactivation: 'BindingOnSyntax.onDeactivation',
@@ -149,4 +149,4 @@ export function getDeactivationHandler(target: Object) {
 
 // #endregion
 
-// ========================================BindingWhenSyntax========================================
+// ========================================BindingWhenSyntax(https://inversify.io/docs/6.x/api/binding-syntax/#bindingwhensyntax)========================================
