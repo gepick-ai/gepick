@@ -15,14 +15,14 @@
 // *****************************************************************************
 
 import * as React from 'react';
-import { DisposableCollection, IServiceContainer, PostConstruct } from '@gepick/core/common';
+import { Container, DisposableCollection, PostConstruct, interfaces } from '@gepick/core/common';
 import { TREE_NODE_SEGMENT_GROW_CLASS, TreeModel, TreeNode, TreeProps, TreeWidget, createTreeContainer } from '../base-tree';
 import { TreeElement, TreeSource } from './tree-source';
 import { SourceTree, TreeElementNode, TreeSourceNode } from './source-tree';
 
 export class SourceTreeWidget extends TreeWidget {
-  static createContainer(parent: IServiceContainer, serviceIdentifiers: any, props?: Partial<TreeProps>): IServiceContainer {
-    const child = createTreeContainer(parent, serviceIdentifiers, {
+  static createContainer(parent: interfaces.Container, props?: Partial<TreeProps>): Container {
+    const child = createTreeContainer(parent, {
       props,
       tree: SourceTree,
       widget: SourceTreeWidget,

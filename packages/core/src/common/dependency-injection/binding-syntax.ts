@@ -28,6 +28,8 @@ export function getConstantValue(target: Object) {
   return constantValue;
 }
 
+
+
 // ========================================BindingInSyntax(https://inversify.io/docs/6.x/api/binding-syntax/#bindinginsyntax)========================================
 
 export enum BindingScope {

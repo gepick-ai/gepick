@@ -12,21 +12,21 @@ export class TestApplication extends InjectableService {
 
   @PostConstruct()
   protected init(): void {
-    const themeBackground = this.themePreferencesService.get('theme.background');
-    // eslint-disable-next-line no-console
-    console.log("theme.background", themeBackground);
+    // const themeBackground = this.themePreferencesService.get('theme.background');
+    // // eslint-disable-next-line no-console
+    // console.log("theme.background", themeBackground);
 
-    const themeIcon = this.themePreferencesService.get('theme.icon');
-    // eslint-disable-next-line no-console
-    console.log("theme.icon", themeIcon);
+    // const themeIcon = this.themePreferencesService.get('theme.icon');
+    // // eslint-disable-next-line no-console
+    // console.log("theme.icon", themeIcon);
 
-    const pluginRegistry = this.pluginPreferencesService.get('plugin.registry');
-    // eslint-disable-next-line no-console
-    console.log("plugin.registry", pluginRegistry);
+    // const pluginRegistry = this.pluginPreferencesService.get('plugin.registry');
+    // // eslint-disable-next-line no-console
+    // console.log("plugin.registry", pluginRegistry);
 
-    const pluginProxy = this.pluginPreferencesService.get('plugin.proxy');
-    // eslint-disable-next-line no-console
-    console.log("plugin proxy", pluginProxy);
+    // const pluginProxy = this.pluginPreferencesService.get('plugin.proxy');
+    // // eslint-disable-next-line no-console
+    // console.log("plugin proxy", pluginProxy);
   }
 }
 export const ITestApplication = createServiceDecorator(TestApplication.name);

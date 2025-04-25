@@ -66,10 +66,10 @@ export class PluginPreferencesService extends PreferencesService<PluginPreferenc
 
   @OnActivation()
   handleActivation(context: interfaces.Context, injectable: PluginPreferencesService) {
-    // eslint-disable-next-line no-console
-    console.log("🚀 ~ PluginPreferencesService ~ handleActivation ~ injectable:", injectable);
-    // eslint-disable-next-line no-console
-    console.log("🚀 ~ PluginPreferencesService ~ handleActivation ~ context:", context);
+    // // eslint-disable-next-line no-console
+    // console.log("🚀 ~ PluginPreferencesService ~ handleActivation ~ injectable:", injectable);
+    // // eslint-disable-next-line no-console
+    // console.log("🚀 ~ PluginPreferencesService ~ handleActivation ~ context:", context);
 
     return injectable;
   }

@@ -137,6 +137,8 @@ export const defaultTreeProps: TreeProps = {
 };
 
 export class DefaultTreeProps extends InjectableService {
+  static override name = 'TreeProps';
+
   constructor(
     public readonly leftPadding = 8,
     public readonly expansionTogglePadding = 22,

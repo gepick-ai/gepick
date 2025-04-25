@@ -1,5 +1,5 @@
 import { IWidgetFactory, Message, SourceTreeWidget, TreeElement, TreeModel, TreeModule, TreeNode, TreeSource } from "@gepick/core/browser";
-import { Contribution, Emitter, IServiceContainer, InjectableService, PostConstruct, ServiceContainer, createServiceDecorator, lodashDebounce } from "@gepick/core/common";
+import { Contribution, Emitter, IServiceContainer, InjectableService, PostConstruct, ServiceContainer, createServiceDecorator, interfaces, lodashDebounce } from "@gepick/core/common";
 import { IPluginRegistry } from "./plugin-registry";
 
 // #region Plugin List Model Options
@@ -207,13 +207,15 @@ export class PluginListWidgetFactory extends InjectableService {
   public readonly id = PluginListWidget.ID;
 
   createWidget(container: IServiceContainer, options: IPluginListModelOptions) {
-    const child = container.createChild();
-
-    child.load(new TreeModule(child as any));
+    const child = SourceTreeWidget.createContainer(container, {
+      virtualized: false,
+      scrollIfActive: true,
+    });
     child.bind(PluginListWidgetOptions.getServiceId()).toConstantValue(options);
+    child.unbind(SourceTreeWidget.getServiceId());
     child.bind(PluginListModel.getServiceId()).to(PluginListModel);
     child.bind(PluginListWidget.getServiceId()).to(PluginListWidget);
-    child.bind(ServiceContainer.name)
+    child.bind(ServiceContainer.getServiceId()).toConstantValue(child);
 
     const widget = child.get<IPluginListWidget>(PluginListWidget.getServiceId());
 

@@ -8,6 +8,7 @@ import { IPreferencesScopeTabBar, PreferencesScopeTabBar } from "./preferences-s
 import { PreferenceNodeRendererFactory } from "./components/preference-node-renderer";
 import { DefaultPreferenceNodeRendererCreatorRegistry } from "./components/preference-node-renderer-creator";
 import { PreferenceMarkdownRenderer } from "./components/preference-markdown-renderer";
+import { createPreferencesWidgetContainer } from "./preference-widget-bindings";
 
 export class BasePanel extends Mixin(Panel, InjectableService) {}
 export class PreferencesWidget extends BasePanel implements StatefulWidget {
@@ -108,19 +109,9 @@ export class PreferencesWidgetFactory extends InjectableService {
   public readonly id = PreferencesWidget.ID;
 
   createWidget(container: IServiceContainer) {
-    const child = container.createChild({ defaultScope: "Singleton" });
-    child.load(new TreeModule(child as any));
-    child.rebind(TreeImpl.getServiceId()).to(TreeImpl);
-    child.bind(PreferenceTreeModel.getServiceId()).to(PreferenceTreeModel);
-    child.bind(PreferencesTreeWidget.getServiceId()).to(PreferencesTreeWidget);
-    child.bind(PreferencesWidget.getServiceId()).to(PreferencesWidget);
-    child.bind(PreferencesEditorWidget.getServiceId()).to(PreferencesEditorWidget);
-    child.bind(PreferencesSearchbarWidget.getServiceId()).to(PreferencesSearchbarWidget);
-    child.bind(PreferencesScopeTabBar.getServiceId()).to(PreferencesScopeTabBar);
-    child.bind(PreferenceNodeRendererFactory.getServiceId()).to(PreferenceNodeRendererFactory);
-    child.bind(PreferenceMarkdownRenderer.getServiceId()).to(PreferenceMarkdownRenderer);
-    child.bind(ServiceContainer.getServiceId()).toConstantValue(child);
+    container.bind(PreferencesWidget.getServiceId())
+      .toDynamicValue(({ container }) => createPreferencesWidgetContainer(container).get(PreferencesWidget.getServiceId()));
 
-    return child.get<IPreferencesWidget>(PreferencesWidget.getServiceId());
+    return container.get<IPreferencesWidget>(IPreferencesWidget);
   }
 }

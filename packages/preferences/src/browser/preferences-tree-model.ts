@@ -24,6 +24,8 @@ export interface PreferenceFilterChangeEvent {
 }
 
 export class PreferenceTreeModel extends TreeModelImpl {
+  static override name = 'TreeModelImpl';
+
   @IPreferencesSearchbarWidget protected readonly filterInput: IPreferencesSearchbarWidget;
   @IPreferenceTreeGenerator protected readonly treeGenerator: IPreferenceTreeGenerator;
   @IPreferencesScopeTabBar protected readonly scopeTracker: IPreferencesScopeTabBar;

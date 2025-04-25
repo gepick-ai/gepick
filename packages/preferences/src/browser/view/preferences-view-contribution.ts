@@ -16,6 +16,8 @@ export class PreferencesView extends AbstractView<PreferencesWidget> implements 
 
   async onShellLayoutInit(): Promise<void> {
     await this.setupView({ activate: true });
+
+    return Promise.resolve(void 0);
   }
 }
 export const IPreferencesView = createServiceDecorator<IPreferencesView>(PreferencesView.name);

@@ -15,8 +15,7 @@
 // *****************************************************************************
 
 import { Container, interfaces } from 'inversify';
-import { IServiceContainer, ServiceContainer } from '@gepick/core/common';
-import { TreeProps, TreeWidget, defaultTreeProps } from './tree-widget';
+import { DefaultTreeProps, TreeProps, TreeWidget, defaultTreeProps } from './tree-widget';
 import { TreeModel, TreeModelImpl } from './tree-model';
 import { Tree, TreeImpl } from './tree';
 import { TreeSelectionService } from './tree-selection';
@@ -26,14 +25,21 @@ import { TreeNavigationService } from './tree-navigation';
 import { NoopTreeDecoratorService, TreeDecoratorService } from './tree-decorator';
 import { TreeSearch } from './tree-search';
 import { FuzzySearch } from './fuzzy-search';
-import { SearchBox, SearchBoxFactory } from './search-box';
+import { SearchBox, SearchBoxFactory, SearchBoxFactoryImpl } from './search-box';
 import { SearchBoxDebounce } from './search-box-debounce';
 import { TreeFocusService, TreeFocusServiceImpl } from './tree-focus-service';
 
+export interface SearchBoxFactoryFactory {
+  (context: interfaces.Context): SearchBoxFactory;
+}
+
 const defaultSearchBoxFactoryFactory: SearchBoxFactoryFactory = () => (options) => {
-  const debounce = new SearchBoxDebounce(options as any);
+  const debounce = new SearchBoxDebounce(options);
   return new SearchBox(options, debounce);
 };
+Reflect.defineProperty(defaultSearchBoxFactoryFactory, 'getServiceId', {
+  value: () => Symbol.for('SearchBoxFactoryImpl'),
+});
 
 const defaultImplementations: TreeContainerProps & { props: TreeProps } = {
   tree: TreeImpl,
@@ -81,28 +87,36 @@ export function isTreeServices(candidate?: Partial<TreeProps> | Partial<TreeCont
   return false;
 }
 
-export function createTreeContainer(parent: IServiceContainer, serviceIdentifiers: any, props?: Partial<TreeContainerProps>): IServiceContainer {
-  const child = new ServiceContainer();
+export function createTreeContainer(parent: interfaces.Container, props?: Partial<TreeContainerProps>): Container;
+/**
+ * @deprecated Please use TreeContainerProps instead of TreeProps
+ * @since 1.23.0
+ */
+export function createTreeContainer(parent: interfaces.Container, props?: Partial<TreeProps>): Container;
+export function createTreeContainer(parent: interfaces.Container, props?: Partial<TreeProps> | Partial<TreeContainerProps>): Container {
+  const child = new Container({ defaultScope: 'Singleton' });
   child.parent = parent;
   const overrideServices: Partial<TreeContainerProps> = isTreeServices(props) ? props : { props: props as Partial<TreeProps> | undefined };
   for (const key of Object.keys(serviceIdentifiers) as (keyof TreeIdentifiers)[]) {
     if (key === 'props') {
-      const { service, identifier } = getServiceAndIdentifier(key, overrideServices);
-      child.bind(identifier).toConstantValue({
+      const { service } = getServiceAndIdentifier(key, overrideServices);
+
+      child.bind(DefaultTreeProps.getServiceId()).toConstantValue({
         ...defaultImplementations.props,
         ...service,
       });
     }
     else if (key === 'searchBoxFactory') {
-      const { service, identifier } = getServiceAndIdentifier(key, overrideServices);
-      child.bind(identifier).toFactory(context => service(context));
+      child.bind(SearchBoxFactoryImpl.getServiceId()).to(SearchBoxFactoryImpl).inSingletonScope();
     }
     else {
-      const { service, identifier } = getServiceAndIdentifier(key, overrideServices);
-      child.bind(service).toSelf().inSingletonScope();
-      if (identifier !== service) {
-        child.bind(identifier as interfaces.ServiceIdentifier<typeof service>).toService(service);
-      }
+      let { service, identifier } = getServiceAndIdentifier(key, overrideServices);
+      identifier = (service as any).getServiceId(); // NOTE: 适配Gepick
+      child.bind(identifier).to(service as any).inSingletonScope();
+
+      // if (identifier !== service) {
+      //   child.bind(identifier as interfaces.ServiceIdentifier<typeof service>).toService(service);
+      // }
     }
   }
   return child;
@@ -118,10 +132,6 @@ function getServiceAndIdentifier<Key extends keyof TreeIdentifiers>(
     service,
     identifier: serviceIdentifiers[key],
   };
-}
-
-export interface SearchBoxFactoryFactory {
-  (context: interfaces.Context): SearchBoxFactory;
 }
 
 interface TreeConstants {
