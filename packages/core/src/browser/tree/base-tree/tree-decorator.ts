@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { unmanaged } from 'inversify';
-import { Disposable, DisposableCollection, Emitter, Event, InjectableService, MaybePromise, createServiceDecorator } from '@gepick/core/common';
+import { IDisposable, DisposableCollection, Emitter, Event, InjectableService, MaybePromise, createServiceDecorator } from '@gepick/core/common';
 import { WidgetDecoration } from '../../widget';
 import { Tree, TreeNode } from './tree';
 
@@ -95,7 +95,7 @@ export const TreeDecoratorService = Symbol('TreeDecoratorService');
  * }
  * ```
  */
-export interface TreeDecoratorService extends Disposable {
+export interface TreeDecoratorService extends IDisposable {
 
   /**
    * Fired when any of the available tree decorators has changes.

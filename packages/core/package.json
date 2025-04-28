@@ -57,6 +57,7 @@
     "lodash.throttle": "^4.1.1",
     "markdown-it": "^12.3.2",
     "mongoose": "^8.3.2",
+    "native-keymap": "^2.2.1",
     "p-debounce": "^2.1.0",
     "perfect-scrollbar": "^1.5.6",
     "react": "^18.2.0",

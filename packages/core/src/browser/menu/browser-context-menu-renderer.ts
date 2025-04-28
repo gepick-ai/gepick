@@ -26,6 +26,7 @@ export class BrowserContextMenuAccess extends ContextMenuAccess {
   }
 }
 
+// TODO(@jaylenchen): 完善BrowserMainMenuFactory实现
 export class BrowserMainMenuFactory extends InjectableService {
   createContextMenu(..._args: any) {
     return {

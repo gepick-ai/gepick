@@ -1,10 +1,12 @@
-import { Deferred, IServiceContainer, InjectableService, PostConstruct, createServiceDecorator } from "@gepick/core/common";
+import { Deferred, Emitter, IServiceContainer, InjectableService, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
 import { Signal } from "@lumino/signaling";
 import { ArrayExt, find, toArray } from "@lumino/algorithm";
 import { IDragEvent } from "@lumino/dragdrop";
 import { BaseWidget, BoxLayout, BoxPanel, DockLayout, DockPanel, FocusTracker, Layout, Message, SplitLayout, SplitPanel, TabBar, Widget, waitForClosed } from "../widget";
-import { ISidePanelHandlerFactory, SidePanel, SidePanelHandler, TheiaDockPanel } from "./side-panel-handler";
-import { ITabBarRendererFactory, ScrollableTabBar, TabBarRenderer } from "./tab-bars";
+import { IOpenerService } from "../opener";
+import { IContextKeyService } from "../menu";
+import { ISidePanelHandlerFactory, MAIN_AREA_ID, SidePanel, SidePanelHandler, TheiaDockPanel } from "./side-panel-handler";
+import { ITabBarRendererFactory, ScrollableTabBar } from "./tab-bars";
 
 /**
  * Data stored while dragging widgets in the shell.
@@ -20,6 +22,12 @@ interface WidgetDragState {
 const APPLICATION_SHELL_CLASS = 'theia-ApplicationShell';
 /** The class name added to the main and bottom area panels. */
 const MAIN_BOTTOM_AREA_CLASS = 'theia-app-centers';
+/** Status bar entry identifier for the bottom panel toggle button. */
+// const BOTTOM_PANEL_TOGGLE_ID = 'bottom-panel-toggle';
+/** The class name added to the main area panel. */
+const MAIN_AREA_CLASS = 'theia-app-main';
+/** The class name added to the bottom area panel. */
+// const BOTTOM_AREA_CLASS = 'theia-app-bottom';
 
 export type RecursivePartial<T> = {
   [P in keyof T]?: RecursivePartial<T[P]>;
@@ -107,6 +115,7 @@ export class Shell extends BaseWidget {
 
   private dragState?: WidgetDragState;
   private readonly tracker = new FocusTracker<Widget>();
+  additionalDraggedUris: URI[] | undefined;
   /**
    * A signal emitted whenever the `currentWidget` property is changed.
    */
@@ -119,9 +128,46 @@ export class Shell extends BaseWidget {
 
   protected initializedDeferred = new Deferred<void>();
 
+  protected readonly onDidAddWidgetEmitter = new Emitter<Widget>();
+  readonly onDidAddWidget = this.onDidAddWidgetEmitter.event;
+  protected fireDidAddWidget(widget: Widget): void {
+    this.onDidAddWidgetEmitter.fire(widget);
+  }
+
+  protected readonly onDidRemoveWidgetEmitter = new Emitter<Widget>();
+  readonly onDidRemoveWidget = this.onDidRemoveWidgetEmitter.event;
+  protected fireDidRemoveWidget(widget: Widget): void {
+    this.onDidRemoveWidgetEmitter.fire(widget);
+  }
+
+  protected readonly onDidChangeActiveWidgetEmitter = new Emitter<FocusTracker.IChangedArgs<Widget>>();
+  readonly onDidChangeActiveWidget = this.onDidChangeActiveWidgetEmitter.event;
+
+  protected readonly onDidChangeCurrentWidgetEmitter = new Emitter<FocusTracker.IChangedArgs<Widget>>();
+  readonly onDidChangeCurrentWidget = this.onDidChangeCurrentWidgetEmitter.event;
+
+  protected readonly onDidDoubleClickMainAreaEmitter = new Emitter<void>();
+  readonly onDidDoubleClickMainArea = this.onDidDoubleClickMainAreaEmitter.event;
+
+  protected static getDraggedEditorUris(dataTransfer: DataTransfer): URI[] {
+    const data = dataTransfer.getData('theia-editor-dnd');
+    return data ? data.split('\n').map(entry => new URI(entry)) : [];
+  }
+
+  static setDraggedEditorUris(dataTransfer: DataTransfer, uris: URI[]): void {
+    dataTransfer.setData('theia-editor-dnd', uris.map(uri => uri.toString()).join('\n'));
+  }
+
+  private _mainPanelRenderer: DockPanelRenderer;
+  get mainPanelRenderer(): DockPanelRenderer {
+    return this._mainPanelRenderer;
+  }
+
   constructor(
     @ISidePanelHandlerFactory protected readonly sidePanelHandlerFactory: ISidePanelHandlerFactory,
     @IDockPanelRendererFactory protected readonly dockPanelRendererFactory: IDockPanelRendererFactory,
+    @IOpenerService protected openerService: IOpenerService,
+    @IContextKeyService protected readonly contextKeyService: IContextKeyService,
   ) {
     super();
   }
@@ -210,6 +256,25 @@ export class Shell extends BaseWidget {
     this.initializedDeferred.resolve();
   }
 
+  protected initSidebarVisibleKeyContext(): void {
+    const leftSideBarPanel = this.leftPanelHandler.dockPanel;
+    const sidebarVisibleKey = this.contextKeyService.createKey('sidebarVisible', leftSideBarPanel.isVisible);
+    // @ts-ignore
+    const onAfterShow = leftSideBarPanel.onAfterShow.bind(leftSideBarPanel);
+    // @ts-ignore
+    leftSideBarPanel.onAfterShow = (msg: Message) => {
+      onAfterShow(msg);
+      sidebarVisibleKey.set(true);
+    };
+    // @ts-ignore
+    const onAfterHide = leftSideBarPanel.onAfterHide.bind(leftSideBarPanel);
+    // @ts-ignore
+    leftSideBarPanel.onAfterHide = (msg: Message) => {
+      onAfterHide(msg);
+      sidebarVisibleKey.set(false);
+    };
+  }
+
   protected createLayout(): Layout {
     // Left Panel
     this.leftPanel = this.createSidePanel();
@@ -238,20 +303,62 @@ export class Shell extends BaseWidget {
   protected createMainPanel(): DockPanel {
     const renderer = this.dockPanelRendererFactory.createDockPanelRenderer();
     renderer.tabBarClasses.push(MAIN_BOTTOM_AREA_CLASS);
+    renderer.tabBarClasses.push(MAIN_AREA_CLASS);
+    this._mainPanelRenderer = renderer;
+
+    renderer.tabBarClasses.push(MAIN_BOTTOM_AREA_CLASS);
     const dockPanel = new TheiaDockPanel({
       mode: 'multiple-document',
       renderer,
       spacing: 0,
     });
 
-    dockPanel.id = 'theia-main-content-panel';
+    dockPanel.id = MAIN_AREA_ID;
+    dockPanel.widgetAdded.connect((_, widget) => this.fireDidAddWidget(widget));
+    dockPanel.widgetRemoved.connect((_, widget) => this.fireDidRemoveWidget(widget));
+
+    const openUri = async (fileUri: URI) => {
+      try {
+        const opener = await this.openerService.getOpener(fileUri);
+        opener.open(fileUri);
+      }
+      catch {
+        // eslint-disable-next-line no-console
+        console.info(`no opener found for '${fileUri}'`);
+      }
+    };
+
+    dockPanel.node.addEventListener('drop', (event) => {
+      if (event.dataTransfer) {
+        const uris = this.additionalDraggedUris || Shell.getDraggedEditorUris(event.dataTransfer);
+        if (uris.length > 0) {
+          uris.forEach(openUri);
+        }
+      }
+    });
+
+    dockPanel.node.addEventListener('dblclick', (event) => {
+      const el = event.target as Element;
+      if (el.id === MAIN_AREA_ID || el.classList.contains('lm-TabBar-content')) {
+        this.onDidDoubleClickMainAreaEmitter.fire();
+      }
+    });
+
+    const handler = (e: DragEvent) => {
+      if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = 'link';
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    dockPanel.node.addEventListener('dragover', handler);
+    dockPanel.node.addEventListener('dragenter', handler);
 
     return dockPanel;
   }
 
   /**
    * Create a box layout to assemble the application shell layout.
-   *
    * 一个Box Layout布局会将Widget按照一行或者一列排列
    */
   protected createBoxLayout(widgets: Widget[], stretch?: number[], options?: BoxPanel.IOptions): BoxLayout {
@@ -742,6 +849,41 @@ export class Shell extends BaseWidget {
       document.dispatchEvent(event);
     }
   }
+
+  getInsertionOptions(options?: Readonly<Shell.WidgetOptions>): { area: string; addOptions: TheiaDockPanel.AddOptions } {
+    let ref: Widget | undefined = options?.ref as any;
+    let area: Shell.Area = options?.area || 'main';
+    if (!ref && (area === 'main')) {
+      const tabBar = this.getTabBarFor(area);
+      ref = tabBar && tabBar.currentTitle && tabBar.currentTitle.owner || undefined;
+    }
+    // make sure that ref belongs to area
+    area = ref && this.getAreaFor(ref) || area;
+    const addOptions: TheiaDockPanel.AddOptions = {};
+    if (Shell.isOpenToSideMode(options?.mode)) {
+      const areaPanel = area === 'main' ? (this.mainPanel as TheiaDockPanel) : undefined;
+      const sideRef = areaPanel && ref && (options?.mode === 'open-to-left'
+        ? areaPanel.previousTabBarWidget(ref)
+        : areaPanel.nextTabBarWidget(ref));
+      if (sideRef) {
+        addOptions.ref = sideRef;
+      }
+      else {
+        addOptions.ref = ref;
+        addOptions.mode = options?.mode === 'open-to-left' ? 'split-left' : 'split-right';
+      }
+    }
+    else if (Shell.isReplaceMode(options?.mode)) {
+      addOptions.ref = options?.ref;
+      addOptions.closeRef = true;
+      addOptions.mode = 'tab-after';
+    }
+    else {
+      addOptions.ref = ref;
+      addOptions.mode = options?.mode;
+    }
+    return { area, addOptions };
+  }
 }
 
 export namespace Shell {
@@ -834,6 +976,24 @@ export namespace Shell {
      * if false then won't be saved on close
      */
     save?: boolean | undefined;
+  }
+
+  /**
+   * Whether a widget should be opened to the side tab bar relatively to the reference widget.
+   */
+  export type OpenToSideMode = 'open-to-left' | 'open-to-right';
+
+  export function isOpenToSideMode(mode: unknown): mode is OpenToSideMode {
+    return mode === 'open-to-left' || mode === 'open-to-right';
+  }
+
+  /**
+   * Whether the `ref` of the options widget should be replaced.
+   */
+  export type ReplaceMode = 'tab-replace';
+
+  export function isReplaceMode(mode: unknown): mode is ReplaceMode {
+    return mode === 'tab-replace';
   }
 }
 

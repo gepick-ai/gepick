@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Disposable, Emitter, Event, InjectableService, PostConstruct, createServiceDecorator } from '@gepick/core/common';
+import { IDisposable, Emitter, Event, InjectableService, PostConstruct, createServiceDecorator } from '@gepick/core/common';
 import { CompositeTreeNode, ITree, TreeNode } from './tree';
 
 export const TreeExpansionService = Symbol('TreeExpansionService');
@@ -22,7 +22,7 @@ export const TreeExpansionService = Symbol('TreeExpansionService');
 /**
  * The tree expandable service.
  */
-export interface TreeExpansionService extends Disposable {
+export interface TreeExpansionService extends IDisposable {
   /**
    * Emit when the node is expanded or collapsed.
    */

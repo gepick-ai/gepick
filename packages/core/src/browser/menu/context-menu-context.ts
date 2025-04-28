@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { InjectableService, OS } from '@gepick/core/common';
+import { InjectableService, OS, createServiceDecorator } from '@gepick/core/common';
 
 export class ContextMenuContext extends InjectableService {
   protected _altPressed = false;
@@ -36,3 +36,5 @@ export class ContextMenuContext extends InjectableService {
     document.addEventListener('keyup', () => this.resetAltPressed(), true);
   }
 }
+export const IContextMenuContext = createServiceDecorator<IContextMenuContext>(ContextMenuContext.name);
+export type IContextMenuContext = ContextMenuContext;

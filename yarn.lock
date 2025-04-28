@@ -2401,6 +2401,7 @@ __metadata:
     lodash.throttle: "npm:^4.1.1"
     markdown-it: "npm:^12.3.2"
     mongoose: "npm:^8.3.2"
+    native-keymap: "npm:^2.2.1"
     p-debounce: "npm:^2.1.0"
     perfect-scrollbar: "npm:^1.5.6"
     react: "npm:^18.2.0"
@@ -12353,6 +12354,15 @@ __metadata:
   version: 2.4.2
   resolution: "nanopop@npm:2.4.2"
   checksum: 10/61f74a2a2c833f9564a46c3bb9784471292467b239e428e6c28209bb68876ac40322b4c70122e0b0bbd1f7d4a71bd79ec447f36f2c7264a0bc9310bb97ad84eb
+  languageName: node
+  linkType: hard
+
+"native-keymap@npm:^2.2.1":
+  version: 2.5.0
+  resolution: "native-keymap@npm:2.5.0"
+  dependencies:
+    node-gyp: "npm:latest"
+  checksum: 10/584dae36c859fc97ff8a24f7959200b6349c0fa5c46178aa9b2054eb549d807312161b250ea82533d6058bd11c23aa9be60160ec347e5b09d20d190568530031
   languageName: node
   linkType: hard
 

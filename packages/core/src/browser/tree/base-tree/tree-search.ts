@@ -14,13 +14,13 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Disposable, DisposableStore, Emitter, Event, InjectableService, PostConstruct, createServiceDecorator } from '@gepick/core/common';
+import { IDisposable, DisposableStore, Emitter, Event, InjectableService, PostConstruct, createServiceDecorator } from '@gepick/core/common';
 import { ITree, Tree, TreeNode } from './tree';
 import { TreeDecoration } from './tree-decorator';
 import { FuzzySearch, IFuzzySearch } from './fuzzy-search';
 import { TopDownTreeIterator } from './tree-iterator';
 
-export class TreeSearch extends InjectableService implements Disposable {
+export class TreeSearch extends InjectableService implements IDisposable {
   protected readonly labelProvider = { getName: (node: TreeNode) => node.id };
 
   protected readonly disposables = new DisposableStore();

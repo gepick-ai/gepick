@@ -14,10 +14,9 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { IApplicationContribution } from '@gepick/core/browser';
 import { Command, ICommandRegistry } from '../command';
 import { Emitter, Event } from '../event';
-import { Contribution, IContributionProvider, InjectableService, Optional, createContribution, createServiceDecorator } from '../dependency-injection';
+import { IContributionProvider, InjectableService, Optional, createContribution, createServiceDecorator } from '../dependency-injection';
 import { IDisposable, toDisposable } from '../lifecycle';
 import { CompoundMenuNode, MenuAction, MenuNode, MenuNodeMetadata, MenuPath, MutableCompoundMenuNode, SubMenuOptions } from './menu-types';
 import { CompositeMenuNode, CompositeMenuNodeWrapper } from './composite-menu-node';

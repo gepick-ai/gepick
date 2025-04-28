@@ -14,14 +14,14 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Disposable, Event, SelectionProvider, isObject } from '@gepick/core/common';
+import { IDisposable, Event, SelectionProvider, isObject } from '@gepick/core/common';
 import { TreeNode } from './tree';
 
 /**
  * The tree selection service.
  */
 export const TreeSelectionService = Symbol('TreeSelectionService');
-export interface TreeSelectionService extends Disposable, SelectionProvider<ReadonlyArray<Readonly<SelectableTreeNode>>> {
+export interface TreeSelectionService extends IDisposable, SelectionProvider<ReadonlyArray<Readonly<SelectableTreeNode>>> {
 
   /**
    * The tree selection, representing the selected nodes from the tree. If nothing is selected, the

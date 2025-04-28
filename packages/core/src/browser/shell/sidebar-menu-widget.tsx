@@ -86,13 +86,10 @@ export class SidebarMenuWidget extends ReactWidget {
    */
   protected preservingContext = false;
 
-  @IContextMenuRenderer
-  protected readonly contextMenuRenderer: IContextMenuRenderer;
-
-  @IHoverService
-  protected readonly hoverService: IHoverService;
-
-  constructor() {
+  constructor(
+    @IContextMenuRenderer protected readonly contextMenuRenderer: IContextMenuRenderer,
+    @IHoverService protected readonly hoverService: IHoverService,
+  ) {
     super();
     this.items = [];
   }
