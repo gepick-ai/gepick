@@ -1,4 +1,4 @@
-import { createContribution } from '@gepick/core/common';
+import { Contribution, InjectableService, createContribution } from '@gepick/core/common';
 
 export const [IApplicationContribution, IApplicationContributionProvider] = createContribution<IApplicationContribution>('ApplicationContribution');
 export interface IApplicationContribution {
@@ -12,4 +12,11 @@ export interface IApplicationContribution {
    */
   onApplicationStart?: () => void;
 
+}
+
+@Contribution(IApplicationContribution)
+export abstract class ApplicationContribution extends InjectableService implements IApplicationContribution {
+  onApplicationInit?(): void;
+
+  onApplicationStart?(): void;
 }

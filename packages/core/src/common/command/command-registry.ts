@@ -4,7 +4,7 @@ import { InjectableService, Optional, createServiceDecorator } from '../dependen
 import { DisposableStore, IDisposable, toDisposable } from '../lifecycle';
 import { Command, CommandEvent, CommandHandler, WillExecuteCommandEvent } from "./command";
 import { CommandService } from "./command-service";
-import { ICommandContributionProvider, ICommandProvider } from "./command-contribution";
+import { ICommandProvider } from "./command-contribution";
 
 /**
  * The command registry manages commands and handlers.
@@ -29,18 +29,12 @@ export class CommandRegistry extends InjectableService implements CommandService
   readonly onCommandsChanged = this.onCommandsChangedEmitter.event;
 
   constructor(
-        @Optional() @ICommandContributionProvider protected readonly contributionProvider: ICommandContributionProvider,
         @Optional() @ICommandProvider protected readonly commandProvider: ICommandProvider,
   ) {
     super();
   }
 
   onStart(): void {
-    const contributions = this.contributionProvider.getContributions();
-    for (const contrib of contributions) {
-      contrib.registerCommands(this);
-    }
-
     const commands = this.commandProvider.getContributions();
     commands.forEach(command => this.registerCommand(command, command));
   }
