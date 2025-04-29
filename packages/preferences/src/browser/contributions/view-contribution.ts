@@ -15,6 +15,8 @@ export class PreferencesView extends ViewContribution<PreferencesWidget> {
 
   async onShellLayoutInit(): Promise<void> {
     await this.setupView({ activate: true });
+
+    return Promise.resolve(void 0);
   }
 }
 export const IPreferencesView = createServiceDecorator<IPreferencesView>(PreferencesView.name);

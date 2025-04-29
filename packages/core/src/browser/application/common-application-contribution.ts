@@ -332,176 +332,176 @@ export class CommonApplicationContribution extends InjectableService implements 
 
 @Contribution(IMenuContribution)
 export class CommonMenusContribution extends InjectableService implements IMenuContribution {
-  registerMenus(registry: MenuModelRegistry): void {
-    registry.registerSubmenu(CommonMenus.FILE, 'File');
-    registry.registerSubmenu(CommonMenus.EDIT, 'Edit');
-    registry.registerSubmenu(CommonMenus.VIEW, 'View');
-    registry.registerSubmenu(CommonMenus.HELP, 'Help');
+  registerMenus(_registry: MenuModelRegistry): void {
+    // registry.registerSubmenu(CommonMenus.FILE, 'File');
+    // registry.registerSubmenu(CommonMenus.EDIT, 'Edit');
+    // registry.registerSubmenu(CommonMenus.VIEW, 'View');
+    // registry.registerSubmenu(CommonMenus.HELP, 'Help');
 
-    // For plugins contributing create new file commands/menu-actions
-    registry.registerIndependentSubmenu(CommonMenus.FILE_NEW_CONTRIBUTIONS, 'New File...');
+    // // For plugins contributing create new file commands/menu-actions
+    // registry.registerIndependentSubmenu(CommonMenus.FILE_NEW_CONTRIBUTIONS, 'New File...');
 
-    registry.registerMenuAction(CommonMenus.FILE_SAVE, {
-      commandId: CommonCommands.SAVE.id,
-    });
-    registry.registerMenuAction(CommonMenus.FILE_SAVE, {
-      commandId: CommonCommands.SAVE_ALL.id,
-    });
+    // registry.registerMenuAction(CommonMenus.FILE_SAVE, {
+    //   commandId: CommonCommands.SAVE.id,
+    // });
+    // registry.registerMenuAction(CommonMenus.FILE_SAVE, {
+    //   commandId: CommonCommands.SAVE_ALL.id,
+    // });
 
-    registry.registerMenuAction(CommonMenus.FILE_AUTOSAVE, {
-      commandId: CommonCommands.AUTO_SAVE.id,
-    });
+    // registry.registerMenuAction(CommonMenus.FILE_AUTOSAVE, {
+    //   commandId: CommonCommands.AUTO_SAVE.id,
+    // });
 
-    registry.registerSubmenu(CommonMenus.FILE_SETTINGS_SUBMENU, CommonCommands.PREFERENCES_CATEGORY);
+    // registry.registerSubmenu(CommonMenus.FILE_SETTINGS_SUBMENU, CommonCommands.PREFERENCES_CATEGORY);
 
-    registry.registerMenuAction(CommonMenus.EDIT_UNDO, {
-      commandId: CommonCommands.UNDO.id,
-      order: '0',
-    });
-    registry.registerMenuAction(CommonMenus.EDIT_UNDO, {
-      commandId: CommonCommands.REDO.id,
-      order: '1',
-    });
+    // registry.registerMenuAction(CommonMenus.EDIT_UNDO, {
+    //   commandId: CommonCommands.UNDO.id,
+    //   order: '0',
+    // });
+    // registry.registerMenuAction(CommonMenus.EDIT_UNDO, {
+    //   commandId: CommonCommands.REDO.id,
+    //   order: '1',
+    // });
 
-    registry.registerMenuAction(CommonMenus.EDIT_FIND, {
-      commandId: CommonCommands.FIND.id,
-      order: '0',
-    });
-    registry.registerMenuAction(CommonMenus.EDIT_FIND, {
-      commandId: CommonCommands.REPLACE.id,
-      order: '1',
-    });
+    // registry.registerMenuAction(CommonMenus.EDIT_FIND, {
+    //   commandId: CommonCommands.FIND.id,
+    //   order: '0',
+    // });
+    // registry.registerMenuAction(CommonMenus.EDIT_FIND, {
+    //   commandId: CommonCommands.REPLACE.id,
+    //   order: '1',
+    // });
 
-    registry.registerMenuAction(CommonMenus.EDIT_CLIPBOARD, {
-      commandId: CommonCommands.CUT.id,
-      order: '0',
-    });
-    registry.registerMenuAction(CommonMenus.EDIT_CLIPBOARD, {
-      commandId: CommonCommands.COPY.id,
-      order: '1',
-    });
-    registry.registerMenuAction(CommonMenus.EDIT_CLIPBOARD, {
-      commandId: CommonCommands.PASTE.id,
-      order: '2',
-    });
-    registry.registerMenuAction(CommonMenus.EDIT_CLIPBOARD, {
-      commandId: CommonCommands.COPY_PATH.id,
-      order: '3',
-    });
+    // registry.registerMenuAction(CommonMenus.EDIT_CLIPBOARD, {
+    //   commandId: CommonCommands.CUT.id,
+    //   order: '0',
+    // });
+    // registry.registerMenuAction(CommonMenus.EDIT_CLIPBOARD, {
+    //   commandId: CommonCommands.COPY.id,
+    //   order: '1',
+    // });
+    // registry.registerMenuAction(CommonMenus.EDIT_CLIPBOARD, {
+    //   commandId: CommonCommands.PASTE.id,
+    //   order: '2',
+    // });
+    // registry.registerMenuAction(CommonMenus.EDIT_CLIPBOARD, {
+    //   commandId: CommonCommands.COPY_PATH.id,
+    //   order: '3',
+    // });
 
-    registry.registerMenuAction(CommonMenus.VIEW_APPEARANCE_SUBMENU_BAR, {
-      commandId: CommonCommands.TOGGLE_BOTTOM_PANEL.id,
-      order: '1',
-    });
-    registry.registerMenuAction(CommonMenus.VIEW_APPEARANCE_SUBMENU_BAR, {
-      commandId: CommonCommands.TOGGLE_STATUS_BAR.id,
-      order: '2',
-      label: 'Toggle Status Bar Visibility',
-    });
-    registry.registerMenuAction(CommonMenus.VIEW_APPEARANCE_SUBMENU_BAR, {
-      commandId: CommonCommands.COLLAPSE_ALL_PANELS.id,
-      order: '3',
-    });
+    // registry.registerMenuAction(CommonMenus.VIEW_APPEARANCE_SUBMENU_BAR, {
+    //   commandId: CommonCommands.TOGGLE_BOTTOM_PANEL.id,
+    //   order: '1',
+    // });
+    // registry.registerMenuAction(CommonMenus.VIEW_APPEARANCE_SUBMENU_BAR, {
+    //   commandId: CommonCommands.TOGGLE_STATUS_BAR.id,
+    //   order: '2',
+    //   label: 'Toggle Status Bar Visibility',
+    // });
+    // registry.registerMenuAction(CommonMenus.VIEW_APPEARANCE_SUBMENU_BAR, {
+    //   commandId: CommonCommands.COLLAPSE_ALL_PANELS.id,
+    //   order: '3',
+    // });
 
-    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_CLOSE, {
-      commandId: CommonCommands.CLOSE_TAB.id,
-      label: 'Close',
-      order: '0',
-    });
-    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_CLOSE, {
-      commandId: CommonCommands.CLOSE_OTHER_TABS.id,
-      label: 'Close Others',
-      order: '1',
-    });
-    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_CLOSE, {
-      commandId: CommonCommands.CLOSE_RIGHT_TABS.id,
-      label: 'Close to the Right',
-      order: '2',
-    });
-    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_CLOSE, {
-      commandId: CommonCommands.CLOSE_SAVED_TABS.id,
-      label: 'Close Saved',
-      order: '3',
-    });
-    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_CLOSE, {
-      commandId: CommonCommands.CLOSE_ALL_TABS.id,
-      label: 'Close All',
-      order: '4',
-    });
-    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_SPLIT, {
-      commandId: CommonCommands.COLLAPSE_PANEL.id,
-      label: CommonCommands.COLLAPSE_PANEL.label,
-      order: '5',
-    });
-    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_SPLIT, {
-      commandId: CommonCommands.TOGGLE_MAXIMIZED.id,
-      label: CommonCommands.TOGGLE_MAXIMIZED.label,
-      order: '6',
-    });
-    registry.registerMenuAction(CommonMenus.VIEW_APPEARANCE_SUBMENU_SCREEN, {
-      commandId: CommonCommands.TOGGLE_MAXIMIZED.id,
-      label: CommonCommands.TOGGLE_MAXIMIZED.label,
-      order: '6',
-    });
-    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_COPY, {
-      commandId: CommonCommands.COPY_PATH.id,
-      label: CommonCommands.COPY_PATH.label,
-      order: '1',
-    });
-    registry.registerMenuAction(CommonMenus.VIEW_APPEARANCE_SUBMENU_BAR, {
-      commandId: CommonCommands.SHOW_MENU_BAR.id,
-      label: 'Toggle Menu Bar',
-      order: '0',
-    });
-    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_PIN, {
-      commandId: CommonCommands.PIN_TAB.id,
-      label: 'Pin',
-      order: '7',
-    });
-    registry.registerMenuAction(SHELL_TABBAR_CONTEXT_PIN, {
-      commandId: CommonCommands.UNPIN_TAB.id,
-      label: 'Unpin',
-      order: '8',
-    });
-    registry.registerMenuAction(CommonMenus.HELP, {
-      commandId: CommonCommands.ABOUT_COMMAND.id,
-      label: CommonCommands.ABOUT_COMMAND.label,
-      order: '9',
-    });
+    // registry.registerMenuAction(SHELL_TABBAR_CONTEXT_CLOSE, {
+    //   commandId: CommonCommands.CLOSE_TAB.id,
+    //   label: 'Close',
+    //   order: '0',
+    // });
+    // registry.registerMenuAction(SHELL_TABBAR_CONTEXT_CLOSE, {
+    //   commandId: CommonCommands.CLOSE_OTHER_TABS.id,
+    //   label: 'Close Others',
+    //   order: '1',
+    // });
+    // registry.registerMenuAction(SHELL_TABBAR_CONTEXT_CLOSE, {
+    //   commandId: CommonCommands.CLOSE_RIGHT_TABS.id,
+    //   label: 'Close to the Right',
+    //   order: '2',
+    // });
+    // registry.registerMenuAction(SHELL_TABBAR_CONTEXT_CLOSE, {
+    //   commandId: CommonCommands.CLOSE_SAVED_TABS.id,
+    //   label: 'Close Saved',
+    //   order: '3',
+    // });
+    // registry.registerMenuAction(SHELL_TABBAR_CONTEXT_CLOSE, {
+    //   commandId: CommonCommands.CLOSE_ALL_TABS.id,
+    //   label: 'Close All',
+    //   order: '4',
+    // });
+    // registry.registerMenuAction(SHELL_TABBAR_CONTEXT_SPLIT, {
+    //   commandId: CommonCommands.COLLAPSE_PANEL.id,
+    //   label: CommonCommands.COLLAPSE_PANEL.label,
+    //   order: '5',
+    // });
+    // registry.registerMenuAction(SHELL_TABBAR_CONTEXT_SPLIT, {
+    //   commandId: CommonCommands.TOGGLE_MAXIMIZED.id,
+    //   label: CommonCommands.TOGGLE_MAXIMIZED.label,
+    //   order: '6',
+    // });
+    // registry.registerMenuAction(CommonMenus.VIEW_APPEARANCE_SUBMENU_SCREEN, {
+    //   commandId: CommonCommands.TOGGLE_MAXIMIZED.id,
+    //   label: CommonCommands.TOGGLE_MAXIMIZED.label,
+    //   order: '6',
+    // });
+    // registry.registerMenuAction(SHELL_TABBAR_CONTEXT_COPY, {
+    //   commandId: CommonCommands.COPY_PATH.id,
+    //   label: CommonCommands.COPY_PATH.label,
+    //   order: '1',
+    // });
+    // registry.registerMenuAction(CommonMenus.VIEW_APPEARANCE_SUBMENU_BAR, {
+    //   commandId: CommonCommands.SHOW_MENU_BAR.id,
+    //   label: 'Toggle Menu Bar',
+    //   order: '0',
+    // });
+    // registry.registerMenuAction(SHELL_TABBAR_CONTEXT_PIN, {
+    //   commandId: CommonCommands.PIN_TAB.id,
+    //   label: 'Pin',
+    //   order: '7',
+    // });
+    // registry.registerMenuAction(SHELL_TABBAR_CONTEXT_PIN, {
+    //   commandId: CommonCommands.UNPIN_TAB.id,
+    //   label: 'Unpin',
+    //   order: '8',
+    // });
+    // registry.registerMenuAction(CommonMenus.HELP, {
+    //   commandId: CommonCommands.ABOUT_COMMAND.id,
+    //   label: CommonCommands.ABOUT_COMMAND.label,
+    //   order: '9',
+    // });
 
-    registry.registerMenuAction(CommonMenus.VIEW_PRIMARY, {
-      commandId: CommonCommands.OPEN_VIEW.id,
-    });
+    // registry.registerMenuAction(CommonMenus.VIEW_PRIMARY, {
+    //   commandId: CommonCommands.OPEN_VIEW.id,
+    // });
 
-    registry.registerMenuAction(CommonMenus.FILE_SETTINGS_SUBMENU_THEME, {
-      commandId: CommonCommands.SELECT_COLOR_THEME.id,
-    });
-    registry.registerMenuAction(CommonMenus.FILE_SETTINGS_SUBMENU_THEME, {
-      commandId: CommonCommands.SELECT_ICON_THEME.id,
-    });
+    // registry.registerMenuAction(CommonMenus.FILE_SETTINGS_SUBMENU_THEME, {
+    //   commandId: CommonCommands.SELECT_COLOR_THEME.id,
+    // });
+    // registry.registerMenuAction(CommonMenus.FILE_SETTINGS_SUBMENU_THEME, {
+    //   commandId: CommonCommands.SELECT_ICON_THEME.id,
+    // });
 
-    registry.registerSubmenu(CommonMenus.MANAGE_SETTINGS_THEMES, 'Themes', { order: 'a50' });
-    registry.registerMenuAction(CommonMenus.MANAGE_SETTINGS_THEMES, {
-      commandId: CommonCommands.SELECT_COLOR_THEME.id,
-      order: '0',
-    });
-    registry.registerMenuAction(CommonMenus.MANAGE_SETTINGS_THEMES, {
-      commandId: CommonCommands.SELECT_ICON_THEME.id,
-      order: '1',
-    });
+    // registry.registerSubmenu(CommonMenus.MANAGE_SETTINGS_THEMES, 'Themes', { order: 'a50' });
+    // registry.registerMenuAction(CommonMenus.MANAGE_SETTINGS_THEMES, {
+    //   commandId: CommonCommands.SELECT_COLOR_THEME.id,
+    //   order: '0',
+    // });
+    // registry.registerMenuAction(CommonMenus.MANAGE_SETTINGS_THEMES, {
+    //   commandId: CommonCommands.SELECT_ICON_THEME.id,
+    //   order: '1',
+    // });
 
-    registry.registerSubmenu(CommonMenus.VIEW_APPEARANCE_SUBMENU, 'Appearance');
+    // registry.registerSubmenu(CommonMenus.VIEW_APPEARANCE_SUBMENU, 'Appearance');
 
-    registry.registerMenuAction(CommonMenus.FILE_NEW_TEXT, {
-      commandId: CommonCommands.NEW_UNTITLED_TEXT_FILE.id,
-      label: 'New Text File',
-      order: 'a',
-    });
+    // registry.registerMenuAction(CommonMenus.FILE_NEW_TEXT, {
+    //   commandId: CommonCommands.NEW_UNTITLED_TEXT_FILE.id,
+    //   label: 'New Text File',
+    //   order: 'a',
+    // });
 
-    registry.registerMenuAction(CommonMenus.FILE_NEW_TEXT, {
-      commandId: CommonCommands.PICK_NEW_FILE.id,
-      label: 'New File...',
-      order: 'a1',
-    });
+    // registry.registerMenuAction(CommonMenus.FILE_NEW_TEXT, {
+    //   commandId: CommonCommands.PICK_NEW_FILE.id,
+    //   label: 'New File...',
+    //   order: 'a1',
+    // });
   }
 }

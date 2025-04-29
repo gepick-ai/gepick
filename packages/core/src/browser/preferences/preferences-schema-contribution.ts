@@ -1,4 +1,4 @@
-import { InjectableService, createContribution } from "@gepick/core/common";
+import { Contribution, InjectableService, createContribution } from "@gepick/core/common";
 
 export const [IPreferencesSchema, IPreferencesSchemaProvider] = createContribution<IPreferencesSchema>("PreferencesSchema");
 export interface IPreferencesSchema {
@@ -6,7 +6,8 @@ export interface IPreferencesSchema {
   properties: any;
 }
 
-export abstract class PreferencesSchema extends InjectableService implements IPreferencesSchema {
+@Contribution(IPreferencesSchema)
+export abstract class PreferencesSchemaContribution extends InjectableService implements IPreferencesSchema {
   abstract type: string;
   abstract properties: any;
 

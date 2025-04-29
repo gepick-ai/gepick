@@ -70,8 +70,6 @@ export abstract class ContextMenuRenderer extends InjectableService {
   }
 
   render(options: RenderContextMenuOptions): ContextMenuAccess {
-    console.log("🚀 ~ ContextMenuRenderer ~ render ~ options:", options);
-    debugger;
     const resolvedOptions = this.resolve(options);
     const access = this.doRender(resolvedOptions);
     this.setCurrent(access);

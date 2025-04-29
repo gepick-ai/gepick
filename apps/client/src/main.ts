@@ -10,6 +10,8 @@ async function main() {
       }).then(async (container) => {
         await container.get<IPreferencesManager>(IPreferencesManager).ready;
         container.get(ITestApplication);
+      }).then(() => {
+
       });
   }
   catch (err) {

@@ -24,6 +24,8 @@ export class Application extends InjectableService {
 
     for (const contribution of applicationContributions) {
       contribution.onApplicationInit?.();
+      // TODO(@jaylenchen): 重构menu model registry启动方式
+      this.menuModelRegistry?.onApplicationInit();
     }
     this.stateService.state = 'started_contributions';
 
@@ -71,8 +73,10 @@ export class Application extends InjectableService {
    */
   protected async initializeLayout(): Promise<void> {
     const views = this.viewProvider.getContributions();
-    views.forEach(view => view.onShellLayoutInit());
-    this.menuModelRegistry.onStart();
+    for (const view of views) {
+      await view?.onShellLayoutInit();
+    }
+
     await this.shell.pendingUpdates;
   }
 

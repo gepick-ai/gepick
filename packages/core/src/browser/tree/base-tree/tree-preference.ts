@@ -14,13 +14,12 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Contribution, Module, ServiceModule, createServiceDecorator } from "@gepick/core/common";
-import { IPreferencesSchema, PreferencesSchema, PreferencesService } from "../../preferences";
+import { Module, ServiceModule, createServiceDecorator } from "@gepick/core/common";
+import { PreferencesSchemaContribution, PreferencesService } from "../../preferences";
 
 export const PREFERENCE_NAME_TREE_INDENT = 'workbench.tree.indent';
 
-@Contribution(IPreferencesSchema)
-export class TreePreferencesSchema extends PreferencesSchema {
+export class TreePreferencesSchema extends PreferencesSchemaContribution {
   type = 'object';
   properties = {
     [PREFERENCE_NAME_TREE_INDENT]: {

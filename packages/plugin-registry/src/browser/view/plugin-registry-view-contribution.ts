@@ -1,11 +1,10 @@
-import { AbstractView, IView } from "@gepick/core/browser";
-import { Contribution, ICommandRegistry, ISelectionService, PostConstruct, lodashDebounce } from "@gepick/core/common";
+import { ViewContribution } from "@gepick/core/browser";
+import { ICommandRegistry, ISelectionService, PostConstruct, lodashDebounce } from "@gepick/core/common";
 import { BUILTIN_QUERY, INSTALLED_QUERY, IPluginSearchModel } from "../search";
 import { IPluginRegistry } from "../plugin";
 import { PluginRegistryViewContainer } from "./plugin-registry-view-container";
 
-@Contribution(IView)
-export class PluginRegistryView extends AbstractView<PluginRegistryViewContainer> implements IView {
+export class PluginRegistryView extends ViewContribution<PluginRegistryViewContainer> {
   constructor(
     @IPluginRegistry protected pluginRegistry: IPluginRegistry,
     @IPluginSearchModel protected pluginSearchModel: IPluginSearchModel,
@@ -31,9 +30,9 @@ export class PluginRegistryView extends AbstractView<PluginRegistryViewContainer
 
   async onShellLayoutInit(): Promise<void> {
     await this.setupView({ activate: true });
-  }
+  };
 
-  protected async showBuiltinExtensions(): Promise<void> {
+  async showBuiltinExtensions(): Promise<void> {
     await this.setupView({ activate: true });
     this.pluginSearchModel.query = BUILTIN_QUERY;
   }

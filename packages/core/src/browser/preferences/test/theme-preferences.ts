@@ -1,9 +1,8 @@
 import { Contribution, Module, ServiceModule, createServiceDecorator } from "@gepick/core/common";
-import { IPreferencesSchema, PreferencesSchema } from "../preferences-schema-contribution";
+import { IPreferencesSchema, PreferencesSchemaContribution } from "../preferences-schema-contribution";
 import { PreferencesService } from "../preferences-proxy";
 
-@Contribution(IPreferencesSchema)
-export class ThemePreferencesSchema extends PreferencesSchema {
+export class ThemePreferencesSchema extends PreferencesSchemaContribution {
   type = 'object';
   properties = {
     'theme.background': {

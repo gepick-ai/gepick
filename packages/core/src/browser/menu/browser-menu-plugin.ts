@@ -105,7 +105,8 @@ export class BrowserMainMenuFactory extends InjectableService {
   }
 
   createContextMenu(path: MenuPath, args?: unknown[], context?: HTMLElement, contextKeyService?: ContextMatcher, skipSingleRootNode?: boolean): MenuWidget {
-    const menuModel = skipSingleRootNode ? this.menuProvider.removeSingleRootNode(this.menuProvider.getMenu(path), path) : this.menuProvider.getMenu(path);
+    const menuNode = this.menuProvider.getMenu(path);
+    const menuModel = skipSingleRootNode ? this.menuProvider.removeSingleRootNode(menuNode, path) : menuNode;
     const menuCommandRegistry = this.createMenuCommandRegistry(menuModel, args).snapshot(path);
     const contextMenu = this.createMenuWidget(menuModel, { commands: menuCommandRegistry, context, rootMenuPath: path, contextKeyService });
     return contextMenu;
@@ -350,7 +351,9 @@ export class DynamicMenuWidget extends MenuWidget {
       else if (role === CompoundMenuNodeRole.Group && menu.id !== 'inline') {
         const children = CompoundMenuNode.getFlatChildren(menu.children);
         const myItems: MenuWidget.IItemOptions[] = [];
+
         children.forEach(child => this.buildSubMenus(myItems, child, commands));
+
         if (myItems.length) {
           if (parentItems.length && parentItems[parentItems.length - 1].type !== 'separator') {
             parentItems.push({ type: 'separator' });
@@ -362,7 +365,9 @@ export class DynamicMenuWidget extends MenuWidget {
     }
     else if (menu.command) {
       const node = menu.altNode && this.services.context.altPressed ? menu.altNode : (menu as MenuNode & CommandMenuNode);
-      if (commands.isVisible(node.command) && this.undefinedOrMatch(this.options.contextKeyService ?? this.services.contextKeyService, node.when, this.options.context)) {
+      const isVisible = commands.isVisible(node.command);
+      const isUndefinedOrMatch = this.undefinedOrMatch(this.options.contextKeyService ?? this.services.contextKeyService, node.when, this.options.context);
+      if (isVisible && isUndefinedOrMatch) {
         parentItems.push({
           command: node.command,
           type: 'command',
@@ -431,6 +436,7 @@ export class MenuCommandRegistry extends LuminoCommandRegistry {
     if (!command) {
       return;
     }
+
     const { id } = command;
     if (this.actions.has(id)) {
       return;

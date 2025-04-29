@@ -17,6 +17,7 @@
 import { InjectableService, createServiceDecorator } from '@gepick/core/common';
 import { Menu } from '../widget';
 import { ContextMenuAccess, ContextMenuRenderer, RenderContextMenuOptions, coordinateFromAnchor } from './context-menu-renderer';
+import { IBrowserMainMenuFactory } from './browser-menu-plugin';
 
 export class BrowserContextMenuAccess extends ContextMenuAccess {
   constructor(
@@ -25,18 +26,6 @@ export class BrowserContextMenuAccess extends ContextMenuAccess {
     super(menu);
   }
 }
-
-// TODO(@jaylenchen): 完善BrowserMainMenuFactory实现
-export class BrowserMainMenuFactory extends InjectableService {
-  createContextMenu(..._args: any) {
-    return {
-      aboutToClose: { connect: (_fn: any) => {} },
-      open: (..._args: any) => {},
-    } as unknown as Menu;
-  }
-}
-export const IBrowserMainMenuFactory = createServiceDecorator(BrowserMainMenuFactory.name);
-export type IBrowserMainMenuFactory = BrowserMainMenuFactory;
 
 export class BrowserContextMenuRenderer extends ContextMenuRenderer {
   constructor(

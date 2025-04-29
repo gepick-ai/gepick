@@ -109,7 +109,7 @@ export class MenuModelRegistry extends InjectableService {
     super();
   }
 
-  onStart(): void {
+  onApplicationInit(): void {
     for (const contrib of this.contributions.getContributions()) {
       contrib.registerMenus(this);
     }
