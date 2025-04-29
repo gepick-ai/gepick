@@ -1,6 +1,5 @@
-import { Contribution, Deferred, Emitter, InjectableService, PostConstruct, createServiceDecorator, deepFreeze, toDisposable } from "@gepick/core/common";
+import { Deferred, Emitter, InjectableService, PostConstruct, createServiceDecorator, deepFreeze, toDisposable } from "@gepick/core/common";
 import { JSONExt, JSONValue } from "@lumino/coreutils";
-import { IApplicationContribution } from "../application";
 import { IPreferencesSchema } from "./preferences-schema-contribution";
 import { IPreferenceDiff, IPreferencesSchemaService } from "./preferences-schema-service";
 
@@ -13,7 +12,6 @@ export interface IOverridePreferenceName {
 }
 export interface IPreferenceManager {}
 
-@Contribution(IApplicationContribution)
 export class PreferencesManager extends InjectableService implements IPreferenceManager {
   protected readonly _ready = new Deferred<void>();
   protected _isReady = false;
