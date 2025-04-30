@@ -23,6 +23,9 @@
       ],
       "@gepick/cli/*": [
         "./tools/cli/src/*"
+      ],
+      "@gepick/ts-docs/*": [
+        "./tools/ts-docs/src/*"
       ]
     }
   },
@@ -47,6 +50,9 @@
     },
     {
       "path": "./tools/cli"
+    },
+    {
+      "path": "./tools/ts-docs"
     }
   ],
   "include": []

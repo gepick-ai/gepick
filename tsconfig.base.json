@@ -45,6 +45,9 @@
       // ============tools==============
       "@gepick/cli/*": [
         "./tools/cli/src/*"
+      ],
+      "@gepick/ts-docs/*": [
+        "./tools/ts-docs/src/*"
       ]
     },
     "resolveJsonModule": true,
