@@ -1,5 +1,5 @@
 {
-  "name": "@gepick/root",
+  "name": "@gepick/monorepo",
   "type": "module",
   "private": true,
   "packageManager": "yarn@4.3.1",

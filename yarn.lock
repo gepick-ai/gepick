@@ -2425,47 +2425,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@gepick/plugin-api@workspace:*, @gepick/plugin-api@workspace:packages/plugin-api":
+"@gepick/monorepo@workspace:.":
   version: 0.0.0-use.local
-  resolution: "@gepick/plugin-api@workspace:packages/plugin-api"
-  dependencies:
-    "@gepick/cli": "workspace:*"
-  languageName: unknown
-  linkType: soft
-
-"@gepick/plugin-registry@workspace:*, @gepick/plugin-registry@workspace:packages/plugin-registry":
-  version: 0.0.0-use.local
-  resolution: "@gepick/plugin-registry@workspace:packages/plugin-registry"
-  dependencies:
-    "@gepick/cli": "workspace:*"
-    "@gepick/core": "workspace:*"
-    "@gepick/plugin-api": "workspace:*"
-    "@gepick/plugin-system": "workspace:*"
-  languageName: unknown
-  linkType: soft
-
-"@gepick/plugin-system@workspace:*, @gepick/plugin-system@workspace:packages/plugin-system":
-  version: 0.0.0-use.local
-  resolution: "@gepick/plugin-system@workspace:packages/plugin-system"
-  dependencies:
-    "@gepick/cli": "workspace:*"
-    "@gepick/core": "workspace:*"
-    "@gepick/plugin-api": "workspace:*"
-  languageName: unknown
-  linkType: soft
-
-"@gepick/preferences@workspace:*, @gepick/preferences@workspace:packages/preferences":
-  version: 0.0.0-use.local
-  resolution: "@gepick/preferences@workspace:packages/preferences"
-  dependencies:
-    "@gepick/cli": "workspace:*"
-    "@gepick/core": "workspace:*"
-  languageName: unknown
-  linkType: soft
-
-"@gepick/root@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "@gepick/root@workspace:."
+  resolution: "@gepick/monorepo@workspace:."
   dependencies:
     "@antfu/eslint-config": "npm:^2.20.0"
     "@commitlint/cli": "npm:^19.3.0"
@@ -2501,6 +2463,44 @@ __metadata:
     vite-plugin-checker: "npm:^0.6.2"
     vite-plugin-dts: "npm:^3.9.1"
     vite-tsconfig-paths: "npm:^4.2.3"
+  languageName: unknown
+  linkType: soft
+
+"@gepick/plugin-api@workspace:*, @gepick/plugin-api@workspace:packages/plugin-api":
+  version: 0.0.0-use.local
+  resolution: "@gepick/plugin-api@workspace:packages/plugin-api"
+  dependencies:
+    "@gepick/cli": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@gepick/plugin-registry@workspace:*, @gepick/plugin-registry@workspace:packages/plugin-registry":
+  version: 0.0.0-use.local
+  resolution: "@gepick/plugin-registry@workspace:packages/plugin-registry"
+  dependencies:
+    "@gepick/cli": "workspace:*"
+    "@gepick/core": "workspace:*"
+    "@gepick/plugin-api": "workspace:*"
+    "@gepick/plugin-system": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@gepick/plugin-system@workspace:*, @gepick/plugin-system@workspace:packages/plugin-system":
+  version: 0.0.0-use.local
+  resolution: "@gepick/plugin-system@workspace:packages/plugin-system"
+  dependencies:
+    "@gepick/cli": "workspace:*"
+    "@gepick/core": "workspace:*"
+    "@gepick/plugin-api": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@gepick/preferences@workspace:*, @gepick/preferences@workspace:packages/preferences":
+  version: 0.0.0-use.local
+  resolution: "@gepick/preferences@workspace:packages/preferences"
+  dependencies:
+    "@gepick/cli": "workspace:*"
+    "@gepick/core": "workspace:*"
   languageName: unknown
   linkType: soft
 
