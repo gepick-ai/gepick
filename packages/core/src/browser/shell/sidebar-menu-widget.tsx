@@ -16,7 +16,7 @@
 
 import { DisposableCollection, Emitter, Event, IContributionProvider, MenuPath, Optional } from "@gepick/core/common";
 import React from "react";
-import { ReactWidget } from "../widget";
+import { AbstractReactWidget } from "../widget";
 import { IContextMenuRenderer } from "../menu";
 import { IHoverService } from "../services";
 import { IApplicationContribution, IApplicationContributionProvider } from "../application";
@@ -75,7 +75,7 @@ export class SidebarMenuItem {
 /**
  * The menu widget placed on the sidebar.
  */
-export class SidebarMenuWidget extends ReactWidget {
+export class SidebarMenuWidget extends AbstractReactWidget {
   protected readonly items: SidebarMenuItem[];
   /**
    * The element that had focus when a menu rendered by this widget was activated.

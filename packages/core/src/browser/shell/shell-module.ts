@@ -6,12 +6,13 @@ import { DefaultOpenerService } from "../opener";
 import { ColorRegistry } from "../services/color-registry";
 import { DecorationsServiceImpl } from "../services/decorations-service";
 import { SidePanelHandlerFactory, SplitPositionHandler } from "./side-panel-handler";
-import { DockPanelRenderer, DockPanelRendererFactory, Shell } from "./shell";
+import { Shell } from "./shell";
 import { ViewContainer } from "./view/view-container";
 import { TabBarToolbar, TabBarToolbarFactory, TabBarToolbarRegistry } from "./tab-bar-toolbar";
 import { SidebarBottomMenuWidget, SidebarBottomMenuWidgetFactory } from "./sidebar-bottom-menu-widget";
 import { TabBarRendererFactory } from "./tab-bars";
 import { TabBarDecoratorService } from "./tab-bar-decorator";
+import { DockPanelRendererFactory } from "./dock-panel";
 
 @Module({
   services: [

@@ -54,9 +54,11 @@ export interface IView {
 
 /**
  * An abstract superclass for frontend contributions that add a view to the application shell.
+ * 
+ * 一个自定义的View必须继承自AbstractView以便能够加入Shell当中。
  */
 @Contribution(IView)
-export abstract class ViewContribution<T extends Widget> extends InjectableService implements IView {
+export abstract class AbstractView<T extends Widget> extends InjectableService implements IView {
   @IWidgetManager protected readonly widgetManager: IWidgetManager;
   @IShell protected readonly shell: IShell;
 

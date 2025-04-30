@@ -15,18 +15,18 @@
 // *****************************************************************************
 
 import * as fileIcons from 'file-icons-js';
-import { Contribution, Emitter, Event, IContributionProvider, IDisposable, InjectableService, Optional, Path, Prioritizeable, ResourceLabelFormatter, ResourceLabelFormatting, URI, createContribution, createServiceDecorator, isObject, toDisposable } from '@gepick/core/common';
-import { codicon } from '../widget';
+import { Emitter, Event, IContributionProvider, IDisposable, InjectableService, Optional, Path, Prioritizeable, ResourceLabelFormatter, ResourceLabelFormatting, URI, createContribution, createServiceDecorator, isObject, toDisposable } from '@gepick/core/common';
+import { WidgetUtilities } from '../widget';
 import { IApplicationContribution } from '../application';
 
 /**
  * @internal
  */
-const DEFAULT_FOLDER_ICON = `${codicon('folder')} default-folder-icon`;
+const DEFAULT_FOLDER_ICON = `${WidgetUtilities.codicon('folder')} default-folder-icon`;
 /**
  * @internal
  */
-const DEFAULT_FILE_ICON = `${codicon('file')} default-file-icon`;
+const DEFAULT_FILE_ICON = `${WidgetUtilities.codicon('file')} default-file-icon`;
 
 export const LabelProviderContribution = Symbol('LabelProviderContribution');
 /**

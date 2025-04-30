@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { Emitter, Event, InjectableService, MaybePromise, PostConstruct, URI } from '@gepick/core/common';
-import { BaseWidget } from '../widget';
+import { AbstractWidget } from '../widget';
 import { IShell, Shell } from '../shell';
 import { OpenHandler, OpenerOptions } from '../opener';
 import { IWidgetManager } from './widget-manager';
@@ -43,7 +43,7 @@ export interface WidgetOpenerOptions extends OpenerOptions {
 /**
  * Generic base class for {@link OpenHandler}s that are opening a widget for a given {@link URI}.
  */
-export abstract class WidgetOpenHandler<W extends BaseWidget> extends InjectableService implements OpenHandler {
+export abstract class WidgetOpenHandler<W extends AbstractWidget> extends InjectableService implements OpenHandler {
   protected readonly onCreatedEmitter = new Emitter<W>();
   /**
    * Emit when a new widget is created.

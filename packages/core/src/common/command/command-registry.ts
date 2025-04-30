@@ -2,8 +2,7 @@ import debounce from "p-debounce";
 import { Emitter, WaitUntilEvent } from '../event';
 import { InjectableService, Optional, createServiceDecorator } from '../dependency-injection';
 import { DisposableStore, IDisposable, toDisposable } from '../lifecycle';
-import { Command, CommandEvent, CommandHandler, WillExecuteCommandEvent } from "./command";
-import { CommandService } from "./command-service";
+import { Command, CommandEvent, CommandHandler, CommandService, WillExecuteCommandEvent } from "./command-service";
 import { ICommandProvider } from "./command-contribution";
 
 /**

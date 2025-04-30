@@ -1,10 +1,10 @@
-import { ViewContribution } from "@gepick/core/browser";
+import { AbstractView } from "@gepick/core/browser";
 import { ICommandRegistry, ISelectionService, PostConstruct, lodashDebounce } from "@gepick/core/common";
 import { BUILTIN_QUERY, INSTALLED_QUERY, IPluginSearchModel } from "../search";
 import { IPluginRegistry } from "../plugin";
 import { PluginRegistryViewContainer } from "./plugin-registry-view-container";
 
-export class PluginRegistryView extends ViewContribution<PluginRegistryViewContainer> {
+export class PluginRegistryView extends AbstractView<PluginRegistryViewContainer> {
   constructor(
     @IPluginRegistry protected pluginRegistry: IPluginRegistry,
     @IPluginSearchModel protected pluginSearchModel: IPluginSearchModel,

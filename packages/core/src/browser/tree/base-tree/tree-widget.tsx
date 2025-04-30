@@ -18,7 +18,7 @@ import { ISelectionService, InjectableService, Key, KeyCode, KeyModifier, MaybeP
 import { Virtuoso, VirtuosoHandle, VirtuosoProps } from "react-virtuoso";
 import React, { useEffect } from "react";
 import { ElementExt } from "@lumino/domutils";
-import { BUSY_CLASS, CODICON_LOADING_CLASSES, CODICON_TREE_ITEM_CLASSES, COLLAPSED_CLASS, EXPANSION_TOGGLE_CLASS, FOCUS_CLASS, Message, ReactWidget, SELECTED_CLASS, UnsafeWidgetUtilities, Widget } from "../../widget";
+import { AbstractReactWidget, BUSY_CLASS, CODICON_LOADING_CLASSES, CODICON_TREE_ITEM_CLASSES, COLLAPSED_CLASS, EXPANSION_TOGGLE_CLASS, FOCUS_CLASS, Message, SELECTED_CLASS, UnsafeWidgetUtilities, Widget } from "../../widget";
 import { StatefulWidget } from "../../shell";
 import { ILabelProvider } from "../../label";
 import { IContextMenuRenderer } from "../../menu";
@@ -160,7 +160,7 @@ export namespace TreeWidget {
 
 }
 
-export class TreeWidget extends ReactWidget implements StatefulWidget {
+export class TreeWidget extends AbstractReactWidget implements StatefulWidget {
   protected searchBox: SearchBox;
   protected searchHighlights: Map<string, TreeDecoration.CaptionHighlight>;
 

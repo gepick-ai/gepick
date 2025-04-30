@@ -1,5 +1,5 @@
-import { DOMPurify, IWidgetFactory, Message, React, ReactWidget, Widget, codicon } from "@gepick/core/browser";
-import { Contribution, Deferred, IServiceContainer, InjectableService, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
+import { AbstractReactWidget, AbstractWidgetFactory, DOMPurify, Message, React, Widget, WidgetUtilities } from "@gepick/core/browser";
+import { Deferred, IServiceContainer, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
 import { AbstractPluginComponent, IPlugin, IPluginOptions, IPluginRegistry, Plugin, PluginOptions } from "../plugin";
 
 const downloadFormatter = new Intl.NumberFormat();
@@ -53,7 +53,7 @@ class PluginEditorComponent extends AbstractPluginComponent {
               </span>
               {!!downloadCount && (
                 <span className="download-count" onClick={this.openExtension}>
-                  <i className={codicon('cloud-download')} />
+                  <i className={WidgetUtilities.codicon('cloud-download')} />
                   {downloadFormatter.format(downloadCount)}
                 </span>
               )}
@@ -104,17 +104,17 @@ class PluginEditorComponent extends AbstractPluginComponent {
       icon = 'shield';
       tooltip = `Only verified owners can publish to "${publisher}" namespace.${tooltip}`;
     }
-    return <i className={`${codicon(icon)} namespace-access`} title={tooltip} onClick={this.openPublishedBy} />;
+    return <i className={`${WidgetUtilities.codicon(icon)} namespace-access`} title={tooltip} onClick={this.openPublishedBy} />;
   }
 
   protected renderStars(): React.ReactNode {
     const rating = this.props.extension.averageRating || 0;
 
     const renderStarAt = (position: number) => position <= rating
-      ? <i className={codicon('star-full')} />
+      ? <i className={WidgetUtilities.codicon('star-full')} />
       : position > rating && position - rating < 1
-        ? <i className={codicon('star-half')} />
-        : <i className={codicon('star-empty')} />;
+        ? <i className={WidgetUtilities.codicon('star-half')} />
+        : <i className={WidgetUtilities.codicon('star-empty')} />;
     return (
       <React.Fragment>
         {renderStarAt(1)}
@@ -216,7 +216,7 @@ class PluginEditorComponent extends AbstractPluginComponent {
 /**
  * 插件详情面板
  */
-export class PluginEditorWidget extends ReactWidget {
+export class PluginEditorWidget extends AbstractReactWidget {
   static ID = 'vsx-extension-editor';
 
   protected readonly deferredScrollContainer = new Deferred<HTMLElement>();
@@ -234,7 +234,7 @@ export class PluginEditorWidget extends ReactWidget {
     this.id = `${PluginEditorWidget.ID}:${this.plugin.id}`;
     this.title.closable = true;
     this.updateTitle();
-    this.title.iconClass = codicon('list-selection');
+    this.title.iconClass = WidgetUtilities.codicon('list-selection');
     this.node.tabIndex = -1;
     this.update();
     this.toDispose.push(this.pluginRegistry.onDidChange(() => this.update()));
@@ -289,9 +289,8 @@ export class PluginEditorWidget extends ReactWidget {
 export const IPluginEditorWidget = createServiceDecorator<IPluginEditorWidget>(PluginEditorWidget.name);
 export type IPluginEditorWidget = PluginEditorWidget;
 
-@Contribution(IWidgetFactory)
-export class PluginEditorWidgetFactory extends InjectableService {
-  public readonly id = PluginEditorWidget.ID;
+export class PluginEditorWidgetFactory extends AbstractWidgetFactory {
+  public override readonly id = PluginEditorWidget.ID;
 
   async createWidget(container: IServiceContainer, options: IPluginOptions) {
     const child = container.createChild();

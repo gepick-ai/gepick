@@ -1,4 +1,4 @@
-import { Endpoint, IContextMenuRenderer, IHoverService, IOpenerService, OpenerOptions, React, TreeElement, TreeElementNode, TreeWidget, codicon, messagingService, open } from "@gepick/core/browser";
+import { Endpoint, IContextMenuRenderer, IHoverService, IOpenerService, OpenerOptions, React, TreeElement, TreeElementNode, TreeWidget, WidgetUtilities, messagingService, open } from "@gepick/core/browser";
 import { IServiceContainer, InjectableService, MarkdownStringImpl, MenuPath, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
 import { PluginType } from "@gepick/plugin-system/common";
 import { IPluginSearchModel } from "../search";
@@ -184,13 +184,13 @@ export class PluginComponent<Props extends PluginComponent.Props = PluginCompone
             <div className="stat">
               {!!downloadCount && (
                 <span className="download-count">
-                  <i className={codicon('cloud-download')} />
+                  <i className={WidgetUtilities.codicon('cloud-download')} />
                   {downloadCompactFormatter.format(downloadCount)}
                 </span>
               )}
               {!!averageRating && (
                 <span className="average-rating">
-                  <i className={codicon('star-full')} />
+                  <i className={WidgetUtilities.codicon('star-full')} />
                   {averageRatingFormatter(averageRating)}
                 </span>
               )}
@@ -201,14 +201,14 @@ export class PluginComponent<Props extends PluginComponent.Props = PluginCompone
             <div className="theia-vsx-extension-publisher-container">
               {verified === true
                 ? (
-                    <i className={codicon('verified-filled')} />
+                    <i className={WidgetUtilities.codicon('verified-filled')} />
                   )
                 : verified === false
                   ? (
-                      <i className={codicon('verified')} />
+                      <i className={WidgetUtilities.codicon('verified')} />
                     )
                   : (
-                      <i className={codicon('question')} />
+                      <i className={WidgetUtilities.codicon('question')} />
                     )}
               <span className="noWrapInfo theia-vsx-extension-publisher">{publisher}</span>
             </div>

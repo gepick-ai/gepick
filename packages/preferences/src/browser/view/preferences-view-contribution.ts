@@ -1,8 +1,8 @@
-import { ViewContribution } from "@gepick/core/browser";
+import { AbstractView } from "@gepick/core/browser";
 import { createServiceDecorator } from "@gepick/core/common";
 import { PreferencesWidget } from "../views/preferences-widget";
 
-export class PreferencesView extends ViewContribution<PreferencesWidget> {
+export class PreferencesView extends AbstractView<PreferencesWidget> {
   constructor() {
     super({
       widgetId: PreferencesWidget.ID,

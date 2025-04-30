@@ -1,11 +1,11 @@
-import { React, ReactWidget, StatefulWidget, codicon } from "@gepick/core/browser";
+import { AbstractReactWidget, React, StatefulWidget, WidgetUtilities } from "@gepick/core/browser";
 import { Emitter, PostConstruct, createServiceDecorator, pDebounce } from "@gepick/core/common";
 
 export interface PreferencesSearchbarState {
   searchTerm: string;
 }
 
-export class PreferencesSearchbarWidget extends ReactWidget implements StatefulWidget {
+export class PreferencesSearchbarWidget extends AbstractReactWidget implements StatefulWidget {
   static readonly ID = 'settings.header';
   static readonly LABEL = 'Settings Header';
   static readonly SEARCHBAR_ID = 'preference-searchbar';
@@ -98,7 +98,7 @@ export class PreferencesSearchbarWidget extends ReactWidget implements StatefulW
   protected renderClearAllOption(): React.ReactNode {
     return (
       <span
-        className={`${codicon('clear-all')} option ${(this.searchTermExists() ? 'enabled' : '')}`}
+        className={`${WidgetUtilities.codicon('clear-all')} option ${(this.searchTermExists() ? 'enabled' : '')}`}
         title="Clear Search Results"
         onClick={this.clearSearchResults}
       />

@@ -7,7 +7,7 @@ export interface IPreferencesSchema {
 }
 
 @Contribution(IPreferencesSchema)
-export abstract class PreferencesSchemaContribution extends InjectableService implements IPreferencesSchema {
+export abstract class AbstractPreferencesSchema extends InjectableService implements IPreferencesSchema {
   abstract type: string;
   abstract properties: any;
 

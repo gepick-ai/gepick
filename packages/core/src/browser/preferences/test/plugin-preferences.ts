@@ -1,8 +1,8 @@
 import { Module, OnActivation, ServiceModule, createServiceDecorator, interfaces } from "@gepick/core/common";
-import { PreferencesSchemaContribution } from "../preferences-schema-contribution";
+import { AbstractPreferencesSchema } from "../preferences-schema-contribution";
 import { PreferencesService } from "../preferences-proxy";
 
-export class PluginPreferencesSchema extends PreferencesSchemaContribution {
+export class PluginPreferencesSchema extends AbstractPreferencesSchema {
   type = 'object';
   properties = {
     'plugin.registry': {

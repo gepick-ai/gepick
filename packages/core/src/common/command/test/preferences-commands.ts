@@ -1,8 +1,8 @@
 import { Contribution, Module, ServiceModule } from "../../dependency-injection";
-import { CommandContribution, ICommand } from "../command-contribution";
+import { AbstractCommand, ICommand } from "../command-contribution";
 
 @Contribution(ICommand)
-export class OpenPreferencesCommand extends CommandContribution implements ICommand {
+export class OpenPreferencesCommand extends AbstractCommand implements ICommand {
   static override Id = 'preferences:open';
   static override Category = 'Preferences';
   static override Label = 'Open Settings (UI)';

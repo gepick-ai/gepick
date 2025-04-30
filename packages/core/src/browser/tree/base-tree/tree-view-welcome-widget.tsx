@@ -28,7 +28,7 @@ import { DisposableCollection, ICommandRegistry, URI } from '@gepick/core/common
 import { IContextKeyService } from '../../menu';
 import { ILabelParser, LabelIcon } from '../../label';
 import { IOpenerService, open } from '../../opener';
-import { codicon } from '../../widget';
+import { WidgetUtilities } from '../../widget';
 import { TreeModel } from './tree-model';
 import { TreeWidget } from './tree-widget';
 
@@ -214,7 +214,7 @@ export class TreeViewWelcomeWidget extends TreeWidget {
               ? (
                   <span
                     key={index}
-                    className={codicon(segment.name)}
+                    className={WidgetUtilities.codicon(segment.name)}
                   />
                 )
               : <span key={index}>{segment}</span>)}

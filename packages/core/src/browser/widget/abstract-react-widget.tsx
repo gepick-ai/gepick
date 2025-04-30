@@ -1,9 +1,12 @@
 import * as React from 'react';
 import { Root, createRoot } from 'react-dom/client';
 import { toDisposable } from '@gepick/core/common';
-import { BaseWidget, Message } from './widget';
+import { AbstractWidget, Message } from './abstract-widget';
 
-export abstract class ReactWidget extends BaseWidget {
+/**
+ * 一个自定义的React Widget必须继承并实现AbstractReactWidget的相关属性
+ */
+export abstract class AbstractReactWidget extends AbstractWidget {
   protected nodeRoot: Root;
 
   constructor() {

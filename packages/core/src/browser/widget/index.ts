@@ -1,6 +1,7 @@
-export * from "./widget";
-export * from "./react-widget";
+export * from "./widget-factory-contribution";
 export * from "./widget-manager";
+export * from "./abstract-widget";
+export * from "./abstract-react-widget";
 export * from "./virtual-renderer";
 export * from "./enhanced-preview-widget";
 export * from "./previewable-widget";
@@ -8,3 +9,4 @@ export * from "./widget-decoration";
 export * from "./widget-module";
 export * from "./widget-open-handler";
 export * from "./select-component";
+export * from "./widget-util";

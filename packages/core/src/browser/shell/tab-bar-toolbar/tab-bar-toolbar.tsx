@@ -17,7 +17,7 @@
 import { postConstruct } from 'inversify';
 import * as React from 'react';
 import { DisposableStore, IDisposable, IServiceContainer, InjectableService, MenuPath, createServiceDecorator, toDisposable } from '@gepick/core/common';
-import { ACTION_ITEM, ReactWidget, Widget, codicon } from '../../widget';
+import { AbstractReactWidget, Widget, WidgetUtilities } from '../../widget';
 import { Anchor, ContextMatcher, ContextMenuAccess, IContextKeyService, IContextMenuRenderer } from '../../menu';
 
 import { ILabelParser, LabelIcon } from '../../label';
@@ -33,7 +33,7 @@ const NO_ICON_CLASS = 'no-icon';
  * Tab-bar toolbar widget representing the active [tab-bar toolbar items](TabBarToolbarItem).
  */
 
-export class TabBarToolbar extends ReactWidget {
+export class TabBarToolbar extends AbstractReactWidget {
   protected current: Widget | undefined;
   protected inline = new Map<string, TabBarToolbarItem | ReactTabBarToolbarItem>();
   protected more = new Map<string, TabBarToolbarItem>();
@@ -180,7 +180,7 @@ export class TabBarToolbar extends ReactWidget {
     }
 
     // In any case, this is an action item, with or without icon.
-    classNames.push(ACTION_ITEM);
+    classNames.push(WidgetUtilities.ACTION_ITEM);
 
     const toolbarItemClassNames = this.getToolbarItemClassNames(item);
     return (
@@ -227,7 +227,7 @@ export class TabBarToolbar extends ReactWidget {
       <div key="__more__" className={`${TabBarToolbar.Styles.TAB_BAR_TOOLBAR_ITEM} enabled`}>
         <div
           id="__more__"
-          className={codicon('ellipsis', true)}
+          className={WidgetUtilities.codicon('ellipsis', true)}
           onClick={this.showMoreContextMenu}
           title="More Actions..."
         />
@@ -309,12 +309,12 @@ export class TabBarToolbar extends ReactWidget {
         className={`${TabBarToolbar.Styles.TAB_BAR_TOOLBAR_ITEM} enabled menu`}
       >
         <div
-          className={codicon(icon, true)}
+          className={WidgetUtilities.codicon(icon, true)}
           title={item.text}
           onClick={e => this.executeCommand(e, item)}
         />
-        <div className={ACTION_ITEM} onClick={event => this.showPopupMenu(item.menuPath!, event, contextMatcher)}>
-          <div className={`${codicon('chevron-down')} chevron`} />
+        <div className={WidgetUtilities.ACTION_ITEM} onClick={event => this.showPopupMenu(item.menuPath!, event, contextMatcher)}>
+          <div className={`${WidgetUtilities.codicon('chevron-down')} chevron`} />
         </div>
 
       </div>

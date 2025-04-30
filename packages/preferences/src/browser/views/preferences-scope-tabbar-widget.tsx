@@ -1,4 +1,4 @@
-import { IContextMenuRenderer, ILabelProvider, Message, Mixin, StatefulWidget, TabBar, Title, Widget, codicon } from "@gepick/core/browser";
+import { IContextMenuRenderer, ILabelProvider, Message, Mixin, StatefulWidget, TabBar, Title, Widget, WidgetUtilities } from "@gepick/core/browser";
 import { DisposableCollection, Emitter, ICommandRegistry, IMenuModelRegistry, InjectableService, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
 import { Preference, PreferenceMenus } from "../util/preference-types";
 import { PreferenceScope } from "../preference-scope";
@@ -15,7 +15,7 @@ const PREFERENCE_TAB_CLASSNAME = 'preferences-scope-tab';
 const GENERAL_FOLDER_TAB_CLASSNAME = 'preference-folder';
 const LABELED_FOLDER_TAB_CLASSNAME = 'preferences-folder-tab';
 const FOLDER_DROPDOWN_CLASSNAME = 'preferences-folder-dropdown';
-const FOLDER_DROPDOWN_ICON_CLASSNAME = `preferences-folder-dropdown-icon ${codicon('chevron-down')}`;
+const FOLDER_DROPDOWN_ICON_CLASSNAME = `preferences-folder-dropdown-icon ${WidgetUtilities.codicon('chevron-down')}`;
 const TABBAR_UNDERLINE_CLASSNAME = 'tabbar-underline';
 const SINGLE_FOLDER_TAB_CLASSNAME = `${PREFERENCE_TAB_CLASSNAME} ${GENERAL_FOLDER_TAB_CLASSNAME} ${LABELED_FOLDER_TAB_CLASSNAME}`;
 const UNSELECTED_FOLDER_DROPDOWN_CLASSNAME = `${PREFERENCE_TAB_CLASSNAME} ${GENERAL_FOLDER_TAB_CLASSNAME} ${FOLDER_DROPDOWN_CLASSNAME}`;

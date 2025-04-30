@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { codiconArray } from '@gepick/core/browser';
+import { WidgetUtilities } from '@gepick/core/browser';
 import { Contribution, InTransientScope, interfaces } from '@gepick/core/common';
 import { Preference } from '../../util/preference-types';
 import { PreferenceLeafNodeRenderer, PreferenceNodeRenderer } from './preference-node-renderer';
@@ -63,7 +63,7 @@ export class PreferenceArrayInputRenderer extends PreferenceLeafNodeRenderer<str
     iconWrapper.tabIndex = 0;
     existingValue.appendChild(iconWrapper);
     const icon = document.createElement('i');
-    icon.classList.add(...codiconArray('close'));
+    icon.classList.add(...WidgetUtilities.codiconArray('close'));
     iconWrapper.appendChild(icon);
     return existingValue;
   }
@@ -82,7 +82,7 @@ export class PreferenceArrayInputRenderer extends PreferenceLeafNodeRenderer<str
     input.setAttribute('aria-label', 'Preference String Input');
     const iconWrapper = document.createElement('span');
     inputWrapper.appendChild(iconWrapper);
-    iconWrapper.classList.add('preference-array-element-btn', ...codiconArray('add'));
+    iconWrapper.classList.add('preference-array-element-btn', ...WidgetUtilities.codiconArray('add'));
     iconWrapper.setAttribute('role', 'button');
     const handler = this.addItem.bind(this);
     iconWrapper.onclick = handler;

@@ -1,13 +1,9 @@
-import { IWidgetFactory, Message, Mixin, Panel, StatefulWidget, TreeImpl, TreeModelImpl, TreeModule, Widget, codicon } from "@gepick/core/browser";
-import { Contribution, IServiceContainer, InjectableService, PostConstruct, ServiceContainer, createServiceDecorator } from "@gepick/core/common";
-import { PreferenceTreeModel } from "../preferences-tree-model";
-import { IPreferencesEditorWidget, PreferencesEditorWidget } from "./preferences-editor-widget";
-import { IPreferencesTreeWidget, PreferencesTreeWidget } from "./preferences-tree-widget";
-import { IPreferencesSearchbarWidget, PreferencesSearchbarWidget } from "./preferences-searchbar-widget";
-import { IPreferencesScopeTabBar, PreferencesScopeTabBar } from "./preferences-scope-tabbar-widget";
-import { PreferenceNodeRendererFactory } from "./components/preference-node-renderer";
-import { DefaultPreferenceNodeRendererCreatorRegistry } from "./components/preference-node-renderer-creator";
-import { PreferenceMarkdownRenderer } from "./components/preference-markdown-renderer";
+import { AbstractWidgetFactory, Message, Mixin, Panel, StatefulWidget, Widget, WidgetUtilities } from "@gepick/core/browser";
+import { IServiceContainer, InjectableService, PostConstruct, createServiceDecorator } from "@gepick/core/common";
+import { IPreferencesEditorWidget } from "./preferences-editor-widget";
+import { IPreferencesTreeWidget } from "./preferences-tree-widget";
+import { IPreferencesSearchbarWidget } from "./preferences-searchbar-widget";
+import { IPreferencesScopeTabBar } from "./preferences-scope-tabbar-widget";
 import { createPreferencesWidgetContainer } from "./preference-widget-bindings";
 
 export class BasePanel extends Mixin(Panel, InjectableService) {}
@@ -41,7 +37,7 @@ export class PreferencesWidget extends BasePanel implements StatefulWidget {
     this.title.caption = PreferencesWidget.LABEL;
     this.title.closable = true;
     this.addClass('theia-settings-container');
-    this.title.iconClass = codicon('settings');
+    this.title.iconClass = WidgetUtilities.codicon('settings');
 
     this.searchbarWidget.addClass('preferences-searchbar-widget');
     this.addWidget(this.searchbarWidget);
@@ -104,9 +100,8 @@ export class PreferencesWidget extends BasePanel implements StatefulWidget {
 export const IPreferencesWidget = createServiceDecorator<IPreferencesWidget>(PreferencesWidget.name);
 export type IPreferencesWidget = PreferencesWidget;
 
-@Contribution(IWidgetFactory)
-export class PreferencesWidgetFactory extends InjectableService {
-  public readonly id = PreferencesWidget.ID;
+export class PreferencesWidgetFactory extends AbstractWidgetFactory {
+  public override readonly id = PreferencesWidget.ID;
 
   createWidget(container: IServiceContainer) {
     container.bind(PreferencesWidget.getServiceId())

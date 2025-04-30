@@ -18,9 +18,9 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as DOMPurify from 'dompurify';
 import { measureTextHeight, measureTextWidth } from '../services';
-import { codicon } from './widget';
 
 import '../style/select-component.css';
+import { WidgetUtilities } from './widget-util';
 
 export interface SelectOption {
   value?: string;
@@ -195,7 +195,7 @@ export class SelectComponent extends React.Component<SelectComponentProps, Selec
           onKeyDown={e => this.handleKeypress(e)}
         >
           <div key="label" className="theia-select-component-label">{selectedItemLabel}</div>
-          <div key="icon" className={`theia-select-component-chevron ${codicon('chevron-down')}`} />
+          <div key="icon" className={`theia-select-component-chevron ${WidgetUtilities.codicon('chevron-down')}`} />
         </div>
         {ReactDOM.createPortal(this.renderDropdown(), this.dropdownElement)}
       </>

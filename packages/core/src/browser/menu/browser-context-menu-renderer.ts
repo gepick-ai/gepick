@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { InjectableService, createServiceDecorator } from '@gepick/core/common';
+import { createServiceDecorator } from '@gepick/core/common';
 import { Menu } from '../widget';
 import { ContextMenuAccess, ContextMenuRenderer, RenderContextMenuOptions, coordinateFromAnchor } from './context-menu-renderer';
 import { IBrowserMainMenuFactory } from './browser-menu-plugin';

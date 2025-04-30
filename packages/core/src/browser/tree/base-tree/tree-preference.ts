@@ -15,11 +15,11 @@
 // *****************************************************************************
 
 import { Module, ServiceModule, createServiceDecorator } from "@gepick/core/common";
-import { PreferencesSchemaContribution, PreferencesService } from "../../preferences";
+import { AbstractPreferencesSchema, PreferencesService } from "../../preferences";
 
 export const PREFERENCE_NAME_TREE_INDENT = 'workbench.tree.indent';
 
-export class TreePreferencesSchema extends PreferencesSchemaContribution {
+export class TreePreferencesSchema extends AbstractPreferencesSchema {
   type = 'object';
   properties = {
     [PREFERENCE_NAME_TREE_INDENT]: {

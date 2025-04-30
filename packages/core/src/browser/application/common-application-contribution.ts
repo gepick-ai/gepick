@@ -1,7 +1,7 @@
 import { Command, Contribution, IMenuContribution, InjectableService, MAIN_MENU_BAR, MANAGE_MENU, MenuModelRegistry } from '@gepick/core/common';
-import { IShell, SHELL_TABBAR_CONTEXT_CLOSE, SHELL_TABBAR_CONTEXT_COPY, SHELL_TABBAR_CONTEXT_PIN, SHELL_TABBAR_CONTEXT_SPLIT } from '../shell';
-import { codicon } from '../widget';
-import { ApplicationContribution, IApplicationContribution } from './application-contribution';
+import { IShell } from '../shell';
+import { WidgetUtilities } from '../widget';
+import { ApplicationContribution } from './application-contribution';
 
 export namespace CommonMenus {
 
@@ -320,7 +320,7 @@ export class CommonApplicationContribution extends ApplicationContribution {
     this.shell.ready.then(() => {
       this.shell.leftPanelHandler.addBottomMenu({
         id: 'settings-menu',
-        iconClass: codicon('settings-gear'),
+        iconClass: WidgetUtilities.codicon('settings-gear'),
         title: CommonCommands.MANAGE_CATEGORY,
         menuPath: MANAGE_MENU,
         order: 0,

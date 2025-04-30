@@ -1,8 +1,8 @@
-import { Message, ReactWidget, codicon } from "@gepick/core/browser";
+import { AbstractReactWidget, Message, WidgetUtilities } from "@gepick/core/browser";
 import { PostConstruct, createServiceDecorator } from "@gepick/core/common";
 import { IPluginSearchModel } from "./plugin-search-model";
 
-export class PluginSearchBarWidget extends ReactWidget {
+export class PluginSearchBarWidget extends AbstractReactWidget {
   protected input: HTMLInputElement | undefined;
   protected onlyShowVerifiedExtensions: boolean | undefined;
 
@@ -57,7 +57,7 @@ export class PluginSearchBarWidget extends ReactWidget {
   protected renderShowVerifiedExtensions(): React.ReactNode {
     return (
       <span
-        className={`${codicon('verified')} option action-label ${this.onlyShowVerifiedExtensions ? 'enabled' : ''}`}
+        className={`${WidgetUtilities.codicon('verified')} option action-label ${this.onlyShowVerifiedExtensions ? 'enabled' : ''}`}
         title="Only Show Verified Extensions"
         onClick={() => this.handleShowVerifiedExtensionsClick()}
       >

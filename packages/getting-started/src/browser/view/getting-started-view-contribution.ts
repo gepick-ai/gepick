@@ -1,7 +1,7 @@
-import { ViewContribution } from "@gepick/core/browser";
+import { AbstractView } from "@gepick/core/browser";
 import { GettingStartedWidget } from "../getting-started-widget";
 
-export class GettingStartedView extends ViewContribution<GettingStartedWidget> {
+export class GettingStartedView extends AbstractView<GettingStartedWidget> {
   constructor() {
     super({
       widgetId: GettingStartedWidget.ID,

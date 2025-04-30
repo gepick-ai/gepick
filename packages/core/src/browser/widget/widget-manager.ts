@@ -16,27 +16,10 @@
 
 import { Widget } from '@lumino/widgets';
 import stableJsonStringify from 'fast-json-stable-stringify';
-import { Emitter, Event, IContributionProvider, IServiceContainer, InjectableService, WaitUntilEvent, createContribution, createServiceDecorator } from '@gepick/core/common';
+import { Emitter, Event, IContributionProvider, IServiceContainer, InjectableService, WaitUntilEvent, createServiceDecorator } from '@gepick/core/common';
+import { IWidgetFactory, IWidgetFactoryProvider } from './widget-factory-contribution';
 
 export type MaybePromise<T> = T | Promise<T>;
-// tslint:disable:no-any
-export const WidgetFactory = Symbol("WidgetFactory");
-/**
- * `OpenHandler` should be implemented to provide a new opener.
- */
-export interface IWidgetFactory {
-
-  /*
-     * the factory's id
-     */
-  readonly id: string;
-
-  /**
-   * Creates a widget and attaches it to the shell
-   * The options need to be serializable JSON data.
-   */
-  createWidget: (serviceContainer: IServiceContainer, options?: any) => MaybePromise<Widget>;
-}
 
 /*
  * a serializable description to create a widget
@@ -72,7 +55,7 @@ export interface WillCreateWidgetEvent extends WaitUntilEvent {
   readonly factoryId: string;
 }
 
-export const [IWidgetFactory, IWidgetFactoryProvider] = createContribution<IWidgetFactory>('WidgetFactory');
+// #region WidgetManager
 export const IWidgetManager = createServiceDecorator<IWidgetManager>("WidgetManager");
 export type IWidgetManager = WidgetManager;
 
@@ -287,3 +270,4 @@ export class WidgetManager extends InjectableService {
     return this._cachedFactories;
   }
 }
+// #endregion

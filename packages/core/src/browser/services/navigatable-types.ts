@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { MaybeArray, URI, isObject } from '../../common';
-import { BaseWidget, Widget } from '../widget';
+import { AbstractWidget, Widget } from '../widget';
 
 /**
  * `Navigatable` provides an access to an URI of an underlying instance of `Resource`.
@@ -37,10 +37,10 @@ export namespace Navigatable {
   }
 }
 
-export type NavigatableWidget = BaseWidget & Navigatable;
+export type NavigatableWidget = AbstractWidget & Navigatable;
 export namespace NavigatableWidget {
   export function is(arg: unknown): arg is NavigatableWidget {
-    return arg instanceof BaseWidget && Navigatable.is(arg);
+    return arg instanceof AbstractWidget && Navigatable.is(arg);
   }
   export function getAffected<T extends Widget>(
     widgets: Iterable<T>,

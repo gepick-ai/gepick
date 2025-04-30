@@ -5,7 +5,7 @@ import { interfaces } from "inversify";
 import { isEmpty } from "lodash-es";
 import { MimeData } from "@lumino/coreutils";
 import { Drag } from "@lumino/dragdrop";
-import { BaseWidget, CODICON_TREE_ITEM_CLASSES, COLLAPSED_CLASS, EXPANSION_TOGGLE_CLASS, IWidgetManager, Message, MessageLoop, PINNED_CLASS, UnsafeWidgetUtilities, addEventListener, addKeyListener, waitForRevealed } from "../../widget";
+import { AbstractWidget, CODICON_TREE_ITEM_CLASSES, COLLAPSED_CLASS, EXPANSION_TOGGLE_CLASS, IWidgetManager, Message, MessageLoop, PINNED_CLASS, UnsafeWidgetUtilities, WidgetUtilities } from "../../widget";
 import { ISplitPositionHandler, MAIN_AREA_ID, SplitPositionHandler, SplitPositionOptions } from "../side-panel-handler";
 import { IShell } from "../shell";
 import { ITabBarToolbarFactory, ITabBarToolbarRegistry, TabBarToolbar, TabBarToolbarRegistry } from "../tab-bar-toolbar";
@@ -77,7 +77,7 @@ export namespace DynamicToolbarWidget {
  * Wrapper around a widget held by a view container. Adds a header to display the
  * title, toolbar, and collapse / expand handle.
  */
-export class ViewContainerPart extends BaseWidget {
+export class ViewContainerPart extends AbstractWidget {
   protected readonly header: HTMLElement;
   protected readonly body: HTMLElement;
   protected readonly collapsedEmitter = new Emitter<boolean>();
@@ -162,7 +162,7 @@ export class ViewContainerPart extends BaseWidget {
       this.registerContextMenu(),
       this.onDidFocusEmitter,
       // focus event does not bubble, capture it
-      addEventListener(this.node, 'focus', () => this.onDidFocusEmitter.fire(this), true),
+      WidgetUtilities.addEventListener(this.node, 'focus', () => this.onDidFocusEmitter.fire(this), true),
     ].forEach(d => this.toDispose.push(d));
 
     this.scrollOptions = {
@@ -283,7 +283,7 @@ export class ViewContainerPart extends BaseWidget {
   protected registerContextMenu(): IDisposable {
     const disposableStore = new DisposableStore();
 
-    disposableStore.add(addEventListener(this.header, 'contextmenu', (event) => {
+    disposableStore.add(WidgetUtilities.addEventListener(this.header, 'contextmenu', (event) => {
       this.contextMenuEmitter.fire(event);
     }));
 
@@ -310,15 +310,15 @@ export class ViewContainerPart extends BaseWidget {
     const header = document.createElement('div');
     header.tabIndex = 0;
     header.classList.add('theia-header', 'header', 'theia-view-container-part-header');
-    disposable.add(addEventListener(header, 'click', (event) => {
+    disposable.add(WidgetUtilities.addEventListener(header, 'click', (event) => {
       if (this.toolbar && this.toolbar.shouldHandleMouseEvent(event)) {
         return;
       }
       this.collapsed = !this.collapsed;
     }));
-    disposable.add(addKeyListener(header, Key.ARROW_LEFT, () => this.collapsed = true));
-    disposable.add(addKeyListener(header, Key.ARROW_RIGHT, () => this.collapsed = false));
-    disposable.add(addKeyListener(header, Key.ENTER, () => this.collapsed = !this.collapsed));
+    disposable.add(WidgetUtilities.addKeyListener(header, Key.ARROW_LEFT, () => this.collapsed = true));
+    disposable.add(WidgetUtilities.addKeyListener(header, Key.ARROW_RIGHT, () => this.collapsed = false));
+    disposable.add(WidgetUtilities.addKeyListener(header, Key.ENTER, () => this.collapsed = !this.collapsed));
 
     const toggleIcon = document.createElement('span');
     toggleIcon.classList.add(EXPANSION_TOGGLE_CLASS, ...CODICON_TREE_ITEM_CLASSES);
@@ -516,7 +516,7 @@ export namespace ViewContainerPart {
 // ====ViewContainerPart end====
 
 // ====ViewContainer start====
-export class ViewContainer extends BaseWidget {
+export class ViewContainer extends AbstractWidget {
   protected panel: SplitPanel;
 
   protected currentPart: ViewContainerPart | undefined;
@@ -838,7 +838,7 @@ export class ViewContainer extends BaseWidget {
     part.headerElement.draggable = true;
 
     const disposableStore = new DisposableStore();
-    disposableStore.add(addEventListener(part.headerElement, 'dragstart', (event) => {
+    disposableStore.add(WidgetUtilities.addEventListener(part.headerElement, 'dragstart', (event) => {
       event.preventDefault();
       const mimeData = new MimeData();
       mimeData.setData('application/vnd.lumino.view-container-factory', () => part);
@@ -1014,7 +1014,7 @@ export class ViewContainer extends BaseWidget {
     }
 
     // Restore part sizes
-    waitForRevealed(this).then(() => {
+    WidgetUtilities.waitForRevealed(this).then(() => {
       this.containerLayout.setPartSizes(partStates.map(partState => partState.relativeSize));
       this.updateSplitterVisibility();
     });

@@ -1,8 +1,8 @@
-import { ReactWidget } from "@gepick/core/browser";
+import { AbstractReactWidget } from "@gepick/core/browser";
 import { PostConstruct, createServiceDecorator } from "@gepick/core/common";
 import "./style/index.css";
 
-export class GettingStartedWidget extends ReactWidget {
+export class GettingStartedWidget extends AbstractReactWidget {
   /**
    * The widget `id`.
    */

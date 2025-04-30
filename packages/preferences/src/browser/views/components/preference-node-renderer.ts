@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { Container, IDisposable, IServiceContainer, InTransientScope, InjectableService, PostConstruct, URI, createServiceDecorator, lodashDebounce } from '@gepick/core/common';
-import { DOMPurify, IContextMenuRenderer, IOpenerService, IPreferencesManager, JSONValue, PreferencesManager, codicon, open } from "@gepick/core/browser";
+import { DOMPurify, IContextMenuRenderer, IOpenerService, IPreferencesManager, JSONValue, PreferencesManager, WidgetUtilities, open } from "@gepick/core/browser";
 import { IPreferenceNode, Preference, PreferenceInspection, PreferenceMenus } from '../../util/preference-types';
 import { IPreferenceTreeLabelProvider } from '../../util/preference-tree-label-provider';
 import { PreferenceScope } from '../../preference-scope';
@@ -212,7 +212,7 @@ export abstract class PreferenceLeafNodeRenderer<ValueType extends JSONValue, In
     wrapper.appendChild(gutter);
 
     const cog = document.createElement('i');
-    cog.className = `${codicon('settings-gear', true)} settings-context-menu-btn`;
+    cog.className = `${WidgetUtilities.codicon('settings-gear', true)} settings-context-menu-btn`;
     cog.setAttribute('aria-label', 'Open Context Menu');
     cog.setAttribute('role', 'button');
     cog.onclick = this.handleCogAction.bind(this);

@@ -1,5 +1,5 @@
 import { Contribution, IContributionProvider, InjectableService, createContribution } from "../dependency-injection";
-import { Command, CommandHandler } from "./command";
+import { Command, CommandHandler } from "./command-service";
 import { CommandRegistry } from "./command-registry";
 
 /**
@@ -19,13 +19,13 @@ export interface ICommand extends Command, CommandHandler { }
 export interface ICommandProvider extends IContributionProvider<ICommand> { }
 
 /**
- * 一个自定义的Command命令必须继承自CommandContribution，以便能够加入到命令系统中。
+ * 一个自定义的Command命令必须继承自AbstractCommand，以便能够加入到命令系统中。
  */
 @Contribution(ICommand)
-export abstract class CommandContribution extends InjectableService implements ICommand {
-  declare static Id: string;
-  declare static Category?: string;
-  declare static Label: string;
+export abstract class AbstractCommand extends InjectableService implements ICommand {
+  static Id: string;
+  static Category?: string;
+  static Label: string;
 
   public readonly id: string;
   public readonly category: string | undefined;
@@ -36,7 +36,7 @@ export abstract class CommandContribution extends InjectableService implements I
   constructor() {
     super();
 
-    const staticProps = this.constructor as typeof CommandContribution;
+    const staticProps = this.constructor as typeof AbstractCommand;
 
     this.id = staticProps.Id;
     this.category = staticProps.Category;

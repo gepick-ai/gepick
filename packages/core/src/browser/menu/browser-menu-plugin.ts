@@ -37,7 +37,7 @@ import {
   toDisposable,
 } from '@gepick/core/common';
 
-import { Message, waitForRevealed } from '../widget';
+import { Message, WidgetUtilities } from '../widget';
 import { IContextMenuContext } from './context-menu-context';
 import { ContextKeyService, ContextMatcher, IContextKeyService } from './context-key-service';
 
@@ -188,7 +188,7 @@ export class DynamicMenuBarWidget extends MenuBarWidget {
     }
     this.activeMenu = menu;
     this.openActiveMenu();
-    await waitForRevealed(menu);
+    await WidgetUtilities.waitForRevealed(menu);
 
     const menuPath = [label, ...labels];
 
@@ -201,7 +201,7 @@ export class DynamicMenuBarWidget extends MenuBarWidget {
       current.activeItem = item;
       current.triggerActiveItem();
       current = item.submenu;
-      await waitForRevealed(current);
+      await WidgetUtilities.waitForRevealed(current);
     }
     return current;
   }

@@ -1,5 +1,5 @@
-import { IWidgetFactory, IWidgetManager, Message, PanelLayout, ViewContainer, ViewContainerIdentifier, ViewContainerPart, WidgetManager, codicon } from "@gepick/core/browser";
-import { Contribution, IServiceContainer, InjectableService, PostConstruct, createServiceDecorator } from "@gepick/core/common";
+import { AbstractWidgetFactory, IWidgetManager, Message, PanelLayout, ViewContainer, ViewContainerIdentifier, ViewContainerPart, WidgetManager, WidgetUtilities } from "@gepick/core/browser";
+import { IServiceContainer, PostConstruct, createServiceDecorator } from "@gepick/core/common";
 import { IPluginSearchBarWidget, IPluginSearchModel, PluginSearchBarWidget, PluginSearchMode } from "../search";
 import { PluginListModelOptions, PluginListWidget } from "../plugin";
 
@@ -20,7 +20,7 @@ export class PluginRegistryViewContainer extends ViewContainer {
 
     this.setTitleOptions({
       label: PluginRegistryViewContainer.LABEL,
-      iconClass: codicon('extensions'),
+      iconClass: WidgetUtilities.codicon('extensions'),
       closeable: true,
     });
   }
@@ -159,9 +159,8 @@ export class CurViewContainerIdentifier extends ViewContainerIdentifier {
   override progressLocationId?: string = 'extensions';
 }
 
-@Contribution(IWidgetFactory)
-export class PluginRegistryViewContainerFactory extends InjectableService {
-  public readonly id = PluginRegistryViewContainer.ID;
+export class PluginRegistryViewContainerFactory extends AbstractWidgetFactory {
+  public override readonly id = PluginRegistryViewContainer.ID;
 
   constructor(
     @IWidgetManager protected readonly widgetManager: IWidgetManager,

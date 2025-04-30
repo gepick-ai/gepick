@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { Command, ICommandRegistry, IMenuModelRegistry, InjectableService, createServiceDecorator } from "@gepick/core/common";
-import { ILabelProvider, codicon } from "@gepick/core/browser";
+import { ILabelProvider, WidgetUtilities } from "@gepick/core/browser";
 import { PreferenceScope } from "../preference-scope";
 import { Preference, PreferenceMenus } from "./preference-types";
 
@@ -47,7 +47,7 @@ export class PreferenceScopeCommandManager extends InjectableService {
     folderWorkspaces.forEach((folderWorkspace) => {
       const folderLabel = this.labelProvider.getName(folderWorkspace.resource);
 
-      const iconClass = currentFolderURI === folderWorkspace.resource.toString() ? codicon('pass') : '';
+      const iconClass = currentFolderURI === folderWorkspace.resource.toString() ? WidgetUtilities.codicon('pass') : '';
       const newFolderAsCommand = {
         id: `preferenceScopeCommand:${folderWorkspace.resource.toString()}`,
         label: folderLabel,
@@ -57,8 +57,8 @@ export class PreferenceScopeCommandManager extends InjectableService {
       this.foldersAsCommands.push(newFolderAsCommand);
 
       this.commandRegistry.registerCommand(newFolderAsCommand, {
-        isVisible: (callback, check) => check === 'from-tabbar',
-        isEnabled: (callback, check) => check === 'from-tabbar',
+        isVisible: (_callback: any, check: any) => check === 'from-tabbar',
+        isEnabled: (_callback: any, check: any) => check === 'from-tabbar',
         execute: (callback: (scopeDetails: Preference.SelectedScopeDetails) => void) => {
           callback({ scope: PreferenceScope.Folder, uri: folderWorkspace.resource.toString(), activeScopeIsFolder: true });
         },

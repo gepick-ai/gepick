@@ -1,4 +1,4 @@
-import { BaseWidget, CompositeTreeNode, DEFAULT_SCROLL_OPTIONS, ExpandableTreeNode, IPreferenceDiff, IPreferencesManager, IPreferencesSchemaService, SelectableTreeNode, StatefulWidget, TopDownTreeIterator } from "@gepick/core/browser";
+import { AbstractWidget, CompositeTreeNode, DEFAULT_SCROLL_OPTIONS, ExpandableTreeNode, IPreferenceDiff, IPreferencesManager, IPreferencesSchemaService, SelectableTreeNode, StatefulWidget, TopDownTreeIterator } from "@gepick/core/browser";
 import { PostConstruct, createServiceDecorator, deepEqual, lodashThrottle, unreachable } from "@gepick/core/common";
 import { Preference } from "../util/preference-types";
 import { IPreferenceTreeModel, PreferenceFilterChangeEvent, PreferenceFilterChangeSource } from "../preferences-tree-model";
@@ -11,7 +11,7 @@ export interface PreferencesEditorState {
   firstVisibleChildID: string;
 }
 
-export class PreferencesEditorWidget extends BaseWidget implements StatefulWidget {
+export class PreferencesEditorWidget extends AbstractWidget implements StatefulWidget {
   static readonly ID = 'settings.editor';
   static readonly LABEL = 'Settings Editor';
 

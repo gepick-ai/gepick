@@ -1,12 +1,13 @@
-import { Deferred, Emitter, IServiceContainer, InjectableService, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
+import { Deferred, Emitter, PostConstruct, URI, createServiceDecorator } from "@gepick/core/common";
 import { Signal } from "@lumino/signaling";
 import { ArrayExt, find, toArray } from "@lumino/algorithm";
 import { IDragEvent } from "@lumino/dragdrop";
-import { BaseWidget, BoxLayout, BoxPanel, DockLayout, DockPanel, FocusTracker, Layout, Message, SplitLayout, SplitPanel, TabBar, Widget, waitForClosed } from "../widget";
+import { AbstractWidget, BoxLayout, BoxPanel, DockLayout, DockPanel, FocusTracker, Layout, Message, SplitLayout, SplitPanel, TabBar, Widget, WidgetUtilities } from "../widget";
 import { IOpenerService } from "../opener";
 import { IContextKeyService } from "../menu";
 import { ISidePanelHandlerFactory, MAIN_AREA_ID, SidePanel, SidePanelHandler, TheiaDockPanel } from "./side-panel-handler";
-import { ITabBarRendererFactory, ScrollableTabBar } from "./tab-bars";
+import { ScrollableTabBar } from "./tab-bars";
+import { DockPanelRenderer, IDockPanelRendererFactory } from "./dock-panel";
 
 /**
  * Data stored while dragging widgets in the shell.
@@ -34,66 +35,10 @@ export type RecursivePartial<T> = {
 };
 
 /**
- * A renderer for dock panels that supports context menus on tabs.
- */
-export class DockPanelRenderer extends InjectableService implements DockLayout.IRenderer {
-  readonly tabBarClasses: string[] = [];
-
-  constructor(
-    @ITabBarRendererFactory protected readonly tabBarRendererFactory: ITabBarRendererFactory,
-  ) {
-    super();
-  }
-
-  createTabBar(): TabBar<Widget> {
-    const renderer = this.tabBarRendererFactory.createTabBarRenderer();
-    const tabBar = new ScrollableTabBar({
-      renderer,
-      // Scroll bar options
-      handlers: ['drag-thumb', 'keyboard', 'wheel', 'touch'],
-      useBothWheelAxes: true,
-      scrollXMarginOffset: 4,
-      suppressScrollY: true,
-    });
-    this.tabBarClasses.forEach(c => tabBar.addClass(c));
-    renderer.tabBar = tabBar;
-    tabBar.currentChanged.connect(this.handleCurrentTabChanged, this);
-    return tabBar;
-  }
-
-  createHandle(): HTMLDivElement {
-    return DockPanel.defaultRenderer.createHandle();
-  }
-
-  protected handleCurrentTabChanged(sender: ScrollableTabBar, { currentIndex }: TabBar.ICurrentChangedArgs<Widget>): void {
-    if (currentIndex >= 0) {
-      sender.revealTab(currentIndex);
-    }
-  }
-}
-
-export class DockPanelRendererFactory extends InjectableService {
-  constructor(
-    @IServiceContainer protected readonly serviceContainer: IServiceContainer,
-  ) {
-    super();
-  }
-
-  createDockPanelRenderer() {
-    const child = this.serviceContainer.createChild();
-    child.bind(DockPanelRenderer.getServiceId()).to(DockPanelRenderer);
-
-    return child.get<DockPanelRenderer>(DockPanelRenderer.getServiceId());
-  }
-}
-export const IDockPanelRendererFactory = createServiceDecorator<IDockPanelRendererFactory>(DockPanelRendererFactory.name);
-export type IDockPanelRendererFactory = DockPanelRendererFactory;
-
-/**
  * The namespace for `ApplicationShell` class statics.
  */
 
-export class Shell extends BaseWidget {
+export class Shell extends AbstractWidget {
   /**
    * Handler for the left side panel. The primary application views go here, such as the
    * file explorer and the git view.
@@ -577,7 +522,7 @@ export class Shell extends BaseWidget {
     if (!current) {
       return undefined;
     }
-    const pendingClose = (current.close(), waitForClosed(current));
+    const pendingClose = (current.close(), WidgetUtilities.waitForClosed(current));
     await Promise.all([
       pendingClose,
       this.pendingUpdates,

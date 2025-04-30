@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { Emitter, Event, IServiceContainer, InjectableService, Key, KeyCode, createServiceDecorator } from '@gepick/core/common';
-import { BaseWidget, Message } from '../../widget';
+import { AbstractWidget, Message } from '../../widget';
 import { SearchBoxDebounce, SearchBoxDebounceOptions } from './search-box-debounce';
 
 /**
@@ -75,7 +75,7 @@ export namespace SearchBox1 {
 /**
  * The search box widget.
  */
-export class SearchBox extends BaseWidget {
+export class SearchBox extends AbstractWidget {
   protected static SPECIAL_KEYS = [
     Key.ESCAPE,
     Key.BACKSPACE,
