@@ -2290,6 +2290,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@gepick/cli@workspace:tools/cli"
   dependencies:
+    "@gepick/monorepo": "workspace:*"
+    "@gepick/ts-docs": "workspace:*"
     "@types/copyfiles": "npm:^2"
     "@types/yargs": "npm:^17.0.33"
     chalk: "npm:^5.3.0"
@@ -2305,7 +2307,7 @@ __metadata:
     vite: "npm:^4.4.5"
     yargs: "npm:^17.7.2"
   bin:
-    gepick: ./lib/gepick.js
+    gepick: ./bin/gepick-cli.js
   languageName: unknown
   linkType: soft
 
@@ -2425,7 +2427,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@gepick/monorepo@workspace:.":
+"@gepick/monorepo@workspace:*, @gepick/monorepo@workspace:.":
   version: 0.0.0-use.local
   resolution: "@gepick/monorepo@workspace:."
   dependencies:
@@ -2529,7 +2531,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@gepick/ts-docs@workspace:tools/ts-docs":
+"@gepick/ts-docs@workspace:*, @gepick/ts-docs@workspace:tools/ts-docs":
   version: 0.0.0-use.local
   resolution: "@gepick/ts-docs@workspace:tools/ts-docs"
   dependencies:

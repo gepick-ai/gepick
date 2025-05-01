@@ -16,6 +16,7 @@
   "scripts": {
     "compile": "gepick compile",
     "clean": "gepick clean",
+    "docs": "gepick docs",
     "setup:env": "gepick setup-env",
     "start:gepick-service": "yarn clean && yarn compile && yarn setup:env && yarn dev:server",
     "start:gepick-client": "yarn dev:client",

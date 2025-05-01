@@ -3,6 +3,16 @@
   "type": "module",
   "version": "0.1.0",
   "private": true,
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "npx tsc -b --watch",
+    "build": "npx tsc -b"
+  },
   "dependencies": {
     "@lerna/project": "^6.4.1",
     "@microsoft/api-documenter": "^7.23.37",

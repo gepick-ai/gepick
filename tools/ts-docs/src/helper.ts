@@ -68,6 +68,7 @@ export async function getPackages(
       };
     }),
   );
+
   packages.sort((p1, p2) => p1.location.localeCompare(p2.location));
   return packages;
 }
@@ -78,22 +79,14 @@ export async function getPackages(
  * @param pkg - Lerna package
  */
 export function shouldGenerateTsDocs(pkg: LernaPackage) {
-  // We generate tsdocs for `@gepick/ts-docs` even it's private at this moment
-  if (pkg.name === '@gepick/ts-docs')
-    return true;
-
-  if (pkg.private && pkg.name !== '@gepick/ts-docs')
-    return false;
-
   if (
-    !fse.existsSync(path.join(pkg.location, 'tsconfig.build.json'))
-    && !fse.existsSync(path.join(pkg.location, 'tsconfig.json'))
+    !fse.existsSync(path.join(pkg.location, 'tsconfig.json'))
   ) {
     return false;
   }
 
   /* istanbul ignore if  */
-  return fse.existsSync(path.join(pkg.location, 'dist/index.d.ts'));
+  return ['browser', 'common', 'node'].some((env) => fse.existsSync(path.join(pkg.location, `lib/${env}/index.d.ts`)));
 }
 
 /**

@@ -2,7 +2,7 @@
  * Run api-extractor against the monorepo
  */
 
-import { runExtractorForMonorepo, runExtractorForPackage } from "../monorepo-api-extractor";
+import { runExtractorForMonorepo, runExtractorForPackage } from "./monorepo-api-extractor";
 
 const silent = process.argv.includes('--silent');
 const dryRun = process.argv.includes('--dry-run');

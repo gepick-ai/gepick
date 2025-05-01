@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import path from "node:path"
+import path from "node:path";
 import { fileURLToPath } from 'node:url';
 import yargs, { Argv } from 'yargs';
 import { findUp } from 'find-up';
@@ -9,12 +9,13 @@ const __dirname = path.dirname(__filename);
 
 export async function setupCommands(cli: Argv): Promise<void> {
   const cmds = await Promise.all([
-    import("@gepick/cli/commands/clean/command"),
-    import("@gepick/cli/commands/setup-env/command"),
-    import("@gepick/cli/commands/compile/command"),
-    import("@gepick/cli/commands/build/command"),
-    import("@gepick/cli/commands/dev/command"),
-  ])
+    import("./commands/clean/command"),
+    import("./commands/setup-env/command"),
+    import("./commands/compile/command"),
+    import("./commands/build/command"),
+    import("./commands/dev/command"),
+    import("./commands/docs/command"),
+  ]);
 
   cmds.forEach(cmd => cli.command(cmd.default));
 }
@@ -65,4 +66,4 @@ process.on('uncaughtException', (error) => {
   process.exit(1);
 });
 
-gepickCli()
+gepickCli();

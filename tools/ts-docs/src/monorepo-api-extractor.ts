@@ -49,6 +49,8 @@ export async function runExtractorForMonorepo(options: ExtractorOptions = {}) {
   );
 
   const packages = await getPackagesWithTsDocs(options.rootDir);
+  // eslint-disable-next-line no-console
+  console.log("🚀 ~ runExtractorForMonorepo ~ packages:", packages)
 
   /* istanbul ignore if  */
   if (!packages.length)

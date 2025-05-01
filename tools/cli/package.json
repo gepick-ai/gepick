@@ -8,13 +8,15 @@
     "./commands/*/command": "./lib/commands/*/command.js"
   },
   "bin": {
-    "gepick": "./lib/gepick.js"
+    "gepick": "./bin/gepick-cli.js"
   },
   "scripts": {
     "dev": "npx tsc -b --watch",
     "build": "npx tsc -b"
   },
   "dependencies": {
+    "@gepick/monorepo": "workspace:*",
+    "@gepick/ts-docs": "workspace:*",
     "chalk": "^5.3.0",
     "copyfiles": "^2.4.1",
     "find-up": "^7.0.0",

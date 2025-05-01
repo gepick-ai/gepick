@@ -5,6 +5,11 @@
     "rootDir": "src",
     "outDir": "lib"
   },
+  "references": [
+    {
+      "path": "../ts-docs"
+    }
+  ],
   "include": [
     "src"
   ]

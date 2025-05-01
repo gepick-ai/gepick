@@ -60,7 +60,6 @@
     "noImplicitReturns": true,
     "noPropertyAccessFromIndexSignature": false,
     "declaration": true,
-    "declarationMap": true,
     "importHelpers": true,
     "noEmitOnError": true,
     "sourceMap": true,
