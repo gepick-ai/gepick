@@ -37,3 +37,4 @@ out
 
 .yarn/install-state.gz
 lib
+**/gh-pages

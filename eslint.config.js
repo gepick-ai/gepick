@@ -9,7 +9,7 @@ export default antfu(
   },
   {
     // 针对全局的指定（文件夹/文件）进行忽略
-    ignores: ['**/dist', "**/lib"],
+    ignores: ['**/dist', "**/lib", 'typedoc.json'],
   },
   {
     rules: {

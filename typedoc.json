@@ -1,0 +1,21 @@
+{
+    "externalPattern": [
+      "**/node_modules/**",
+      "**/lib/**/*.ts",
+      "**/plugins/**",
+    ],
+    "entryPointStrategy": "packages",
+    "entryPoints": [
+      "packages/*"
+    ],
+    "packageOptions": {
+      "entryPoints":["src/**/index.ts"]
+    },
+    "includeVersion": true,
+    "hideGenerator": true,
+    "name": "Gepick TypeDoc",
+    "out": "./gh-pages/docs/next",
+    "readme": "./README.md",
+    "plugin": [],
+    // "logLevel": "Verbose",
+  }

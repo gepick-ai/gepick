@@ -43,18 +43,17 @@ export async function runExtractorForMonorepo(options: ExtractorOptions = {}) {
       apiDocsExtractionPath: DEFAULT_APIDOCS_EXTRACTION_PATH,
       typescriptCompilerFolder: typeScriptPath,
       tsconfigFilePath: 'tsconfig.json',
-      mainEntryPointFilePath: 'dist/index.d.ts',
+      mainEntryPointFilePath: 'lib/index.d.ts',
     },
     options,
   );
 
   const packages = await getPackagesWithTsDocs(options.rootDir);
-  // eslint-disable-next-line no-console
-  console.log("🚀 ~ runExtractorForMonorepo ~ packages:", packages)
 
   /* istanbul ignore if  */
-  if (!packages.length)
+  if (!packages.length) {
     return;
+  }
 
   const lernaRootDir = packages[0].rootPath;
 
@@ -80,12 +79,15 @@ export async function runExtractorForMonorepo(options: ExtractorOptions = {}) {
       }
     }
   }
-  if (Object.keys(errors).length === 0)
+  if (Object.keys(errors).length === 0) {
     return;
+  }
+
   console.error(
     '****************************************'
     + '****************************************',
   );
+
   for (const p in errors) {
     const err = errors[p] as { message: string };
     console.error('%s: %s', p, err?.message ?? err);
@@ -106,7 +108,7 @@ export async function runExtractorForPackage(
       apiDocsExtractionPath: DEFAULT_APIDOCS_EXTRACTION_PATH,
       typescriptCompilerFolder: typeScriptPath,
       tsconfigFilePath: 'tsconfig.json',
-      mainEntryPointFilePath: 'dist/index.d.ts',
+      mainEntryPointFilePath: 'lib/index.d.ts',
     },
     options,
   );
@@ -162,14 +164,17 @@ function invokeExtractorForPackage(
  */
 function setupApiDocsDirs(lernaRootDir: string, options: ExtractorOptions) {
   /* istanbul ignore if  */
-  if (options.dryRun)
+  if (options.dryRun) {
     return;
+  }
+
   const apiDocsExtractionPath = options.apiDocsExtractionPath!;
 
   fs.emptyDirSync(path.join(lernaRootDir, `${apiDocsExtractionPath}/models`));
 
-  if (!options.apiReportEnabled)
+  if (!options.apiReportEnabled) {
     return;
+  }
 
   fs.ensureDirSync(path.join(lernaRootDir, `${apiDocsExtractionPath}/reports`));
   fs.emptyDirSync(
@@ -241,6 +246,7 @@ function buildExtractorConfig(pkg: LernaPackage, options: ExtractorOptions) {
     configObjectFullPath: '',
     packageJsonFullPath: pkg.manifestLocation,
   });
+
   return extractorConfig;
 }
 

@@ -16,7 +16,8 @@
   "scripts": {
     "compile": "gepick compile",
     "clean": "gepick clean",
-    "docs": "gepick docs",
+    "docs": "typedoc",
+    "docs-all": "rimraf gh-pages/docs/next && npm run typedoc --workspaces --if-present",
     "setup:env": "gepick setup-env",
     "start:gepick-service": "yarn clean && yarn compile && yarn setup:env && yarn dev:server",
     "start:gepick-client": "yarn dev:client",
@@ -58,6 +59,7 @@
     "ts-node": "^10.9.2",
     "tsup": "^8.0.2",
     "tsx": "^4.7.2",
+    "typedoc": "^0.28.3",
     "typescript": "^5.4.5",
     "typescript-eslint": "^7.11.0",
     "vite-plugin-checker": "^0.6.2",
