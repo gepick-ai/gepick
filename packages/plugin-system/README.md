@@ -1,3 +1,8 @@
+# @gepick/plugin-system
+
+gepick plugin-system
+
+
 ## Plugin与Core之间的消息传递
 
 由于Plugin是运行在一个隔离的Plugin进程当中的，而Core则运行在其他进程当中。因此设计Plugin API的时候就必须考虑Plugin应该如何与Core通信的问题。在项目当中，我们通过利用RPC技术建立起Plugin与Core之间的通信桥梁，并设计一套`Main-Ext`的通信模式。

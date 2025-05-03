@@ -1,21 +1,30 @@
 {
-    "externalPattern": [
-      "**/node_modules/**",
-      "**/lib/**/*.ts",
-      "**/plugins/**",
-    ],
-    "entryPointStrategy": "packages",
+  "externalPattern": [
+    "**/node_modules/**",
+    "**/lib/**/*.ts",
+    "**/plugins/**",
+  ],
+  "entryPointStrategy": "packages",
+  "entryPoints": [
+    "packages/*"
+  ],
+  "packageOptions": {
     "entryPoints": [
-      "packages/*"
+      "src/**/index.ts",
     ],
-    "packageOptions": {
-      "entryPoints":["src/**/index.ts"]
-    },
-    "includeVersion": true,
-    "hideGenerator": true,
-    "name": "Gepick TypeDoc",
-    "out": "./gh-pages/docs/next",
-    "readme": "./README.md",
-    "plugin": [],
-    // "logLevel": "Verbose",
-  }
+  },
+  "name": "Gepick API Docs",
+  "readme": "./README.md",
+  "out": "./gh-pages/docs",
+  "logLevel": "Error",
+  "navigationLeaves": [
+    "browser", 
+    "common",
+    "node"
+  ],
+  "router": "structure-dir",
+  "hideGenerator": true,
+  "plugin": ["typedoc-material-theme"],
+  "themeColor": "#cb9820"
+  // "showConfig":true
+}

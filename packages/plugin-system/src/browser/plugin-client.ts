@@ -1,5 +1,5 @@
-import { PluginHostContext } from '@gepick/plugin-system/common/plugin-api';
-import { DisposableCollection, InjectableService, createServiceDecorator, toDisposable } from '@gepick/core/common';
+import { PluginHostContext } from '@gepick/plugin-system/common';
+import { DisposableCollection, InjectableService, createServiceDecorator } from '@gepick/core/common';
 import { IDeployedPlugin } from '../common/plugin-service';
 import { PluginIdentifiers } from '../common/plugin-identifiers';
 import { IMainThreadRpcService } from './main-thread-rpc';

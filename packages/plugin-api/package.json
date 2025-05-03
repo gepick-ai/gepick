@@ -6,7 +6,8 @@
   "types": "./src/index.d.ts",
   "scripts": {
     "dev": "gepick compile --watch",
-    "build": "gepick compile"
+    "build": "gepick compile",
+    "docs": "npx typedoc"
   },
   "devDependencies": {
     "@gepick/cli": "workspace:*"

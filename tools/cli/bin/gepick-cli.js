@@ -6,5 +6,5 @@ const __dirname = path.dirname(__filename);
 
 import(path.resolve(__dirname, "./preload/register.js"))
   .then(() => {
-    import(path.resolve(__dirname, "../lib/gepick.js"));
+    import(path.resolve(__dirname, "../dist"));
   });

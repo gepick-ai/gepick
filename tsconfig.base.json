@@ -12,44 +12,6 @@
     "baseUrl": ".",
     "module": "esnext",
     "moduleResolution": "bundler",
-    "paths": {
-      // ============apps==============
-      "@gepick/client/*": [
-        "./apps/client/src/*"
-      ],
-      "@gepick/server/*": [
-        "./apps/server/src/*"
-      ],
-      "@gepick/plugin-a/*": [
-        "./apps/plugin-a/src/*"
-      ],
-      // ============packages============
-      "@gepick/core/*": [
-        "./packages/core/src/*"
-      ],
-      "@gepick/plugin-api/*": [
-        "./packages/plugin-api/src/*"
-      ],
-      "@gepick/plugin-system/*": [
-        "./packages/plugin-system/src/*"
-      ],
-      "@gepick/plugin-registry/*": [
-        "./packages/plugin-registry/src/*"
-      ],
-      "@gepick/preferences/*": [
-        "./packages/preferences/src/*"
-      ],
-      "@gepick/getting-started/*": [
-        "./packages/getting-started/src/*"
-      ],
-      // ============tools==============
-      "@gepick/cli/*": [
-        "./tools/cli/src/*"
-      ],
-      "@gepick/ts-docs/*": [
-        "./tools/ts-docs/src/*"
-      ]
-    },
     "resolveJsonModule": true,
     "allowArbitraryExtensions": true,
     "allowJs": false,

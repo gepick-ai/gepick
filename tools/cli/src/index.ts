@@ -14,7 +14,6 @@ export async function setupCommands(cli: Argv): Promise<void> {
     import("./commands/compile/command"),
     import("./commands/build/command"),
     import("./commands/dev/command"),
-    import("./commands/docs/command"),
   ]);
 
   cmds.forEach(cmd => cli.command(cmd.default));

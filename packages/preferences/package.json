@@ -19,7 +19,8 @@
   },
   "scripts": {
     "dev": "gepick compile --watch",
-    "build": "gepick compile"
+    "build": "gepick compile",
+    "docs": "npx typedoc"
   },
   "dependencies": {
     "@gepick/core": "workspace:*"

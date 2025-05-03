@@ -38,7 +38,7 @@ export default <CommandModule>{
 
     // 判断style目录是否存在
     if (fs.existsSync(srcStylePath)) {
-      copyfiles([`src/browser/style/**/*`, `lib/browser`], { up: 2 }, (err) => {
+      copyfiles([`src/browser/style/**/*`, `dist/browser`], { up: 2 }, (err) => {
         if (err) {
           console.warn(chalk.red(`✖ Error copying files: ${err.message}`));
         }

@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import path from "node:path"
+import path from "node:path";
 import { CommandModule } from 'yargs';
 import { rimraf } from 'rimraf';
 import chalk from 'chalk';
@@ -22,7 +22,7 @@ export default <CommandModule>{
         `apps/${target}/tsconfig.tsbuildinfo`,
         `apps/${target}/dist`,
         `apps/${target}/lib`,
-      ])
+      ]);
     }
 
     if (['shared', 'auth', 'copilot', 'user'].includes(target)) {
@@ -30,11 +30,22 @@ export default <CommandModule>{
         `packages/${target}/tsconfig.tsbuildinfo`,
         `packages/${target}/dist`,
         `packages/${target}/lib`,
-      ])
+      ]);
     }
 
     if (pathsToDelete.length === 0) {
-      pathsToDelete.push(...['apps/**/tsconfig.tsbuildinfo', 'apps/**/dist', 'apps/**/lib', 'packages/**/tsconfig.tsbuildinfo', 'packages/**/dist', 'packages/**/lib'])
+      pathsToDelete.push(...[
+        'apps/**/tsconfig.tsbuildinfo',
+        'apps/**/dist',
+        'apps/**/lib',
+        'packages/**/tsconfig.tsbuildinfo',
+        'packages/**/dist',
+        'packages/**/lib',
+        'tools/**/lib',
+        'tools/**/dist',
+        'tools/**/tsconfig.tsbuildinfo',
+        "**/gh-pages/**"
+      ]);
     }
 
     cleanFiles(pathsToDelete);
@@ -55,4 +66,4 @@ export default <CommandModule>{
       );
     }
   },
-}
+};

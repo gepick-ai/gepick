@@ -1,7 +1,5 @@
 # Gepick
 
-Gepick AI
-
 ## 项目工程结构
 
 Gepick仓库包含多个文件夹：
