@@ -24,7 +24,8 @@
   ],
   "router": "structure-dir",
   "hideGenerator": true,
-  "plugin": ["typedoc-material-theme"],
-  "themeColor": "#cb9820"
+  "plugin": [
+    "typedoc-github-theme"
+  ],
   // "showConfig":true
 }
