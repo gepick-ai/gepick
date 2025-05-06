@@ -1,4 +1,4 @@
-import { IContributionProvider, IMenuModelRegistry, InjectableService, Optional, createServiceDecorator, isOSX } from '@gepick/core/common';
+import { ICommandRegistry, IContributionProvider, IMenuModelRegistry, InjectableService, Optional, createServiceDecorator, isOSX } from '@gepick/core/common';
 import { Widget } from '../widget';
 import { IShell, IView, IViewProvider } from "../shell";
 import { animationFrame, preventNavigation } from '../services';
@@ -15,6 +15,7 @@ export class Application extends InjectableService {
     @IShell private readonly shell: IShell,
     @IViewProvider private readonly viewProvider: IContributionProvider<IView>,
     @IMenuModelRegistry protected readonly menuModelRegistry: IMenuModelRegistry,
+    @ICommandRegistry protected readonly commandRegistry: ICommandRegistry,
   ) {
     super();
   }
@@ -24,8 +25,10 @@ export class Application extends InjectableService {
 
     for (const contribution of applicationContributions) {
       contribution.onApplicationInit?.();
-      // TODO(@jaylenchen): 重构menu model registry启动方式
+      // TODO(@jaylenchen): 重构menu model registry & commandRegistry 启动方式
+      // NOTE(@jaylenchen): menu registry和cmmandregistriy一起使用才能够将settings展示并唤出。
       this.menuModelRegistry?.onApplicationInit();
+      this.commandRegistry?.onApplicationInit();
     }
     this.stateService.state = 'started_contributions';
 

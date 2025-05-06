@@ -1,5 +1,4 @@
 import { Module, ServiceModule } from "@gepick/core/common";
-import { PreferencesView } from "./view/preferences-view-contribution";
 import { PreferencesWidgetFactory } from "./views/preferences-widget";
 import { PreferenceTreeGenerator } from "./util/preference-tree-generator";
 import { PreferenceTreeLabelProvider } from "./util/preference-tree-label-provider";
@@ -18,7 +17,6 @@ import { PreferenceJSONLinkRenderer, PreferenceJSONLinkRendererContribution } fr
 import { PreferenceHeaderRenderer } from "./views/components/preference-node-renderer";
 import { DefaultPreferenceNodeRendererCreatorRegistry, PreferenceHeaderRendererContribution } from "./views/components/preference-node-renderer-creator";
 import { PreferenceSingleFilePathInputRenderer, PreferenceSingleFilePathInputRendererContribution } from "./views/components/preference-file-input";
-import { PreferencesMenuContribution } from "./view/preferences-menu-contribution";
 
 @Module({
   services: [
@@ -26,7 +24,7 @@ import { PreferencesMenuContribution } from "./view/preferences-menu-contributio
     PreferenceLayoutProvider,
     PreferenceOpenHandler,
     PreferenceScopeCommandManager,
-    PreferencesView,
+    // PreferencesView,
     // # region PreferencesWidget
     PreferenceTreeLabelProvider,
     PreferencesWidgetFactory,
@@ -81,7 +79,7 @@ import { PreferencesMenuContribution } from "./view/preferences-menu-contributio
     DefaultPreferenceNodeRendererCreatorRegistry,
     // #endregion
 
-    PreferencesMenuContribution,
+    // PreferencesMenuContribution,
   ],
 })
 export class PreferencesViewModule extends ServiceModule {}

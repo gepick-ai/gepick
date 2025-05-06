@@ -33,7 +33,7 @@ export class CommandRegistry extends InjectableService implements CommandService
     super();
   }
 
-  onStart(): void {
+  onApplicationInit(): void {
     const commands = this.commandProvider.getContributions();
     commands.forEach(command => this.registerCommand(command, command));
   }

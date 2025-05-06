@@ -109,6 +109,7 @@ export class BrowserMainMenuFactory extends InjectableService {
     const menuModel = skipSingleRootNode ? this.menuProvider.removeSingleRootNode(menuNode, path) : menuNode;
     const menuCommandRegistry = this.createMenuCommandRegistry(menuModel, args).snapshot(path);
     const contextMenu = this.createMenuWidget(menuModel, { commands: menuCommandRegistry, context, rootMenuPath: path, contextKeyService });
+
     return contextMenu;
   }
 
@@ -161,8 +162,7 @@ export class DynamicMenuBarWidget extends MenuBarWidget {
   constructor() {
     super();
     // HACK we need to hook in on private method _openChildMenu. Don't do this at home!
-    // @ts-ignore
-    DynamicMenuBarWidget.prototype._openChildMenu = () => {
+    DynamicMenuBarWidget.prototype['_openChildMenu'] = () => {
       if (this.activeMenu instanceof DynamicMenuWidget) {
         // `childMenu` is `null` if we open the menu. For example, menu is not shown and you click on `Edit`.
         // However, the `childMenu` is set, when `Edit` was already open and you move the mouse over `Select`.
@@ -176,8 +176,7 @@ export class DynamicMenuBarWidget extends MenuBarWidget {
         }
         this.activeMenu.aboutToShow({ previousFocusedElement: this.previousFocusedElement });
       }
-      // @ts-ignore
-      super._openChildMenu();
+      super['_openChildMenu']();
     };
   }
 
@@ -433,6 +432,7 @@ export class MenuCommandRegistry extends LuminoCommandRegistry {
   registerActionMenu(menu: MenuNode & CommandMenuNode, args: unknown[]): void {
     const { commandRegistry } = this.services;
     const command = commandRegistry.getCommand(menu.command);
+
     if (!command) {
       return;
     }

@@ -67,7 +67,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@gepick/client": resolve(__dirname, "./src"),
-      "@gepick/plugin-system": resolve(__dirname, "../../packages/plugin-system/src"),
     },
   },
   server: {
@@ -83,6 +82,7 @@ export default defineConfig({
       },
     },
   },
+
   define: {
     // "process.env.MESSAGING_URL": "http://localhost:3000/api",
   },
