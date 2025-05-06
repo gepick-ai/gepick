@@ -5,16 +5,16 @@
   "private": true,
   "exports": {
     "./browser": {
-      "types": "./lib/browser/index.d.ts",
-      "import": "./lib/browser/index.js"
+      "types": "./dist/browser/index.d.ts",
+      "import": "./dist/browser/index.js"
     },
     "./node": {
-      "types": "./lib/node/index.d.ts",
-      "import": "./lib/node/index.js"
+      "types": "./dist/node/index.d.ts",
+      "import": "./dist/node/index.js"
     },
     "./common": {
-      "types": "./lib/common/index.d.ts",
-      "import": "./lib/common/index.js"
+      "types": "./dist/common/index.d.ts",
+      "import": "./dist/common/index.js"
     }
   },
   "scripts": {

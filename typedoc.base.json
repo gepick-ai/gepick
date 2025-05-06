@@ -6,5 +6,6 @@
     "enum-member-source-order",
     "static-first",
     "kind"
-  ]
+  ],
+  "darkHighlightTheme": "dark-plus"
 }
