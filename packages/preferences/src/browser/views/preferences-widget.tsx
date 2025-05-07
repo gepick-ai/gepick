@@ -1,17 +1,16 @@
-import { AbstractWidgetFactory, Message, Mixin, Panel, StatefulWidget, Widget, WidgetUtilities } from "@gepick/core/browser";
-import { IServiceContainer, InjectableService, PostConstruct, createServiceDecorator } from "@gepick/core/common";
+import { AbstractPanel, AbstractWidgetFactory, Message, StatefulWidget, Widget, WidgetUtilities } from "@gepick/core/browser";
+import { IServiceContainer, PostConstruct, createServiceDecorator } from "@gepick/core/common";
 import { IPreferencesEditorWidget } from "./preferences-editor-widget";
 import { IPreferencesTreeWidget } from "./preferences-tree-widget";
 import { IPreferencesSearchbarWidget } from "./preferences-searchbar-widget";
 import { IPreferencesScopeTabBar } from "./preferences-scope-tabbar-widget";
 import { createPreferencesWidgetContainer } from "./preference-widget-bindings";
 
-export class BasePanel extends Mixin(Panel, InjectableService) {}
-export class PreferencesWidget extends BasePanel implements StatefulWidget {
+export class PreferencesWidget extends AbstractPanel implements StatefulWidget {
   /**
    * The widget `id`.
    */
-  static readonly ID = 'settings_widget';
+  static readonly ID = 'settings-widget';
   /**
    * The widget `label` which is used for display purposes.
    */
@@ -39,15 +38,19 @@ export class PreferencesWidget extends BasePanel implements StatefulWidget {
     this.addClass('theia-settings-container');
     this.title.iconClass = WidgetUtilities.codicon('settings');
 
+    // top searchbar widget
     this.searchbarWidget.addClass('preferences-searchbar-widget');
     this.addWidget(this.searchbarWidget);
 
+    // top tabbar widget
     this.tabBarWidget.addClass('preferences-tabbar-widget');
     this.addWidget(this.tabBarWidget);
 
+    // main-left tree widget
     this.treeWidget.addClass('preferences-tree-widget');
     this.addWidget(this.treeWidget);
 
+    // main-right editor widget
     this.editorWidget.addClass('preferences-editor-widget');
     this.addWidget(this.editorWidget);
 

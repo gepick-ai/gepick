@@ -13,6 +13,7 @@ import { SidebarBottomMenuWidget, SidebarBottomMenuWidgetFactory } from "./sideb
 import { TabBarRendererFactory } from "./tab-bars";
 import { TabBarDecoratorService } from "./tab-bar-decorator";
 import { DockPanelRendererFactory } from "./dock-panel";
+import { ShellMouseTracker } from "./shell-mouse-tracker";
 
 @Module({
   services: [
@@ -36,6 +37,7 @@ import { DockPanelRendererFactory } from "./dock-panel";
     ColorRegistry,
     DecorationsServiceImpl,
     DockPanelRendererFactory,
+    ShellMouseTracker,
   ],
 
 })

@@ -6,8 +6,9 @@ import { MimeData } from '@lumino/coreutils';
 import { Drag } from '@lumino/dragdrop';
 
 import { DisposableCollection, Emitter, Event, IServiceContainer, InjectableService, createServiceDecorator, toDisposable } from "@gepick/core/common";
+import { Mixin } from "ts-mixer";
 import { UnsafeWidgetUtilities } from "../widget";
-import { ITabBarRendererFactory, SideTabBar, TabBarRenderer } from "./tab-bars";
+import { ITabBarRendererFactory, SideTabBar } from "./tab-bars";
 import { SidebarMenu, SidebarMenuWidget } from "./sidebar-menu-widget";
 import { ISidebarBottomMenuWidgetFactory, SidebarBottomMenuWidget } from "./sidebar-bottom-menu-widget";
 
@@ -1046,3 +1047,5 @@ export class SplitPositionHandler extends InjectableService {
 }
 export const ISplitPositionHandler = createServiceDecorator<ISplitPositionHandler>(SplitPositionHandler.name);
 export type ISplitPositionHandler = SplitPositionHandler;
+
+export class AbstractPanel extends Mixin(Panel, InjectableService) {}

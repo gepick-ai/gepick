@@ -16,7 +16,7 @@
 
 import { IOpenHandler, animationFrame } from "@gepick/core/browser";
 import { Contribution, InjectableService, URI } from "@gepick/core/common";
-import { IPreferencesView } from "./view/preferences-view-contribution";
+import { IPreferencesView } from "./contributions/view-contribution";
 
 @Contribution(IOpenHandler)
 export class PreferenceOpenHandler extends InjectableService implements IOpenHandler {

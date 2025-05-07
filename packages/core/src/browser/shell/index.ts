@@ -5,3 +5,4 @@ export * from "./tab-bar-toolbar";
 export * from "./shell-module";
 export * from "./view/view-container";
 export * from "./shell-layout-restorer";
+export * from "./side-panel-handler";

@@ -72,6 +72,7 @@ export class PreferencesEditorWidget extends AbstractWidget implements StatefulW
     this.scrollContainer = innerWrapper;
     innerWrapper.addEventListener('scroll', this.onScroll, { passive: true });
     this.node.appendChild(innerWrapper);
+    
     const noLeavesMessage = document.createElement('div');
     noLeavesMessage.classList.add('settings-no-results-announcement');
     noLeavesMessage.textContent = 'That search query has returned no results.';
