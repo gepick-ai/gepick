@@ -1,7 +1,7 @@
 import { Deferred, Emitter, InjectableService, PostConstruct, createServiceDecorator, deepFreeze, toDisposable } from "@gepick/core/common";
 import { JSONExt, JSONValue } from "@lumino/coreutils";
-import { IPreferencesSchema } from "./preferences-schema-contribution";
 import { IPreferenceDiff, IPreferencesSchemaService } from "./preferences-schema-service";
+import { IPreferencesSchema } from "./preferences-schema-part-contribution";
 
 const OVERRIDE_PROPERTY = '\\[(.*)\\]$';
 export const OVERRIDE_PROPERTY_PATTERN = new RegExp(OVERRIDE_PROPERTY);
@@ -17,7 +17,7 @@ export class PreferencesManager extends InjectableService implements IPreference
   protected _isReady = false;
 
   protected readonly preferences: { [name: string]: any } = {};
-  protected readonly combinedPreferencesSchema: IPreferencesSchema = { properties: {} };
+  protected readonly combinedPreferencesSchema: IPreferencesSchema = { type: 'object', properties: {} };
   protected readonly overrideIdentifiers = new Set<string>();
 
   protected readonly _onPreferenceChanged = this._register(new Emitter<IPreferenceDiff>());

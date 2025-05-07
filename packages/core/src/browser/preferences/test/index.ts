@@ -1,3 +1,3 @@
-export * from "./plugin-preferences";
-export * from "./theme-preferences";
-export * from "./test-application";
+export * from "./plugin-preferences-schema-part";
+export * from "./theme-preferences-schema-part";
+export * from "./core-preferences-schema-part";

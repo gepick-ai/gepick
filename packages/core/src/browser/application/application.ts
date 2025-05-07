@@ -22,14 +22,18 @@ export class Application extends InjectableService {
 
   async start() {
     const applicationContributions = this.applicationContributionProvider.getContributions();
-
     for (const contribution of applicationContributions) {
       contribution.onApplicationInit?.();
-      // TODO(@jaylenchen): 重构menu model registry & commandRegistry 启动方式
-      // NOTE(@jaylenchen): menu registry和cmmandregistriy一起使用才能够将settings展示并唤出。
-      this.menuModelRegistry?.onApplicationInit();
-      this.commandRegistry?.onApplicationInit();
     }
+    // TODO(@jaylenchen): 重构menu model registry & commandRegistry 启动方式
+    // NOTE(@jaylenchen): menu registry和cmmandregistriy一起使用才能够将settings展示并唤出。
+    this.menuModelRegistry?.onApplicationInit();
+    this.commandRegistry?.onApplicationInit();
+
+    for (const contribution of applicationContributions) {
+      contribution.onApplicationStart?.();
+    }
+
     this.stateService.state = 'started_contributions';
 
     const host = await this.getHost();

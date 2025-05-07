@@ -63,14 +63,14 @@ export class ApplicationStateService extends InjectableService {
     if (this.deferred[this._state] === undefined) {
       this.deferred[this._state] = new Deferred();
     }
-    const oldState = this._state;
+    const _oldState = this._state;
     this._state = state;
     if (this.deferred[state] === undefined) {
       this.deferred[state] = new Deferred();
     }
     this.deferred[state].resolve();
-    // eslint-disable-next-line no-console
-    console.info(`Changed application state from '${oldState}' to '${this._state}'.`);
+
+    // console.info(`Changed application state from '${oldState}' to '${this._state}'.`);
     this.stateChanged.fire(state);
   }
 

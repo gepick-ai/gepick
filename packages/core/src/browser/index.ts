@@ -17,3 +17,4 @@ export * from "./third-party";
 export * from "./tree";
 export * from "./widget";
 export * from "./window";
+export * from "./theme";

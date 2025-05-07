@@ -15,25 +15,29 @@
 // *****************************************************************************
 
 import { Module, ServiceModule, createServiceDecorator } from "@gepick/core/common";
-import { AbstractPreferencesSchema, PreferencesService } from "../../preferences";
+import { AbstractPreferencesProxy, AbstractPreferencesSchemaPart } from "../../preferences";
 
 export const PREFERENCE_NAME_TREE_INDENT = 'workbench.tree.indent';
 
-export class TreePreferencesSchema extends AbstractPreferencesSchema {
-  type = 'object';
-  properties = {
-    [PREFERENCE_NAME_TREE_INDENT]: {
-      description: 'Controls tree indentation in pixels.',
-      type: 'number',
-      default: 8,
-      minimum: 4,
-      maximum: 40,
-    },
-  };
+export class TreePreferencesSchemaPart extends AbstractPreferencesSchemaPart {
+  constructor() {
+    super({
+      type: 'object',
+      properties: {
+        [PREFERENCE_NAME_TREE_INDENT]: {
+          description: 'Controls tree indentation in pixels.',
+          type: 'number',
+          default: 8,
+          minimum: 4,
+          maximum: 40,
+        },
+      },
+    });
+  }
 }
 
-export const ITreePreferencesSchema = createServiceDecorator<ITreePreferencesSchema>(TreePreferencesSchema.name);
-export type ITreePreferencesSchema = TreePreferencesSchema;
+export const ITreePreferencesSchema = createServiceDecorator<ITreePreferencesSchema>(TreePreferencesSchemaPart.name);
+export type ITreePreferencesSchema = TreePreferencesSchemaPart;
 
 export namespace TreePreferencesService {
   export interface IProperties {
@@ -41,7 +45,7 @@ export namespace TreePreferencesService {
   }
 }
 
-export class TreePreferencesService extends PreferencesService<TreePreferencesService.IProperties> {
+export class TreePreferencesService extends AbstractPreferencesProxy<TreePreferencesService.IProperties> {
   constructor(
       @ITreePreferencesSchema protected readonly treePreferencesSchema: ITreePreferencesSchema,
   ) {
@@ -54,7 +58,7 @@ export type ITreePreferencesService = TreePreferencesService;
 
 @Module({
   services: [
-    TreePreferencesSchema,
+    TreePreferencesSchemaPart,
     TreePreferencesService,
   ],
 })

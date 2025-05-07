@@ -2369,6 +2369,7 @@ __metadata:
     "@lumino/virtualdom": "npm:^2.0.2"
     "@lumino/widgets": "npm:2.5.0"
     "@node-rs/crc32": "npm:^1.10.6"
+    "@theia/monaco-editor-core": "npm:1.96.302"
     "@types/body-parser": "npm:^1.19.5"
     "@types/cors": "npm:^2.8.17"
     "@types/dompurify": "npm:^2.2.2"
@@ -4909,6 +4910,13 @@ __metadata:
   peerDependencies:
     eslint: ">=8.40.0"
   checksum: 10/6e65fb96a18e8e691d051c7e121d63376199178e31cd69505d02bd84a4afd6032786fef29873c5c7d41d2412d84c360b4318b2cb9cb969adb0acb1215ada0e62
+  languageName: node
+  linkType: hard
+
+"@theia/monaco-editor-core@npm:1.96.302":
+  version: 1.96.302
+  resolution: "@theia/monaco-editor-core@npm:1.96.302"
+  checksum: 10/8646245b1a97ed322dee7c583f8e8f980d67de0835a2f303fc0646220beee895b738ec76da2598a6c36cf2e1cc72afa63dab3c865fe825743d3eb7b46cc9ef6b
   languageName: node
   linkType: hard
 

@@ -18,9 +18,8 @@ import { Title, Widget } from "@lumino/widgets";
 import { Emitter, Event, IContributionProvider, InjectableService, Optional, createContribution, createServiceDecorator, lodashDebounce } from "@gepick/core/common";
 import { WidgetDecoration } from "../widget";
 import { IApplicationContribution } from "../application";
-import { Navigatable } from "../services";
-import { IColorRegistry } from "../services/color-registry";
-import { Decoration, IDecorationsService } from "../services/decorations-service";
+import { Decoration, IDecorationsService, Navigatable } from "../services";
+import { IColorRegistry } from "../theme";
 
 export const TabBarDecorator = Symbol('TabBarDecorator');
 

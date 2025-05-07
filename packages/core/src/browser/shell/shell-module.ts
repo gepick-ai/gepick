@@ -3,7 +3,6 @@ import { LabelParser, LabelProvider } from "../label";
 import { HoverService } from "../services";
 import { MarkdownRendererFactory, MarkdownRendererImpl } from "../markdown";
 import { DefaultOpenerService } from "../opener";
-import { ColorRegistry } from "../services/color-registry";
 import { DecorationsServiceImpl } from "../services/decorations-service";
 import { SidePanelHandlerFactory, SplitPositionHandler } from "./side-panel-handler";
 import { Shell } from "./shell";
@@ -34,7 +33,6 @@ import { ShellMouseTracker } from "./shell-mouse-tracker";
     SidePanelHandlerFactory,
     TabBarRendererFactory,
     TabBarDecoratorService,
-    ColorRegistry,
     DecorationsServiceImpl,
     DockPanelRendererFactory,
     ShellMouseTracker,

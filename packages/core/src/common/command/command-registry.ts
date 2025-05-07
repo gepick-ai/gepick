@@ -35,6 +35,7 @@ export class CommandRegistry extends InjectableService implements CommandService
 
   onApplicationInit(): void {
     const commands = this.commandProvider.getContributions();
+
     commands.forEach(command => this.registerCommand(command, command));
   }
 

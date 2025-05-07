@@ -1,5 +1,5 @@
-import { Emitter, IServiceContainer, InjectableService, PostConstruct, ServiceIdUtil, createServiceDecorator, isObject } from "@gepick/core/common";
-import { IPreferencesSchema } from "./preferences-schema-contribution";
+import { Emitter, IServiceContainer, InjectableService, PostConstruct, ServiceIdUtil, Unmanaged, createServiceDecorator, isObject } from "@gepick/core/common";
+import { IPreferencesSchema, IPreferencesSchemaPart } from "./preferences-schema-part-contribution";
 import { IPreferencesManager } from "./preferences-manager";
 
 // #region PreferenceProxyFactory
@@ -12,7 +12,7 @@ export class PreferencesProxyFactory extends InjectableService {
 
   createPreferencesProxy<T>(schema: IPreferencesSchema, _options: any = {}): T {
     const child = this.serviceContainer.createChild();
-    child.bind(ServiceIdUtil.getServiceIdFromDecorator(IPreferencesSchema)).toConstantValue(schema);
+    child.bind(ServiceIdUtil.getServiceIdFromDecorator(IPreferencesSchemaPart)).toConstantValue(schema);
     child.bind(PreferenceProxyHandler.getServiceId()).to(PreferenceProxyHandler);
     const preferenceProxyHandler = child.get<IPreferenceProxyHandler>(PreferenceProxyHandler.getServiceId());
 
@@ -29,7 +29,7 @@ export class PreferenceProxyHandler<T extends Record<string, any>> extends Injec
   readonly onPreferenceChanged = this._onPreferenceChanged.event;
 
   constructor(
-    @IPreferencesSchema protected readonly preferenceSchema: IPreferencesSchema,
+    @IPreferencesSchemaPart protected readonly preferenceSchema: IPreferencesSchema,
     @IPreferencesManager protected readonly preferencesManager: IPreferencesManager,
     @IPreferencesProxyFactory protected readonly preferencesProxyFactory: IPreferencesProxyFactory,
   ) {
@@ -189,16 +189,21 @@ export const IPreferenceProxyHandler = createServiceDecorator<IPreferenceProxyHa
 export interface IPreferenceProxyHandler extends ProxyHandler<any> {}
 // #endregion
 
-export abstract class PreferencesService<T> extends InjectableService {
+export abstract class AbstractPreferencesProxy<T> extends InjectableService {
   #proxy: T;
   #schema: IPreferencesSchema;
 
   @IPreferencesProxyFactory protected readonly preferencesProxyFactory: IPreferencesProxyFactory;
+  @IPreferencesManager protected readonly preferencesManager: IPreferencesManager;
 
-  constructor(preferencesSchema: IPreferencesSchema) {
+  constructor(@Unmanaged() readonly preferencesSchemaPart: IPreferencesSchemaPart) {
     super();
 
-    this.#schema = preferencesSchema;
+    this.#schema = this.preferencesSchemaPart.getPreferencesSchema();
+  }
+
+  get ready() {
+    return Promise.all([this.preferencesManager.ready]);
   }
 
   @PostConstruct()

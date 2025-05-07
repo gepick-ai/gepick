@@ -1,6 +1,8 @@
 import { Command, Contribution, IMenuContribution, InjectableService, MAIN_MENU_BAR, MANAGE_MENU, MenuModelRegistry } from '@gepick/core/common';
 import { IShell } from '../shell';
 import { WidgetUtilities } from '../widget';
+import { ICorePreferencesProxy, IPreferencesManager } from '../preferences';
+import { DecorationStyle } from '../services';
 import { ApplicationContribution } from './application-contribution';
 
 export namespace CommonMenus {
@@ -310,13 +312,21 @@ export namespace CommonCommands {
 }
 
 export class CommonApplicationContribution extends ApplicationContribution {
+  protected commonDecorationsStyleSheet: CSSStyleSheet = DecorationStyle.createStyleSheet('coreCommonDecorationsStyle');
+
   constructor(
     @IShell protected readonly shell: IShell,
+    @IPreferencesManager protected readonly preferencesManager: IPreferencesManager,
+    @ICorePreferencesProxy protected readonly corePreferencesProxy: ICorePreferencesProxy,
   ) {
     super();
   }
 
   override onApplicationInit() {
+    this.corePreferencesProxy.ready.then(() => {
+      this.setSashProperties();
+    });
+
     this.shell.ready.then(() => {
       this.shell.leftPanelHandler.addBottomMenu({
         id: 'settings-menu',
@@ -326,6 +336,16 @@ export class CommonApplicationContribution extends ApplicationContribution {
         order: 0,
       });
     });
+  }
+
+  protected setSashProperties(): void {
+    const sashRule = `:root {
+        --theia-sash-hoverDelay: ${this.corePreferencesProxy.get('workbench.sash.hoverDelay')}ms;
+        --theia-sash-width: ${this.corePreferencesProxy.get('workbench.sash.size')}px;
+    }`;
+
+    DecorationStyle.deleteStyleRule(':root', this.commonDecorationsStyleSheet);
+    this.commonDecorationsStyleSheet.insertRule(sashRule);
   }
 }
 

@@ -1,5 +1,5 @@
-import { Ajv, Deferred, Emitter, IContributionProvider, InjectableService, Optional, PostConstruct, createServiceDecorator } from "@gepick/core/common";
-import { IPreferencesSchema, IPreferencesSchemaProvider } from "./preferences-schema-contribution";
+import { Ajv, Deferred, Emitter, InjectableService, Optional, PostConstruct, createServiceDecorator } from "@gepick/core/common";
+import { IPreferencesSchema, IPreferencesSchemaPartProvider } from "./preferences-schema-part-contribution";
 
 export interface IPreferenceDiff {
   /**
@@ -19,7 +19,7 @@ export interface IPreferenceDiff {
 export class PreferencesSchemaService extends InjectableService {
   protected readonly _ready = new Deferred<IPreferenceDiff[]>();
 
-  protected readonly preferencesSchema: IPreferencesSchema = { properties: {} };
+  protected readonly preferencesSchema: IPreferencesSchema = { type: 'object', properties: {} };
   protected preferenceSchemaValidateFunction: Ajv.ValidateFunction;
 
   protected readonly _onDidPreferenceSchemaChanged = this._register(new Emitter<void>());
@@ -29,7 +29,7 @@ export class PreferencesSchemaService extends InjectableService {
   readonly onDidPreferencesChanged = this._onDidPreferencesChanged.event;
 
   constructor(
-    @Optional() @IPreferencesSchemaProvider protected readonly preferenceSchemaProvider: IContributionProvider<IPreferencesSchema>,
+    @Optional() @IPreferencesSchemaPartProvider protected readonly preferenceSchemaProvider: IPreferencesSchemaPartProvider,
   ) {
     super();
   }
@@ -40,9 +40,12 @@ export class PreferencesSchemaService extends InjectableService {
 
   @PostConstruct()
   protected init(): void {
-    const preferencesSchemaList = this.preferenceSchemaProvider.getContributions();
+    const preferencesSchemaParts = this.preferenceSchemaProvider.getContributions();
 
-    const diffs = preferencesSchemaList.map(preferencesSchema => this.setPreferenceSchema(preferencesSchema)).flat();
+    const diffs = preferencesSchemaParts.map((schemaPart) => {
+      const schema = schemaPart.getPreferencesSchema();
+      return this.setPreferenceSchema(schema);
+    }).flat();
 
     this.onDidPreferencesChanged(() => this.updatePreferenceSchemaValidateFunction());
     this.updatePreferenceSchemaValidateFunction();
