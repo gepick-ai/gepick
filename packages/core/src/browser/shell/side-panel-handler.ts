@@ -411,8 +411,8 @@ export class SidePanelHandler extends InjectableService {
 
     const containerLayout = new BoxLayout({ direction: 'left-to-right', spacing: 0 });
     // 往container layout添加两个widget，分别是sidebarContainer和contentPanel
-    containerLayout.addWidget(sidebarPanel);
     containerLayout.addWidget(contentPanel);
+    containerLayout.addWidget(sidebarPanel);
 
     BoxPanel.setStretch(sidebarPanel, 0);
     BoxPanel.setStretch(contentPanel, 1);
@@ -440,7 +440,7 @@ export class SidePanelHandler extends InjectableService {
     });
 
     tabBarRenderer.tabBar = sideBar;
-    sideBar.addClass('theia-app-left');
+    sideBar.addClass('theia-app-right');
     sideBar.addClass('theia-app-sides');
 
     sideBar.tabAdded.connect((sender, { title }) => {
@@ -461,7 +461,7 @@ export class SidePanelHandler extends InjectableService {
     const sidePanel = new TheiaDockPanel({
       mode: 'single-document',
     });
-    sidePanel.id = 'theia-left-side-panel';
+    sidePanel.id = 'theia-right-side-panel';
     sidePanel.addClass('theia-side-panel');
 
     sidePanel.widgetActivated.connect((sender, widget) => {
@@ -619,7 +619,7 @@ export class SidePanelHandler extends InjectableService {
    */
   protected setPanelSize(size: number): Promise<void> {
     const options: SplitPositionOptions = {
-      side: 'left',
+      side: 'right',
       duration: 0,
       referenceWidget: this.dockPanel,
     };

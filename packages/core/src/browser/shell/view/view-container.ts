@@ -882,7 +882,7 @@ export class ViewContainer extends AbstractWidget {
   }
 
   protected isSideDockPanel(widget: Widget): boolean {
-    const { leftPanelHandler } = this.shell;
+    const { rightPanelHandler: leftPanelHandler } = this.shell;
     if (widget instanceof DockPanel || widget.id === leftPanelHandler.dockPanel.id) {
       return true;
     }

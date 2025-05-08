@@ -49,12 +49,12 @@ export interface IView {
   /**
    * 初始化Shell Layout，在这个阶段你可以注册自己的View视图
    */
-  onShellLayoutInit: () => Promise<void>;
+  onShellLayoutInit?: () => Promise<void>;
 }
 
 /**
  * An abstract superclass for frontend contributions that add a view to the application shell.
- * 
+ *
  * 一个自定义的View必须继承自AbstractView以便能够加入Shell当中。
  */
 @Contribution(IView)
@@ -106,7 +106,7 @@ export abstract class AbstractView<T extends Widget> extends InjectableService i
     else if (args.toggle && area && shell.isExpanded(area) && tabBar.currentTitle === widget.title) {
       // The widget is attached and visible, so collapse the containing panel (toggle)
       switch (area) {
-        case 'left':{
+        case 'right':{
           await shell.collapsePanel(area);
           break;
         }

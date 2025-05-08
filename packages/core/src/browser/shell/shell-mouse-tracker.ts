@@ -58,7 +58,7 @@ export class ShellMouseTracker extends InjectableService implements IApplication
       this.toDispose.pushAll(layout.widgets.filter(ShellMouseTracker.isSplitPanel).map(splitPanel => WidgetUtilities.addEventListener(splitPanel.node, 'mousedown', this.mousedownListener, true)));
     }
     // Track the `mousedown` on each `DockPanel`.
-    const { mainPanel, leftPanelHandler } = this.applicationShell;
+    const { mainPanel, rightPanelHandler: leftPanelHandler } = this.applicationShell;
     this.toDispose.pushAll([mainPanel, leftPanelHandler.dockPanel]
       .map(panel => WidgetUtilities.addEventListener(panel.node, 'mousedown', this.mousedownListener, true)));
 

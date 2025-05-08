@@ -14,7 +14,7 @@ import { DockPanelRenderer, IDockPanelRendererFactory } from "./dock-panel";
  */
 interface WidgetDragState {
   startTime: number;
-  leftExpanded: boolean;
+  rightExpanded: boolean;
   lastDragOver?: IDragEvent;
   leaveTimeout?: number;
 }
@@ -40,11 +40,11 @@ export type RecursivePartial<T> = {
 
 export class Shell extends AbstractWidget {
   /**
-   * Handler for the left side panel. The primary application views go here, such as the
+   * Handler for the right side panel. The primary application views go here, such as the
    * file explorer and the git view.
    */
-  leftPanelHandler: SidePanelHandler;
-  leftPanel: BoxPanel;
+  rightPanelHandler: SidePanelHandler;
+  rightPanel: BoxPanel;
   mainPanel: DockPanel;
   options: Shell.Options = {
     bottomPanel: {
@@ -177,7 +177,7 @@ export class Shell extends AbstractWidget {
    * The tab bars contained in all shell areas.
    */
   get allTabBars(): TabBar<Widget>[] {
-    return [...this.mainAreaTabBars, this.leftPanelHandler.tabBar];
+    return [...this.mainAreaTabBars, this.rightPanelHandler.tabBar];
   }
 
   /**
@@ -185,7 +185,7 @@ export class Shell extends AbstractWidget {
    */
   get pendingUpdates(): Promise<void> {
     return Promise.all([
-      this.leftPanelHandler.state.pendingUpdate,
+      this.rightPanelHandler.state.pendingUpdate,
     ]) as Promise<any>;
   }
 
@@ -202,33 +202,33 @@ export class Shell extends AbstractWidget {
   }
 
   protected initSidebarVisibleKeyContext(): void {
-    const leftSideBarPanel = this.leftPanelHandler.dockPanel;
-    const sidebarVisibleKey = this.contextKeyService.createKey('sidebarVisible', leftSideBarPanel.isVisible);
+    const rightSideBarPanel = this.rightPanelHandler.dockPanel;
+    const sidebarVisibleKey = this.contextKeyService.createKey('sidebarVisible', rightSideBarPanel.isVisible);
     // @ts-ignore
-    const onAfterShow = leftSideBarPanel.onAfterShow.bind(leftSideBarPanel);
+    const onAfterShow = rightSideBarPanel.onAfterShow.bind(rightSideBarPanel);
     // @ts-ignore
-    leftSideBarPanel.onAfterShow = (msg: Message) => {
+    rightSideBarPanel.onAfterShow = (msg: Message) => {
       onAfterShow(msg);
       sidebarVisibleKey.set(true);
     };
     // @ts-ignore
-    const onAfterHide = leftSideBarPanel.onAfterHide.bind(leftSideBarPanel);
+    const onAfterHide = rightSideBarPanel.onAfterHide.bind(rightSideBarPanel);
     // @ts-ignore
-    leftSideBarPanel.onAfterHide = (msg: Message) => {
+    rightSideBarPanel.onAfterHide = (msg: Message) => {
       onAfterHide(msg);
       sidebarVisibleKey.set(false);
     };
   }
 
   protected createLayout(): Layout {
-    // Left Panel
-    this.leftPanel = this.createSidePanel();
-
     // Main Panel
     this.mainPanel = this.createMainPanel();
 
+    // Right Panel
+    this.rightPanel = this.createSidePanel();
+
     // 创建一个左中右分割布局面板
-    const leftRightLayoutPanel = new SplitPanel({ layout: this.createSplitLayout([this.leftPanel, this.mainPanel], [0, 1], { orientation: 'horizontal', spacing: 0 }) });
+    const leftRightLayoutPanel = new SplitPanel({ layout: this.createSplitLayout([this.mainPanel, this.rightPanel], [1, 0], { orientation: 'horizontal', spacing: 0 }) });
     leftRightLayoutPanel.id = 'theia-left-right-split-panel';
 
     // 创建一个从上到下的单列布局
@@ -237,8 +237,8 @@ export class Shell extends AbstractWidget {
 
   protected createSidePanel(): BoxPanel {
     const sidebarHandler = this.sidePanelHandlerFactory.createSidePanelHandler();
-    sidebarHandler.createSidePanel(this.options.leftPanel);
-    this.leftPanelHandler = sidebarHandler;
+    sidebarHandler.createSidePanel(this.options.rightPanel);
+    this.rightPanelHandler = sidebarHandler;
     return sidebarHandler.container;
   }
 
@@ -422,8 +422,8 @@ export class Shell extends AbstractWidget {
   getTabBarFor(widgetOrArea: Widget | Shell.Area): TabBar<Widget> | undefined {
     if (typeof widgetOrArea === 'string') {
       switch (widgetOrArea) {
-        case 'left':
-          return this.leftPanelHandler.tabBar;
+        case 'right':
+          return this.rightPanelHandler.tabBar;
         default:
           throw new Error(`Illegal argument: ${widgetOrArea}`);
       }
@@ -431,7 +431,7 @@ export class Shell extends AbstractWidget {
     else if (widgetOrArea && widgetOrArea.isAttached) {
       const widgetTitle = widgetOrArea.title;
 
-      const leftPanelTabBar = this.leftPanelHandler.tabBar;
+      const leftPanelTabBar = this.rightPanelHandler.tabBar;
       if (ArrayExt.firstIndexOf(leftPanelTabBar.titles, widgetTitle) > -1) {
         return leftPanelTabBar;
       }
@@ -461,8 +461,8 @@ export class Shell extends AbstractWidget {
       case 'main':
         this.mainPanel.addWidget(widget, options);
         break;
-      case 'left':
-        this.leftPanelHandler.addWidget(widget, options);
+      case 'right':
+        this.rightPanelHandler.addWidget(widget, options);
         break;
 
       default:
@@ -478,8 +478,8 @@ export class Shell extends AbstractWidget {
     switch (area) {
       case 'main':
         return toArray(this.mainPanel.widgets());
-      case 'left':
-        return toArray(this.leftPanelHandler.dockPanel.widgets());
+      case 'right':
+        return toArray(this.rightPanelHandler.dockPanel.widgets());
       default:
         throw new Error(`Illegal argument: ${area}`);
     }
@@ -502,7 +502,7 @@ export class Shell extends AbstractWidget {
       return this.checkActivation(widget);
     }
 
-    widget = this.leftPanelHandler.activate(id);
+    widget = this.rightPanelHandler.activate(id);
     if (widget) {
       return this.checkActivation(widget);
     }
@@ -556,9 +556,8 @@ export class Shell extends AbstractWidget {
    * `activeWidget` property.
    */
   private checkActivation(widget: Widget): Widget {
-    // eslint-disable-next-line dot-notation
     const onActivateRequest = widget['onActivateRequest'].bind(widget);
-    // eslint-disable-next-line dot-notation
+
     widget['onActivateRequest'] = (msg: Message) => {
       onActivateRequest(msg);
     };
@@ -581,7 +580,7 @@ export class Shell extends AbstractWidget {
       }
       return widget;
     }
-    widget = this.leftPanelHandler.expand(id);
+    widget = this.rightPanelHandler.expand(id);
     if (widget) {
       return widget;
     }
@@ -597,8 +596,8 @@ export class Shell extends AbstractWidget {
    */
   expandPanel(area: Shell.Area): void {
     switch (area) {
-      case 'left':
-        this.leftPanelHandler.expand();
+      case 'right':
+        this.rightPanelHandler.expand();
         break;
       default:
         throw new Error(`Area cannot be expanded: ${area}`);
@@ -613,8 +612,8 @@ export class Shell extends AbstractWidget {
    */
   resize(size: number, area: Shell.Area): void {
     switch (area) {
-      case 'left':
-        this.leftPanelHandler.resize(size);
+      case 'right':
+        this.rightPanelHandler.resize(size);
         break;
       default:
         throw new Error(`Area cannot be resized: ${area}`);
@@ -627,8 +626,8 @@ export class Shell extends AbstractWidget {
    */
   collapsePanel(area: Shell.Area): void {
     switch (area) {
-      case 'left':
-        this.leftPanelHandler.collapse();
+      case 'right':
+        this.rightPanelHandler.collapse();
         break;
       default:
         throw new Error(`Area cannot be collapsed: ${area}`);
@@ -640,8 +639,8 @@ export class Shell extends AbstractWidget {
    */
   isExpanded(area: Shell.Area): boolean {
     switch (area) {
-      case 'left':
-        return this.leftPanelHandler.state.expansion === SidePanel.ExpansionState.expanded;
+      case 'right':
+        return this.rightPanelHandler.state.expansion === SidePanel.ExpansionState.expanded;
 
       default:
         return true;
@@ -670,8 +669,8 @@ export class Shell extends AbstractWidget {
       return 'main';
     }
 
-    if (ArrayExt.firstIndexOf(this.leftPanelHandler.tabBar.titles, title) > -1) {
-      return 'left';
+    if (ArrayExt.firstIndexOf(this.rightPanelHandler.tabBar.titles, title) > -1) {
+      return 'right';
     }
 
     return undefined;
@@ -714,7 +713,7 @@ export class Shell extends AbstractWidget {
         // The drag contains a widget, so we'll track it and expand side panels as needed
         this.dragState = {
           startTime: performance.now(),
-          leftExpanded: false,
+          rightExpanded: false,
         };
       }
     }
@@ -736,16 +735,16 @@ export class Shell extends AbstractWidget {
       const expLeft = allowExpansion && clientX >= offsetLeft
         && clientX <= offsetLeft + this.options.leftPanel.expandThreshold;
 
-      if (expLeft && !state.leftExpanded && this.leftPanelHandler.tabBar.currentTitle === null) {
+      if (expLeft && !state.rightExpanded && this.rightPanelHandler.tabBar.currentTitle === null) {
         // The mouse cursor is moved close to the left border
-        this.leftPanelHandler.expand();
-        this.leftPanelHandler.state.pendingUpdate.then(() => this.dispatchMouseMove());
-        state.leftExpanded = true;
+        this.rightPanelHandler.expand();
+        this.rightPanelHandler.state.pendingUpdate.then(() => this.dispatchMouseMove());
+        state.rightExpanded = true;
       }
-      else if (!expLeft && state.leftExpanded) {
+      else if (!expLeft && state.rightExpanded) {
         // The mouse cursor is moved away from the left border
-        this.leftPanelHandler.collapse();
-        state.leftExpanded = false;
+        this.rightPanelHandler.collapse();
+        state.rightExpanded = false;
       }
     }
   }
@@ -759,8 +758,8 @@ export class Shell extends AbstractWidget {
       this.dragState = undefined;
       window.requestAnimationFrame(() => {
         // Clean up the side panel state in the next frame
-        if (this.leftPanelHandler.dockPanel.isEmpty) {
-          this.leftPanelHandler.collapse();
+        if (this.rightPanelHandler.dockPanel.isEmpty) {
+          this.rightPanelHandler.collapse();
         }
       });
     }
@@ -775,8 +774,8 @@ export class Shell extends AbstractWidget {
       }
       state.leaveTimeout = window.setTimeout(() => {
         this.dragState = undefined;
-        if (state.leftExpanded || this.leftPanelHandler.dockPanel.isEmpty) {
-          this.leftPanelHandler.collapse();
+        if (state.rightExpanded || this.rightPanelHandler.dockPanel.isEmpty) {
+          this.rightPanelHandler.collapse();
         }
       }, 100);
     }
@@ -835,14 +834,14 @@ export namespace Shell {
   /**
    * The areas of the application shell where widgets can reside.
    */
-  export type Area = 'main' | 'left';
+  export type Area = 'main' | 'right';
 
   /**
    * The _side areas_ are those shell areas that can be collapsed and expanded,
    * i.e. `left`, `right`, and `bottom`.
    */
-  export function isSideArea(area?: Area): area is 'left' {
-    return area === 'left';
+  export function isSideArea(area?: Area): area is 'right' {
+    return area === 'right';
   }
 
   /**

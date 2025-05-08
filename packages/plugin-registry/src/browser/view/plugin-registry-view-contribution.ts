@@ -15,7 +15,7 @@ export class PluginRegistryView extends AbstractView<PluginRegistryViewContainer
       widgetId: PluginRegistryViewContainer.ID,
       widgetName: PluginRegistryViewContainer.LABEL,
       defaultWidgetOptions: {
-        area: 'left',
+        area: 'right',
         rank: 500,
       },
     });

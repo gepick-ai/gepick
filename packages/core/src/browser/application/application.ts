@@ -81,7 +81,7 @@ export class Application extends InjectableService {
   protected async initializeLayout(): Promise<void> {
     const views = this.viewProvider.getContributions();
     for (const view of views) {
-      await view?.onShellLayoutInit();
+      await view.onShellLayoutInit?.();
     }
 
     await this.shell.pendingUpdates;

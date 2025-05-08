@@ -7,7 +7,7 @@ export class GettingStartedView extends AbstractView<GettingStartedWidget> {
       widgetId: GettingStartedWidget.ID,
       widgetName: GettingStartedWidget.LABEL,
       defaultWidgetOptions: {
-        area: "left",
+        area: "right",
       },
     });
   }
