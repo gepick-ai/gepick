@@ -35,7 +35,7 @@ export class PreferencesWidget extends AbstractPanel implements StatefulWidget {
     this.title.label = PreferencesWidget.LABEL;
     this.title.caption = PreferencesWidget.LABEL;
     this.title.closable = true;
-    this.title.iconClass = WidgetUtilities.codicon('settings');
+    this.title.iconClass = WidgetUtilities.codicon('settings-gear');
 
     this.addClass('theia-settings-container');
 

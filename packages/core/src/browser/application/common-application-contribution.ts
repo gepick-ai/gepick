@@ -330,7 +330,7 @@ export class CommonApplicationContribution extends ApplicationContribution {
     this.shell.ready.then(() => {
       this.shell.rightPanelHandler.addBottomMenu({
         id: 'settings-menu',
-        iconClass: WidgetUtilities.codicon('settings-gear'),
+        iconClass: WidgetUtilities.codicon('settings'),
         title: CommonCommands.MANAGE_CATEGORY,
         menuPath: MANAGE_MENU,
         order: 0,

@@ -8,13 +8,13 @@ export class PreferencesView extends AbstractView<PreferencesWidget> {
       widgetId: PreferencesWidget.ID,
       widgetName: PreferencesWidget.LABEL,
       defaultWidgetOptions: {
-        area: 'main',
+        area: 'right',
       },
     });
   }
 
   async onShellLayoutInit(): Promise<void> {
-
+    this.setupView({ activate: false });
   }
 }
 export const IPreferencesView = createServiceDecorator<IPreferencesView>(PreferencesView.name);
