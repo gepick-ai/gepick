@@ -72,7 +72,7 @@ export class PreferencesEditorWidget extends AbstractWidget implements StatefulW
     this.scrollContainer = innerWrapper;
     innerWrapper.addEventListener('scroll', this.onScroll, { passive: true });
     this.node.appendChild(innerWrapper);
-    
+
     const noLeavesMessage = document.createElement('div');
     noLeavesMessage.classList.add('settings-no-results-announcement');
     noLeavesMessage.textContent = 'That search query has returned no results.';
@@ -224,7 +224,7 @@ export class PreferencesEditorWidget extends AbstractWidget implements StatefulW
         const { id, collection } = this.analyzeIDAndGetRendererGroup(nodeIDToScrollTo);
         const renderer = collection.get(id);
         if (renderer?.visible) {
-          renderer.node.scrollIntoView();
+          this.scrollContainer.scrollTo(0, renderer.node.offsetHeight);
           return;
         }
       }
@@ -319,7 +319,7 @@ export class PreferencesEditorWidget extends AbstractWidget implements StatefulW
   protected scrollWithoutModelUpdate(node?: HTMLElement): void {
     if (!node) { return; }
     this.shouldUpdateModelSelection = false;
-    node.scrollIntoView();
+    this.scrollContainer.scrollTo(0, node.offsetTop);
     requestAnimationFrame(() => this.shouldUpdateModelSelection = true);
   }
 
