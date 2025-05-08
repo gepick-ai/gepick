@@ -3,7 +3,7 @@ import { PreferencesManager } from "./preferences-manager";
 import { PreferencesSchemaService } from "./preferences-schema-service";
 import { PreferenceProxyHandler, PreferencesProxyFactory } from "./preferences-proxy";
 import { PreferencesConfiguration } from "./preferences-configuration";
-import { CorePreferencesProxy, CorePreferencesSchemaPart, PluginPreferencesSchemaPart, ThemePreferencesSchemaPart } from "./test";
+import { samplePreferences } from "./test";
 
 @Module({
   services: [
@@ -12,10 +12,7 @@ import { CorePreferencesProxy, CorePreferencesSchemaPart, PluginPreferencesSchem
     PreferencesProxyFactory,
     PreferenceProxyHandler,
     PreferencesConfiguration,
-    CorePreferencesSchemaPart,
-    CorePreferencesProxy,
-    PluginPreferencesSchemaPart,
-    ThemePreferencesSchemaPart,
+    ...samplePreferences,
   ],
 })
 export class PreferencesModule extends ServiceModule {}

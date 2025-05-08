@@ -1,4 +1,4 @@
-import { AbstractReactWidget } from "@gepick/core/browser";
+import { AbstractReactWidget, WidgetUtilities } from "@gepick/core/browser";
 import { PostConstruct, createServiceDecorator } from "@gepick/core/common";
 import "./style/index.css";
 
@@ -17,6 +17,7 @@ export class GettingStartedWidget extends AbstractReactWidget {
     this.id = GettingStartedWidget.ID;
     this.title.label = GettingStartedWidget.LABEL;
     this.title.closable = true;
+    this.title.iconClass = WidgetUtilities.codicon("browser");
 
     this.update();
   }

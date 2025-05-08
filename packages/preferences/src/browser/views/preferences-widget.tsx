@@ -17,10 +17,10 @@ export class PreferencesWidget extends AbstractPanel implements StatefulWidget {
   static readonly LABEL = 'Settings';
 
   constructor(
-    @IPreferencesEditorWidget protected readonly editorWidget: IPreferencesEditorWidget,
-    @IPreferencesTreeWidget protected readonly treeWidget: IPreferencesTreeWidget,
     @IPreferencesSearchbarWidget protected readonly searchbarWidget: IPreferencesSearchbarWidget,
     @IPreferencesScopeTabBar protected readonly tabBarWidget: IPreferencesScopeTabBar,
+    @IPreferencesTreeWidget protected readonly treeWidget: IPreferencesTreeWidget,
+    @IPreferencesEditorWidget protected readonly editorWidget: IPreferencesEditorWidget,
   ) {
     super();
   }
@@ -35,8 +35,9 @@ export class PreferencesWidget extends AbstractPanel implements StatefulWidget {
     this.title.label = PreferencesWidget.LABEL;
     this.title.caption = PreferencesWidget.LABEL;
     this.title.closable = true;
-    this.addClass('theia-settings-container');
     this.title.iconClass = WidgetUtilities.codicon('settings');
+
+    this.addClass('theia-settings-container');
 
     // top searchbar widget
     this.searchbarWidget.addClass('preferences-searchbar-widget');
@@ -100,6 +101,7 @@ export class PreferencesWidget extends AbstractPanel implements StatefulWidget {
     this.searchbarWidget.restoreState(oldState.searchbarWidgetState);
   }
 }
+
 export const IPreferencesWidget = createServiceDecorator<IPreferencesWidget>(PreferencesWidget.name);
 export type IPreferencesWidget = PreferencesWidget;
 

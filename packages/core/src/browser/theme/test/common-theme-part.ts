@@ -5,10 +5,43 @@ export class CommonThemePart extends AbstractThemePart {
   constructor() {
     super([ // Base Colors should be aligned with https://code.visualstudio.com/api/references/theme-color#base-colors
       // if not yet contributed by Monaco, check runtime css variables to learn
-      { id: 'selection.background', defaults: { dark: '#217daf', light: '#c0dbf1' }, description: 'Overall border color for focused elements. This color is only used if not overridden by a component.' },
-      { id: 'icon.foreground', defaults: { dark: '#C5C5C5', light: '#424242', hcDark: '#FFFFFF', hcLight: '#292929' }, description: 'The default color for icons in the workbench.' },
-      { id: 'sash.hoverBorder', defaults: { dark: Color.transparent('focusBorder', 0.99), light: Color.transparent('focusBorder', 0.99), hcDark: 'focusBorder', hcLight: 'focusBorder' }, description: 'The hover border color for draggable sashes.' },
-      { id: 'sash.activeBorder', defaults: { dark: 'focusBorder', light: 'focusBorder', hcDark: 'focusBorder' }, description: 'The active border color for draggable sashes.' },
+      {
+        id: 'selection.background',
+        defaults: {
+          dark: '#217daf',
+          light: '#c0dbf1'
+        },
+        description: 'Overall border color for focused elements. This color is only used if not overridden by a component.',
+      },
+      {
+        id: 'icon.foreground',
+        defaults: {
+          dark: '#C5C5C5',
+          light: '#424242',
+          hcDark: '#FFFFFF',
+          hcLight: '#292929'
+        },
+        description: 'The default color for icons in the workbench.'
+      },
+      {
+        id: 'sash.hoverBorder',
+        defaults: {
+          dark: Color.transparent('focusBorder', 0.99),
+          light: Color.transparent('focusBorder', 0.99),
+          hcDark: 'focusBorder',
+          hcLight: 'focusBorder'
+        },
+        description: 'The hover border color for draggable sashes.'
+      },
+      {
+        id: 'sash.activeBorder',
+        defaults: {
+          dark: 'focusBorder',
+          light: 'focusBorder',
+          hcDark: 'focusBorder'
+        },
+        description: 'The active border color for draggable sashes.'
+      },
       // Window border colors should be aligned with https://code.visualstudio.com/api/references/theme-color#window-border
       {
         id: 'window.activeBorder',
@@ -29,10 +62,34 @@ export class CommonThemePart extends AbstractThemePart {
 
       // Buttons should be aligned with https://code.visualstudio.com/api/references/theme-color#button-control
       // if not yet contributed by Monaco, check runtime css variables to learn
-      { id: 'button.foreground', defaults: { dark: Color.white, light: Color.white, hcDark: Color.white, hcLight: Color.white }, description: 'Button foreground color.' },
-      { id: 'button.background', defaults: { dark: '#0E639C', light: '#007ACC', hcDark: undefined, hcLight: '#0F4A85' }, description: 'Button background color.' },
-      { id: 'button.hoverBackground', defaults: { dark: Color.lighten('button.background', 0.2), light: Color.darken('button.background', 0.2) }, description: 'Button background color when hovering.' },
-
+      {
+        id: 'button.foreground',
+        defaults: {
+          dark: Color.white,
+          light: Color.white,
+          hcDark: Color.white,
+          hcLight: Color.white
+        },
+        description: 'Button foreground color.'
+      },
+      {
+        id: 'button.background',
+        defaults: {
+          dark: '#0E639C',
+          light: '#007ACC',
+          hcDark: undefined,
+          hcLight: '#0F4A85'
+        },
+        description: 'Button background color.'
+      },
+      {
+        id: 'button.hoverBackground',
+        defaults: {
+          dark: Color.lighten('button.background', 0.2),
+          light: Color.darken('button.background', 0.2)
+        },
+        description: 'Button background color when hovering.'
+      },
       // Activity Bar colors should be aligned with https://code.visualstudio.com/api/references/theme-color#activity-bar
       {
         id: 'activityBar.background',
@@ -88,7 +145,10 @@ export class CommonThemePart extends AbstractThemePart {
         },
         description: 'Activity bar focus border color for the active item. The activity bar is showing on the far left or right and allows to switch between views of the side bar.',
       },
-      { id: 'activityBar.activeBackground', description: 'Activity bar background color for the active item. The activity bar is showing on the far left or right and allows to switch between views of the side bar.' },
+      {
+        id: 'activityBar.activeBackground',
+        description: 'Activity bar background color for the active item. The activity bar is showing on the far left or right and allows to switch between views of the side bar.'
+      },
       {
         id: 'activityBar.dropBackground',
         defaults: {
@@ -133,18 +193,102 @@ export class CommonThemePart extends AbstractThemePart {
       // list.focusBackground, list.focusForeground, list.inactiveFocusBackground, list.filterMatchBorder,
       // list.dropBackground, listFilterWidget.outline, listFilterWidget.noMatchesOutline
       // list.invalidItemForeground => tree node needs an respective class
-      { id: 'list.activeSelectionBackground', defaults: { dark: '#094771', light: '#0074E8', hcLight: Color.transparent('#0F4A85', 0.1) }, description: 'List/Tree background color for the selected item when the list/tree is active. An active list/tree has keyboard focus, an inactive does not.' },
-      { id: 'list.activeSelectionForeground', defaults: { dark: '#FFF', light: '#FFF' }, description: 'List/Tree foreground color for the selected item when the list/tree is active. An active list/tree has keyboard focus, an inactive does not.' },
-      { id: 'list.inactiveSelectionBackground', defaults: { dark: '#37373D', light: '#E4E6F1', hcLight: Color.transparent('#0F4A85', 0.1) }, description: 'List/Tree background color for the selected item when the list/tree is inactive. An active list/tree has keyboard focus, an inactive does not.' },
-      { id: 'list.inactiveSelectionForeground', description: 'List/Tree foreground color for the selected item when the list/tree is inactive. An active list/tree has keyboard focus, an inactive does not.' },
-      { id: 'list.hoverBackground', defaults: { dark: '#2A2D2E', light: '#F0F0F0', hcLight: Color.transparent('#0F4A85', 0.1) }, description: 'List/Tree background when hovering over items using the mouse.' },
-      { id: 'list.hoverForeground', description: 'List/Tree foreground when hovering over items using the mouse.' },
-      { id: 'list.errorForeground', defaults: { dark: '#F88070', light: '#B01011' }, description: 'Foreground color of list items containing errors.' },
-      { id: 'list.warningForeground', defaults: { dark: '#CCA700', light: '#855F00' }, description: 'Foreground color of list items containing warnings.' },
-      { id: 'list.filterMatchBackground', defaults: { dark: 'editor.findMatchHighlightBackground', light: 'editor.findMatchHighlightBackground' }, description: 'Background color of the filtered match.' },
-      { id: 'list.highlightForeground', defaults: { dark: '#18A3FF', light: '#0066BF', hcDark: 'focusBorder', hcLight: 'focusBorder' }, description: 'List/Tree foreground color of the match highlights when searching inside the list/tree.' },
-      { id: 'list.focusHighlightForeground', defaults: { dark: 'list.highlightForeground', light: 'list.activeSelectionForeground', hcDark: 'list.highlightForeground', hcLight: 'list.highlightForeground' }, description: 'List/Tree foreground color of the match highlights on actively focused items when searching inside the list/tree.' },
-      { id: 'tree.inactiveIndentGuidesStroke', defaults: { dark: Color.transparent('tree.indentGuidesStroke', 0.4), light: Color.transparent('tree.indentGuidesStroke', 0.4), hcDark: Color.transparent('tree.indentGuidesStroke', 0.4) }, description: 'Tree stroke color for the inactive indentation guides.' },
+      {
+        id: 'list.activeSelectionBackground',
+        defaults: {
+          dark: '#094771',
+          light: '#0074E8',
+          hcLight: Color.transparent('#0F4A85', 0.1)
+        },
+        description: 'List/Tree background color for the selected item when the list/tree is active. An active list/tree has keyboard focus, an inactive does not.'
+      },
+      {
+        id: 'list.activeSelectionForeground',
+        defaults: {
+          dark: '#FFF',
+          light: '#FFF'
+        },
+        description: 'List/Tree foreground color for the selected item when the list/tree is active. An active list/tree has keyboard focus, an inactive does not.'
+      },
+      {
+        id: 'list.inactiveSelectionBackground',
+        defaults: {
+          dark: '#37373D',
+          light: '#E4E6F1',
+          hcLight: Color.transparent('#0F4A85', 0.1)
+        },
+        description: 'List/Tree background color for the selected item when the list/tree is inactive. An active list/tree has keyboard focus, an inactive does not.'
+      },
+      {
+        id: 'list.inactiveSelectionForeground',
+        description: 'List/Tree foreground color for the selected item when the list/tree is inactive. An active list/tree has keyboard focus, an inactive does not.'
+      },
+      {
+        id: 'list.hoverBackground',
+        defaults: {
+          dark: '#2A2D2E',
+          light: '#F0F0F0',
+          hcLight: Color.transparent('#0F4A85', 0.1)
+        },
+        description: 'List/Tree background when hovering over items using the mouse.'
+      },
+      {
+        id: 'list.hoverForeground',
+        description: 'List/Tree foreground when hovering over items using the mouse.'
+      },
+      {
+        id: 'list.errorForeground',
+        defaults: {
+          dark: '#F88070',
+          light: '#B01011'
+        },
+        description: 'Foreground color of list items containing errors.'
+      },
+      {
+        id: 'list.warningForeground',
+        defaults: {
+          dark: '#CCA700',
+          light: '#855F00'
+        },
+        description: 'Foreground color of list items containing warnings.'
+      },
+      {
+        id: 'list.filterMatchBackground',
+        defaults: {
+          dark: 'editor.findMatchHighlightBackground',
+          light: 'editor.findMatchHighlightBackground'
+        },
+        description: 'Background color of the filtered match.'
+      },
+      {
+        id: 'list.highlightForeground',
+        defaults: {
+          dark: '#18A3FF',
+          light: '#0066BF',
+          hcDark: 'focusBorder',
+          hcLight: 'focusBorder'
+        },
+        description: 'List/Tree foreground color of the match highlights when searching inside the list/tree.'
+      },
+      {
+        id: 'list.focusHighlightForeground',
+        defaults: {
+          dark: 'list.highlightForeground',
+          light: 'list.activeSelectionForeground',
+          hcDark: 'list.highlightForeground',
+          hcLight: 'list.highlightForeground'
+        },
+        description: 'List/Tree foreground color of the match highlights on actively focused items when searching inside the list/tree.'
+      },
+      {
+        id: 'tree.inactiveIndentGuidesStroke',
+        defaults: {
+          dark: Color.transparent('tree.indentGuidesStroke', 0.4),
+          light: Color.transparent('tree.indentGuidesStroke', 0.4),
+          hcDark: Color.transparent('tree.indentGuidesStroke', 0.4)
+        },
+        description: 'Tree stroke color for the inactive indentation guides.'
+      },
 
       // Editor Group & Tabs colors should be aligned with https://code.visualstudio.com/api/references/theme-color#editor-groups-tabs
       {

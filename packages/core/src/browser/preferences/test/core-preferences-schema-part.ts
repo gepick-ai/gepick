@@ -21,6 +21,13 @@ export class CorePreferencesSchemaPart extends AbstractPreferencesSchemaPart {
           maximum: 20,
           description: 'Controls the feedback area size in pixels of the dragging area in between views/editors. Set it to a larger value if you feel it\'s hard to resize views using the mouse.',
         },
+        'workbench.colorTheme': {
+          type: 'string',
+          enum: ['dark', 'light', 'hc-theia'],
+          enumItemLabels: ['Dark (Theia)', 'Light (Theia)', 'High Contrast (Theia)'],
+          default: 'dark',
+          description: 'Specifies the color theme used in the workbench when #window.autoDetectColorScheme# is not enabled.',
+        },
       },
     });
   }
@@ -39,6 +46,7 @@ export namespace CorePreferencesProxy {
   export interface IProperties {
     'workbench.sash.hoverDelay': number;
     'workbench.sash.size': number;
+    'workbench.colorTheme': string;
   }
 }
 export const ICorePreferencesProxy = createServiceDecorator<ICorePreferencesProxy>(CorePreferencesProxy.name);

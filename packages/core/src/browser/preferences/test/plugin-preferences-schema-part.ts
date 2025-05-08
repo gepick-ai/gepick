@@ -12,21 +12,6 @@ export class PluginPreferencesSchemaPart extends AbstractPreferencesSchemaPart {
           description: "set the plugin registry",
           default: "https://vsx.open.registry",
         },
-        'plugin.proxy': {
-          type: "string",
-          description: "set the plugin proxy",
-          default: 'http://localhost:7890',
-        },
-        'plugin.uri': {
-          type: "string",
-          description: "set the plugin uri",
-          default: 'http://localhost:7890',
-        },
-        'plugin.name': {
-          type: "string",
-          description: "set the plugin name",
-          default: 'http://localhost:7890',
-        },
       },
     });
   }
@@ -54,7 +39,6 @@ export class PluginPreferencesProxy extends AbstractPreferencesProxy<PluginPrefe
 export namespace PluginPreferencesProxy {
   export interface IProperties {
     'plugin.registry': string;
-    'plugin.proxy': string;
   }
 }
 export const IPluginPreferencesProxy = createServiceDecorator<IPluginPreferencesProxy>(PluginPreferencesProxy.name);

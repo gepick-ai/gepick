@@ -5,7 +5,7 @@ export class ThemeService extends InjectableService {
 
   getCurrentTheme() {
     return {
-      type: "light",
+      type: "dark",
     };
   }
 }

@@ -1,4 +1,3 @@
-import { ColorDefinition } from "@gepick/core/common";
 import { AbstractThemePart } from "../theme-part-contribution";
 
 export class DebugThemePart extends AbstractThemePart {

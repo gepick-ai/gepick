@@ -4,7 +4,7 @@ import { Preference } from "../util/preference-types";
 import { IPreferenceTreeModel, PreferenceTreeNodeProps, PreferenceTreeNodeRow } from "../preferences-tree-model";
 
 export class PreferencesTreeWidget extends TreeWidget {
-  static ID = 'preferences.tree';
+  static ID = 'preferences-tree';
 
   protected shouldFireSelectionEvents: boolean = true;
   protected firstVisibleLeafNodeID: string;

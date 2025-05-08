@@ -7,12 +7,12 @@ export class GettingStartedView extends AbstractView<GettingStartedWidget> {
       widgetId: GettingStartedWidget.ID,
       widgetName: GettingStartedWidget.LABEL,
       defaultWidgetOptions: {
-        area: "main",
+        area: "left",
       },
     });
   }
 
   async onShellLayoutInit(): Promise<void> {
-    await this.setupView({ reveal: true, activate: true });
+    await this.setupView({ activate: true });
   }
 }

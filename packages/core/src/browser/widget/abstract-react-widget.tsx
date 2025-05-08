@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Root, createRoot } from 'react-dom/client';
-import { toDisposable } from '@gepick/core/common';
-import { AbstractWidget, Message } from './abstract-widget';
+import { Unmanaged, toDisposable } from '@gepick/core/common';
+import { AbstractWidget, Message, Widget } from './abstract-widget';
 
 /**
  * 一个自定义的React Widget必须继承并实现AbstractReactWidget的相关属性
@@ -9,8 +9,8 @@ import { AbstractWidget, Message } from './abstract-widget';
 export abstract class AbstractReactWidget extends AbstractWidget {
   protected nodeRoot: Root;
 
-  constructor() {
-    super();
+  constructor(@Unmanaged() options?: Widget.IOptions) {
+    super(options);
 
     this.scrollOptions = {
       suppressScrollX: true,

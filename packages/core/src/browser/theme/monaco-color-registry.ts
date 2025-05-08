@@ -23,10 +23,22 @@ import { Color, ColorDefinition, IDisposable, toDisposable } from '@gepick/core/
 import { ColorRegistry } from './color-registry';
 
 export class MonacoColorRegistry extends ColorRegistry {
-  static override name = "ColorRegistry";
+  static override name = ColorRegistry.name;
 
   protected readonly monacoThemeService = StandaloneServices.get(IStandaloneThemeService);
   protected readonly monacoColorRegistry = getColorRegistry();
+
+  protected override doRegister(definition: ColorDefinition): IDisposable {
+    const defaults: ColorDefaults = {
+      dark: this.toColor(definition.defaults?.dark),
+      light: this.toColor(definition.defaults?.light),
+      hcDark: this.toColor(definition.defaults?.hcDark ?? definition.defaults?.hc),
+      hcLight: this.toColor(definition.defaults?.hcLight),
+    };
+
+    const identifier = this.monacoColorRegistry.registerColor(definition.id, defaults, definition.description);
+    return toDisposable(() => this.monacoColorRegistry.deregisterColor(identifier));
+  }
 
   override *getColors(): IterableIterator<string> {
     for (const { id } of this.monacoColorRegistry.getColors()) {
@@ -40,18 +52,6 @@ export class MonacoColorRegistry extends ColorRegistry {
 
   getColor(id: string): MonacoColor | undefined {
     return this.monacoThemeService.getColorTheme().getColor(id);
-  }
-
-  protected override doRegister(definition: ColorDefinition): IDisposable {
-    const defaults: ColorDefaults = {
-      dark: this.toColor(definition.defaults?.dark),
-      light: this.toColor(definition.defaults?.light),
-      hcDark: this.toColor(definition.defaults?.hcDark ?? definition.defaults?.hc),
-      hcLight: this.toColor(definition.defaults?.hcLight),
-    };
-
-    const identifier = this.monacoColorRegistry.registerColor(definition.id, defaults, definition.description);
-    return toDisposable(() => this.monacoColorRegistry.deregisterColor(identifier));
   }
 
   protected toColor(value: Color | undefined): ColorValue | null {

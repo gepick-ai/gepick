@@ -29,7 +29,7 @@ export class PluginRegistryView extends AbstractView<PluginRegistryViewContainer
   }
 
   async onShellLayoutInit(): Promise<void> {
-    await this.setupView({ activate: true });
+    await this.setupView({ activate: false });
   };
 
   async showBuiltinExtensions(): Promise<void> {

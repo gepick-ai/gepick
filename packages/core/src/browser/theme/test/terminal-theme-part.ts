@@ -1,4 +1,4 @@
-import { Color, ColorDefinition } from "@gepick/core/common";
+import { Color } from "@gepick/core/common";
 import { AbstractThemePart } from "../theme-part-contribution";
 
 export class TerminalThemePart extends AbstractThemePart {
