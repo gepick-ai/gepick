@@ -1,4 +1,3 @@
-/* eslint-disable ts/ban-ts-comment */
 // @ts-ignore
 // @ts-nocheck
 export class ExtendedPromise<T> implements Promise<T> {
@@ -36,8 +35,8 @@ export class ExtendedPromise<T> implements Promise<T> {
 
   [Symbol.toStringTag]: "Promise";
 
-  public static any<T>(promises: PromiseLike<T>[]): ExtendedPromise<{ key: number, value: PromiseLike<T> }> {
-    const result = new ExtendedPromise<{ key: number, value: PromiseLike<T> }>();
+  public static any<T>(promises: PromiseLike<T>[]): ExtendedPromise<{ key: number; value: PromiseLike<T> }> {
+    const result = new ExtendedPromise<{ key: number; value: PromiseLike<T> }>();
     if (promises.length === 0) {
       result.resolveDelegate();
     }

@@ -9,7 +9,7 @@ export default antfu(
   },
   {
     // 针对全局的指定（文件夹/文件）进行忽略
-    ignores: ['**/dist', "**/lib",],
+    ignores: ['**/dist', "**/lib"],
   },
   {
     rules: {
@@ -28,7 +28,17 @@ export default antfu(
       'ts/no-namespace': 'off',
       'ts/ban-ts-comment': 'off',
       'unicorn/no-new-array': 'off',
-      'dot-notation':'off'
+      'dot-notation': 'off',
+      'node/prefer-global/buffer': 'off',
+      'regexp/no-unused-capturing-group': 'off',
+      'ts/no-this-alias': 'off',
+      'no-restricted-syntax': 'off',
+      'unicorn/error-message': 'off',
+      'prefer-const': 'off',
+      'no-case-declarations': 'off',
+      'no-cond-assign': 'off',
+      'jsdoc/check-alignment': 'off',
+      'ts/no-duplicate-enum-values': 'off',
     },
   },
 );

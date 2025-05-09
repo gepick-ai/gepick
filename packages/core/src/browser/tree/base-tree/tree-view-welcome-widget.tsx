@@ -1,24 +1,3 @@
-/* eslint-disable regexp/no-unused-capturing-group */
-// *****************************************************************************
-// Copyright (C) 2020 SAP SE or an SAP affiliate company and others.
-//
-// This program and the accompanying materials are made available under the
-// terms of the Eclipse Public License v. 2.0 which is available at
-// http://www.eclipse.org/legal/epl-2.0.
-//
-// This Source Code may also be made available under the following Secondary
-// Licenses when the conditions for such availability set forth in the Eclipse
-// Public License v. 2.0 are satisfied: GNU General Public License, version 2
-// with the GNU Classpath Exception which is available at
-// https://www.gnu.org/software/classpath/license.html.
-//
-// SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
-// *****************************************************************************
-
-/* ---------------------------------------------------------------------------------------------
-*  Copyright (c) Microsoft Corporation. All rights reserved.
-*  Licensed under the MIT License. See License.txt in the project root for license information.
-*-------------------------------------------------------------------------------------------- */
 // some code is copied and modified from: https://github.com/microsoft/vscode/blob/573e5145ae3b50523925a6f6315d373e649d1b06/src/vs/base/common/linkedText.ts
 // aligned the API and enablement behavior to https://github.com/microsoft/vscode/blob/c711bc9333ba339fde1a530de0094b3fa32f09de/src/vs/base/common/linkedText.ts
 

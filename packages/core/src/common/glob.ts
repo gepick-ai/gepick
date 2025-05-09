@@ -1,26 +1,5 @@
-/* eslint-disable no-cond-assign */
-/* eslint-disable regexp/no-unused-capturing-group */
-/* eslint-disable no-case-declarations */
-// *****************************************************************************
-// Copyright (C) 2018 Red Hat, Inc. and others.
-//
-// This program and the accompanying materials are made available under the
-// terms of the Eclipse Public License v. 2.0 which is available at
-// http://www.eclipse.org/legal/epl-2.0.
-//
-// This Source Code may also be made available under the following Secondary
-// Licenses when the conditions for such availability set forth in the Eclipse
-// Public License v. 2.0 are satisfied: GNU General Public License, version 2
-// with the GNU Classpath Exception which is available at
-// https://www.gnu.org/software/classpath/license.html.
-//
-// SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
-// *****************************************************************************
 // copied from https://github.com/Microsoft/vscode/blob/bf7ac9201e7a7d01741d4e6e64b5dc9f3197d97b/src/vs/base/common/glob.ts
-/* ---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *-------------------------------------------------------------------------------------------- */
+
 'use strict';
 
 import * as strings from './strings';
@@ -122,7 +101,7 @@ function parseRegExp(pattern: string): string {
   let regEx = '';
 
   // Split up into segments for each slash found
-  // eslint-disable-next-line prefer-const
+
   let segments = splitGlobAware(pattern, GLOB_SPLIT);
 
   // Special case where we only have globstars
@@ -205,11 +184,10 @@ function parseRegExp(pattern: string): string {
             continue;
 
           case '}':
-            // eslint-disable-next-line prefer-const
+
             let choices = splitGlobAware(braceVal, ',');
 
             // Converts {foo,bar} => [foo|bar]
-            // eslint-disable-next-line prefer-const
             let braceRegExp = `(?:${choices.map(c => parseRegExp(c)).join('|')})`;
 
             regEx += braceRegExp;

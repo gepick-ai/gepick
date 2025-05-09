@@ -1,8 +1,6 @@
-import { DisposableCollection, DisposableStore, Emitter, Event, IDisposable, InjectableService, KeyCode, KeysOrKeyCodes, MaybePromise, toDisposable } from "@gepick/core/common";
-import { Message, MessageLoop } from "@lumino/messaging";
+import { DisposableStore, IDisposable, KeyCode, KeysOrKeyCodes, toDisposable } from "@gepick/core/common";
+import { MessageLoop } from "@lumino/messaging";
 import { Widget } from "@lumino/widgets";
-import { Mixin } from "ts-mixer";
-import PerfectScrollbar from 'perfect-scrollbar';
 
 /**
  * At a number of places in the code, we have effectively reimplemented Lumino's Widget.attach and Widget.detach,

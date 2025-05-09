@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 /* eslint-disable node/no-deprecated-api */
-/* eslint-disable node/prefer-global/buffer */
 
 import http from "node:http";
 import url from "node:url";
@@ -10,9 +9,9 @@ import { ConsoleLogger } from "@gepick/core/node";
 import { IWebSocket, MessageConnection, createWebSocketConnection } from "./vscode-ws-jsonrpc";
 
 export interface IServerOptions {
-  readonly server: http.Server
-  readonly path?: string
-  matches?: (request: http.IncomingMessage) => boolean
+  readonly server: http.Server;
+  readonly path?: string;
+  matches?: (request: http.IncomingMessage) => boolean;
 }
 
 export function createServerWebSocketConnection(options: IServerOptions, onConnect: (connection: MessageConnection) => void): void {
@@ -31,7 +30,7 @@ export function openJsonRpcSocket(options: IServerOptions, onOpen: (socket: IWeb
 }
 
 export interface OnOpen {
-  (webSocket: ws, request: http.IncomingMessage, socket: net.Socket, head: Buffer): void
+  (webSocket: ws, request: http.IncomingMessage, socket: net.Socket, head: Buffer): void;
 }
 
 export function openSocket(options: IServerOptions, onOpen: OnOpen): void {
@@ -62,13 +61,13 @@ export function toIWebSocket(webSocket: ws) {
       }
     }),
     onMessage: cb => webSocket.on('message', (message) => {
-      cb(message)
+      cb(message);
     }),
     onError: cb => webSocket.on('error', (error) => {
-      cb(error)
+      cb(error);
     }),
     onClose: cb => webSocket.on('close', (code, reason) => {
-      cb(code, reason)
+      cb(code, reason);
     }),
     dispose: () => {
       if (webSocket.readyState < ws.CLOSING) {

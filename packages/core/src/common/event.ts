@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/check-alignment */
 import { DisposableStore } from './lifecycle';
 import { LinkedList } from './linkedList';
 import type { IDisposable } from './lifecycle';
@@ -50,7 +49,6 @@ export class Emitter<T> {
 
       let result: IDisposable;
 
-      // eslint-disable-next-line prefer-const
       result = {
         dispose: () => {
           // 调用一次dispose之后，再次重复调用都不会有任何效果了
