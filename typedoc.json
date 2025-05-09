@@ -2,7 +2,7 @@
   "externalPattern": [
     "**/node_modules/**",
     "**/lib/**/*.ts",
-    "**/plugins/**",
+    "**/plugins/**"
   ],
   "entryPointStrategy": "packages",
   "entryPoints": [
@@ -10,15 +10,14 @@
   ],
   "packageOptions": {
     "entryPoints": [
-      "src/**/index.ts",
-    ],
+      "src/**/index.ts"
+    ]
   },
   "name": "Gepick API Docs",
   "readme": "./README.md",
-  "out": "./gh-pages/docs",
-  "logLevel": "Error",
+  "out": "./docs/gh-pages/docs",
   "navigationLeaves": [
-    "browser", 
+    "browser",
     "common",
     "node"
   ],
@@ -27,5 +26,6 @@
   "plugin": [
     "typedoc-github-theme"
   ],
+  "logLevel": "Error"
   // "showConfig":true
 }
