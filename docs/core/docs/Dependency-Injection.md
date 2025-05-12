@@ -4,7 +4,8 @@
 
 ## Gepick的DI框架
 
-在InversifyJS中有一个(Binding Syntax)[https://inversify.io/docs/api/binding-syntax/]的概念，它其实就是绑定过程当中的不同语法，同时也是这些语法的类型。（如果你想深入了解，查看InversifyJS仓库的相关代码，你会发现这就是一堆绑定流程的类实现。）在官方使用当中，基本上都是将绑定语法集中在一个地方统一进行，而Gepick的DI框架对其进行改造，将相关绑定语法做成了Decorator，让你能够将关注点放在具体的Service身上。你只需要往自己的Service身上安装对应的Decorator就能够达到跟官方对应语法的对等效果。比如，官方提供了`BindingOnSyntax.onActivation`这个API，那么在Gepick的DI框架里同样会提供一个`@OnActivation`的装饰器。
+在InversifyJS中有一个Binding Syntax)的概念(详见：https://inversify.io/docs/api/binding-syntax/)
+它其实就是绑定过程当中的不同语法，同时也是这些语法的类型。（如果你想深入了解，查看InversifyJS仓库的相关代码，你会发现这就是一堆绑定流程的类实现。）在官方使用当中，基本上都是将绑定语法集中在一个地方统一进行，而Gepick的DI框架对其进行改造，将相关绑定语法做成了Decorator，让你能够将关注点放在具体的Service身上。你只需要往自己的Service身上安装对应的Decorator就能够达到跟官方对应语法的对等效果。比如，官方提供了`BindingOnSyntax.onActivation`这个API，那么在Gepick的DI框架里同样会提供一个`@OnActivation`的装饰器。
 
 示例如下：
 
@@ -29,3 +30,5 @@ container.bind(Symbol.for(MyService.name)).to(MyService)
 ```
 
 以上效果等效。
+
+具体代码实现见：[gepick-di](https://github.com/gepick-ai/gepick/tree/main/packages/core/src/common/dependency-injection)，使用参考模块[getting-started-module](https://github.com/gepick-ai/gepick/blob/main/packages/getting-started/src/browser/getting-started-module.ts)。
