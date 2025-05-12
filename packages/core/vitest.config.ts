@@ -1,27 +1,3 @@
-import { defineConfig } from 'vitest/config';
+import baseConfig from '../../vitest.config.base';
 
-export default defineConfig({
-  test: {
-    workspace: [
-      'test/*',
-      {
-        test: {
-          dir: "browser",
-          environment: 'jsdom',
-        },
-      },
-      {
-        test: {
-          dir: "common",
-          environment: 'node',
-        },
-      },
-      {
-        test: {
-          dir: "node",
-          environment: 'node',
-        },
-      },
-    ],
-  },
-});
+export default baseConfig;
