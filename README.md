@@ -1,6 +1,6 @@
 # Gepick
 
-一个AI RPA｜Agent开发框架，打造你自己的RPA｜Agent百宝箱。项目大部分功能基于[Theia](https://github.com/eclipse-theia/theia)二开，
+一个AI RPA｜Agent开发框架，项目大部分功能逻辑基于[Theia](https://github.com/eclipse-theia/theia)二开改造，打造你自己的RPA｜Agent百宝箱。（基座打造中...）
 
 ## 工程结构
 
