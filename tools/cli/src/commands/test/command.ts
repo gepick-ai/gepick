@@ -3,8 +3,7 @@ import path from "node:path";
 import { createRequire } from "node:module";
 import { CommandModule } from 'yargs';
 import fsExtra from 'fs-extra';
-import { createVitest, startVitest } from 'vitest/node';
-import { defineConfig } from "vite";
+import { createVitest } from 'vitest/node';
 
 export default <CommandModule>{
   command: 'test',
