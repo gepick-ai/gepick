@@ -17,6 +17,7 @@
     "compile": "yarn build:cli && gepick compile && yarn docs",
     "clean": "gepick clean",
     "docs": "rimraf docs/gh-pages && typedoc",
+    "test": "gepick test",
     "setup:env": "gepick setup-env",
     "start:gepick-service": "yarn clean && yarn compile && yarn setup:env && yarn dev:server",
     "start:gepick-client": "yarn dev:client",

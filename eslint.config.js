@@ -39,6 +39,7 @@ export default antfu(
       'no-cond-assign': 'off',
       'jsdoc/check-alignment': 'off',
       'ts/no-duplicate-enum-values': 'off',
+      'no-prototype-builtins': 'off',
     },
   },
 );

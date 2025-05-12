@@ -20,6 +20,7 @@
   "scripts": {
     "dev": "gepick compile --watch",
     "build": "gepick compile",
+    "test": "gepick test",
     "docs": "npx typedoc"
   },
   "dependencies": {
