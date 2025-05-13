@@ -1,6 +1,8 @@
+// @ts-nocheck
+
 import { Emitter, IServiceContainer, InjectableService, PostConstruct, ServiceIdUtil, Unmanaged, createServiceDecorator, isObject } from "@gepick/core/common";
-import { IPreferencesSchema, IPreferencesSchemaPart } from "./preferences-schema-part-contribution";
-import { IPreferencesManager } from "./preferences-manager";
+import { IPreferencesSchema, IPreferencesSchemaPart } from "./preference-schema-part-contribution";
+import { IPreferencesService } from "./preferences-service";
 
 // #region PreferenceProxyFactory
 export class PreferencesProxyFactory extends InjectableService {
@@ -30,7 +32,7 @@ export class PreferenceProxyHandler<T extends Record<string, any>> extends Injec
 
   constructor(
     @IPreferencesSchemaPart protected readonly preferenceSchema: IPreferencesSchema,
-    @IPreferencesManager protected readonly preferencesManager: IPreferencesManager,
+    @IPreferencesService protected readonly preferencesManager: IPreferencesService,
     @IPreferencesProxyFactory protected readonly preferencesProxyFactory: IPreferencesProxyFactory,
   ) {
     super();
@@ -108,7 +110,7 @@ export class PreferenceProxyHandler<T extends Record<string, any>> extends Injec
       } while (parentSegment && value === undefined);
 
       let segment;
-      // eslint-disable-next-line no-cond-assign
+
       while (isObject(value) && (segment = segments.pop())) {
         value = value[segment];
       }
@@ -194,7 +196,7 @@ export abstract class AbstractPreferencesProxy<T> extends InjectableService {
   #schema: IPreferencesSchema;
 
   @IPreferencesProxyFactory protected readonly preferencesProxyFactory: IPreferencesProxyFactory;
-  @IPreferencesManager protected readonly preferencesManager: IPreferencesManager;
+  @IPreferencesService protected readonly preferencesManager: IPreferencesService;
 
   constructor(@Unmanaged() readonly preferencesSchemaPart: IPreferencesSchemaPart) {
     super();

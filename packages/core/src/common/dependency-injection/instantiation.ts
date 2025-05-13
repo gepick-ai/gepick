@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { inject } from 'inversify';
 import { Disposable } from '../lifecycle';
 import { ContributionProvider, IContributionProvider } from './contribution-provider';

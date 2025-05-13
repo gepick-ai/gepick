@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { Contribution, escapeInvisibleChars, interfaces } from '@gepick/core/common';
-import { JSONValue, PreferencesManager, React, SelectComponent, SelectOption, createRoot } from '@gepick/core/browser';
+import { JSONValue, PreferencesService, React, SelectComponent, SelectOption, createRoot } from '@gepick/core/browser';
 import { Preference } from '../../util/preference-types';
 import { IPreferenceNodeRendererContribution, PreferenceLeafNodeRendererContribution } from './preference-node-renderer-creator';
 import { PreferenceLeafNodeRenderer, PreferenceNodeRenderer } from './preference-node-renderer';
@@ -38,7 +38,7 @@ export class PreferenceSelectInputRenderer extends PreferenceLeafNodeRenderer<JS
       const value = values[i];
       const stringValue = `${value}`;
       const label = escapeInvisibleChars(preferenceData.enumItemLabels?.[i] ?? stringValue);
-      const detail = PreferencesManager.deepEqual(defaultValue, value) ? 'default' : undefined;
+      const detail = PreferencesService.deepEqual(defaultValue, value) ? 'default' : undefined;
       let enumDescription = preferenceData.enumDescriptions?.[i];
       let markdown = false;
       const markdownEnumDescription = preferenceData.markdownEnumDescriptions?.[i];
@@ -96,10 +96,10 @@ export class PreferenceSelectInputRenderer extends PreferenceLeafNodeRenderer<JS
    */
   protected getDataValue(): number {
     const currentValue = this.getValue();
-    let selected = this.enumValues.findIndex(value => PreferencesManager.deepEqual(value, currentValue));
+    let selected = this.enumValues.findIndex(value => PreferencesService.deepEqual(value, currentValue));
     if (selected === -1) {
       const fallback = this.getFallbackValue();
-      selected = this.enumValues.findIndex(value => PreferencesManager.deepEqual(value, fallback));
+      selected = this.enumValues.findIndex(value => PreferencesService.deepEqual(value, fallback));
     }
     return Math.max(selected, 0);
   }

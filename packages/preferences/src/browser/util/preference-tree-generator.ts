@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { CompositeTreeNode, IPreferencesConfiguration, IPreferencesManager, IPreferencesSchemaService, OVERRIDE_PROPERTY_PATTERN } from "@gepick/core/browser";
+import { CompositeTreeNode, IPreferencesConfiguration, IPreferencesService, IPreferencesSchemaProvider, OVERRIDE_PROPERTY_PATTERN } from "@gepick/core/browser";
 import { Emitter, InjectableService, PostConstruct, createServiceDecorator, lodashDebounce } from "@gepick/core/common";
 import { PreferenceDataProperty } from "../preference-schema";
 import { COMMONLY_USED_SECTION_PREFIX, IPreferenceLayoutProvider } from "./preference-layout";
@@ -39,8 +39,8 @@ export class PreferenceTreeGenerator extends InjectableService {
   protected readonly defaultTopLevelCategory = 'extensions';
 
   constructor(
-    @IPreferencesManager protected readonly preferencesManager: IPreferencesManager,
-    @IPreferencesSchemaService protected readonly preferencesSchemaService: IPreferencesSchemaService,
+    @IPreferencesService protected readonly preferencesManager: IPreferencesService,
+    @IPreferencesSchemaProvider protected readonly preferencesSchemaService: IPreferencesSchemaService,
     @IPreferencesConfiguration protected readonly preferencesConfiguration: IPreferencesConfiguration,
     @IPreferenceLayoutProvider protected readonly layoutProvider: IPreferenceLayoutProvider,
     @IPreferenceTreeLabelProvider protected readonly labelProvider: IPreferenceTreeLabelProvider,

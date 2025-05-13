@@ -1,18 +1,14 @@
 import { Module, ServiceModule } from "@gepick/core/common";
-import { PreferencesManager } from "./preferences-manager";
-import { PreferencesSchemaService } from "./preferences-schema-service";
+import { PreferencesService } from "./preferences-service";
 import { PreferenceProxyHandler, PreferencesProxyFactory } from "./preferences-proxy";
-import { PreferencesConfiguration } from "./preferences-configuration";
-import { samplePreferences } from "./test";
+import { preferencesSchemaParts } from "./test";
 
 @Module({
   services: [
-    PreferencesManager,
-    PreferencesSchemaService,
+    PreferencesService,
     PreferencesProxyFactory,
     PreferenceProxyHandler,
-    PreferencesConfiguration,
-    ...samplePreferences,
+    ...preferencesSchemaParts,
   ],
 })
 export class PreferencesModule extends ServiceModule {}

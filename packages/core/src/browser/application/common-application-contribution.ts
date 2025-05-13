@@ -1,7 +1,7 @@
 import { Command, Contribution, IMenuContribution, InjectableService, MAIN_MENU_BAR, MANAGE_MENU, MenuModelRegistry } from '@gepick/core/common';
 import { IShell } from '../shell';
 import { WidgetUtilities } from '../widget';
-import { ICorePreferencesProxy, IPreferencesManager } from '../preferences';
+import { ICorePreferencesProxy, IPreferencesService } from '../preferences';
 import { DecorationStyle } from '../services';
 import { ApplicationContribution } from './application-contribution';
 
@@ -316,7 +316,7 @@ export class CommonApplicationContribution extends ApplicationContribution {
 
   constructor(
     @IShell protected readonly shell: IShell,
-    @IPreferencesManager protected readonly preferencesManager: IPreferencesManager,
+    @IPreferencesService protected readonly preferencesManager: IPreferencesService,
     @ICorePreferencesProxy protected readonly corePreferencesProxy: ICorePreferencesProxy,
   ) {
     super();

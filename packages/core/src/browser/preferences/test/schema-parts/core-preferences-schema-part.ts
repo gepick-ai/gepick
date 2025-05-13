@@ -1,6 +1,6 @@
 import { createServiceDecorator } from "@gepick/core/common";
-import { AbstractPreferencesSchemaPart } from "../preferences-schema-part-contribution";
-import { AbstractPreferencesProxy } from "../preferences-proxy";
+import { AbstractPreferencesSchemaPart } from "../../preference-schema-part-contribution";
+import { AbstractPreferencesProxy } from "../../preferences-proxy";
 
 export class CorePreferencesSchemaPart extends AbstractPreferencesSchemaPart {
   constructor() {
@@ -35,19 +35,17 @@ export class CorePreferencesSchemaPart extends AbstractPreferencesSchemaPart {
 export const ICorePreferencesSchemaPart = createServiceDecorator<ICorePreferencesSchemaPart>(CorePreferencesSchemaPart.name);
 export type ICorePreferencesSchemaPart = CorePreferencesSchemaPart;
 
-export class CorePreferencesProxy extends AbstractPreferencesProxy<CorePreferencesProxy.IProperties> {
+export class CorePreferencesProxy extends AbstractPreferencesProxy<{
+  'workbench.sash.hoverDelay': number;
+  'workbench.sash.size': number;
+  'workbench.colorTheme': string;
+}> {
   constructor(
     @ICorePreferencesSchemaPart protected readonly corePreferencesSchemaPart: ICorePreferencesSchemaPart,
   ) {
     super(corePreferencesSchemaPart);
   }
 }
-export namespace CorePreferencesProxy {
-  export interface IProperties {
-    'workbench.sash.hoverDelay': number;
-    'workbench.sash.size': number;
-    'workbench.colorTheme': string;
-  }
-}
+
 export const ICorePreferencesProxy = createServiceDecorator<ICorePreferencesProxy>(CorePreferencesProxy.name);
 export type ICorePreferencesProxy = CorePreferencesProxy;

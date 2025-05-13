@@ -1,10 +1,9 @@
-import { IContributionProvider, InjectableService, Optional, URI, createContribution, createServiceDecorator } from "@gepick/core/common";
+import { InjectableService, URI, createServiceDecorator } from "@gepick/core/common";
+import { IPreferenceConfigurationProvider } from "./preference-configuration-contribution";
 
-export const [IPreferencesConfigurationContribution, IPreferencesConfigurationContributionProvider] = createContribution("PreferencesConfigurationContribution");
-
-export class PreferencesConfiguration extends InjectableService {
+export class PreferenceConfigurations extends InjectableService {
   constructor(
-    @Optional() @IPreferencesConfigurationContributionProvider protected readonly provider: IContributionProvider<IPreferencesConfiguration>,
+    @IPreferenceConfigurationProvider protected readonly provider: IPreferenceConfigurationProvider,
   ) {
     super();
   }
@@ -54,7 +53,5 @@ export class PreferencesConfiguration extends InjectableService {
     return folder.resolve(configPath).resolve(`${configName}.json`);
   }
 }
-export const IPreferencesConfiguration = createServiceDecorator<IPreferencesConfiguration>(PreferencesConfiguration.name);
-export interface IPreferencesConfiguration extends PreferencesConfiguration {
-  name: string;
-}
+export const IPreferenceConfigurations = createServiceDecorator<IPreferenceConfigurations>(PreferenceConfigurations.name);
+export type IPreferenceConfigurations = PreferenceConfigurations;

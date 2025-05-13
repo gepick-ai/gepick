@@ -1,4 +1,4 @@
-import { CompositeTreeNode, ExpandableTreeNode, IPreferencesManager, NodeProps, SelectableTreeNode, TopDownTreeIterator, TreeModelImpl, TreeNode, TreeWidget, fuzzy } from "@gepick/core/browser";
+import { CompositeTreeNode, ExpandableTreeNode, IPreferencesService, NodeProps, SelectableTreeNode, TopDownTreeIterator, TreeModelImpl, TreeNode, TreeWidget, fuzzy } from "@gepick/core/browser";
 import { Emitter, Event, PostConstruct, createServiceDecorator } from "@gepick/core/common";
 import { IPreferencesScopeTabBar } from "./views/preferences-scope-tabbar-widget";
 import { IPreferencesSearchbarWidget } from "./views/preferences-searchbar-widget";
@@ -29,7 +29,7 @@ export class PreferenceTreeModel extends TreeModelImpl {
   @IPreferencesSearchbarWidget protected readonly filterInput: IPreferencesSearchbarWidget;
   @IPreferenceTreeGenerator protected readonly treeGenerator: IPreferenceTreeGenerator;
   @IPreferencesScopeTabBar protected readonly scopeTracker: IPreferencesScopeTabBar;
-  @IPreferencesManager protected readonly preferencesManager: IPreferencesManager;
+  @IPreferencesService protected readonly preferencesService: IPreferencesService;
 
   protected readonly onTreeFilterChangedEmitter = new Emitter<PreferenceFilterChangeEvent>();
   readonly onFilterChanged = this.onTreeFilterChangedEmitter.event;
@@ -55,7 +55,7 @@ export class PreferenceTreeModel extends TreeModelImpl {
   }
 
   get propertyList(): { [key: string]: any } {
-    return this.preferencesManager.getCombinedSchema().properties;
+    return this.preferencesService.getCombinedSchema().properties;
   }
 
   get currentScope(): Preference.SelectedScopeDetails {
@@ -98,7 +98,7 @@ export class PreferenceTreeModel extends TreeModelImpl {
       }),
       this.onTreeFilterChangedEmitter,
     ].forEach(d => this.toDispose.add(d));
-    await this.preferencesManager.ready;
+    await this.preferencesService.ready;
     this.handleNewSchema(this.treeGenerator.root);
   }
 

@@ -6,7 +6,7 @@ import { AbstractReactWidget, BUSY_CLASS, CODICON_LOADING_CLASSES, CODICON_TREE_
 import { StatefulWidget } from "../../shell";
 import { ILabelProvider } from "../../label";
 import { IContextMenuRenderer } from "../../menu";
-import { IPreferenceDiff, IPreferencesManager } from "../../preferences";
+import { IPreferencesService, PreferenceChange } from "../../preferences";
 import { ISearchBoxFactory, SearchBox, SearchBoxProps } from "./search-box";
 import { DecoratedTreeNode, INoopTreeDecoratorService, TreeDecoration } from "./tree-decorator";
 import { TreeWidgetSelection } from "./tree-widget-selection";
@@ -164,7 +164,7 @@ export class TreeWidget extends AbstractReactWidget implements StatefulWidget {
     @ISearchBoxFactory protected readonly searchBoxFactory: ISearchBoxFactory,
     @ITreeProps readonly props: ITreeProps,
     @IContextMenuRenderer protected readonly contextMenuRenderer: IContextMenuRenderer,
-    @IPreferencesManager protected readonly preferenceService: IPreferencesManager,
+    @IPreferencesService protected readonly preferenceService: IPreferencesService,
   ) {
     super();
     this.scrollOptions = {
@@ -245,7 +245,7 @@ export class TreeWidget extends AbstractReactWidget implements StatefulWidget {
           }
         }
       }),
-      this.preferenceService.onPreferenceChanged((event: IPreferenceDiff) => {
+      this.preferenceService.onPreferenceChanged((event: PreferenceChange) => {
         if (event.preferenceName === PREFERENCE_NAME_TREE_INDENT) {
           this.treeIndent = event.newValue;
           this.update();

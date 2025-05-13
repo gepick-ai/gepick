@@ -4,9 +4,16 @@
     "composite": true,
     "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
     "rootDir": "./src",
+    "paths": {
+      "@gepick/core/*": ["./src/*"]
+    },
     "outDir": "./dist"
   },
   "include": [
     "./src"
+  ],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts"
   ]
 }

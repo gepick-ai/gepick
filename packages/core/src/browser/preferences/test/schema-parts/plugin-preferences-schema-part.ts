@@ -1,6 +1,6 @@
 import { Module, ServiceModule, createServiceDecorator } from "@gepick/core/common";
-import { AbstractPreferencesSchemaPart } from "../preferences-schema-part-contribution";
-import { AbstractPreferencesProxy } from "../preferences-proxy";
+import { AbstractPreferencesSchemaPart } from "../../preference-schema-part-contribution";
+import { AbstractPreferencesProxy } from "../../preferences-proxy";
 
 export class PluginPreferencesSchemaPart extends AbstractPreferencesSchemaPart {
   constructor() {
@@ -19,7 +19,9 @@ export class PluginPreferencesSchemaPart extends AbstractPreferencesSchemaPart {
 export const IPluginPreferencesSchemaPart = createServiceDecorator<IPluginPreferencesSchemaPart>(PluginPreferencesSchemaPart.name);
 export type IPluginPreferencesSchemaPart = PluginPreferencesSchemaPart;
 
-export class PluginPreferencesProxy extends AbstractPreferencesProxy<PluginPreferencesProxy.IProperties> {
+export class PluginPreferencesProxy extends AbstractPreferencesProxy<{
+  'plugin.registry': string;
+}> {
   constructor(
     @IPluginPreferencesSchemaPart protected readonly pluginPreferencesSchemaPart: IPluginPreferencesSchemaPart,
   ) {
@@ -35,11 +37,6 @@ export class PluginPreferencesProxy extends AbstractPreferencesProxy<PluginPrefe
 
   //   return injectable;
   // }
-}
-export namespace PluginPreferencesProxy {
-  export interface IProperties {
-    'plugin.registry': string;
-  }
 }
 export const IPluginPreferencesProxy = createServiceDecorator<IPluginPreferencesProxy>(PluginPreferencesProxy.name);
 export type IPluginPreferencesProxy = PluginPreferencesProxy;

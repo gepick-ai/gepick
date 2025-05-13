@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { Container, IDisposable, IServiceContainer, InTransientScope, InjectableService, PostConstruct, URI, createServiceDecorator, lodashDebounce } from '@gepick/core/common';
-import { DOMPurify, IContextMenuRenderer, IOpenerService, IPreferencesManager, JSONValue, PreferencesManager, WidgetUtilities, open } from "@gepick/core/browser";
+import { DOMPurify, IContextMenuRenderer, IOpenerService, IPreferencesService, JSONValue, PreferencesService, WidgetUtilities, open } from "@gepick/core/browser";
 import { IPreferenceNode, Preference, PreferenceInspection, PreferenceMenus } from '../../util/preference-types';
 import { IPreferenceTreeLabelProvider } from '../../util/preference-tree-label-provider';
 import { PreferenceScope } from '../../preference-scope';
@@ -148,7 +148,7 @@ export class PreferenceHeaderRenderer extends PreferenceNodeRenderer {
 
 export abstract class PreferenceLeafNodeRenderer<ValueType extends JSONValue, InteractableType extends HTMLElement> extends PreferenceNodeRenderer implements Required<GeneralPreferenceNodeRenderer> {
   @IPreferenceNode protected declare readonly preferenceNode: IPreferenceNode;
-  @IPreferencesManager protected readonly preferencesManager: IPreferencesManager;
+  @IPreferencesService protected readonly preferencesManager: IPreferencesService;
   @IContextMenuRenderer protected readonly menuRenderer: IContextMenuRenderer;
   @IPreferencesScopeTabBar protected readonly scopeTracker: IPreferencesScopeTabBar;
   @IPreferenceTreeModel protected readonly model: IPreferenceTreeModel;
@@ -287,7 +287,7 @@ export abstract class PreferenceLeafNodeRenderer<ValueType extends JSONValue, In
     const wasModified = this.isModifiedFromDefault;
     const { inspection } = this;
     const valueInCurrentScope = knownCurrentValue ?? Preference.getValueInScope(inspection, this.scopeTracker.currentScope.scope);
-    this.isModifiedFromDefault = valueInCurrentScope !== undefined && !PreferencesManager.deepEqual(valueInCurrentScope, inspection?.defaultValue);
+    this.isModifiedFromDefault = valueInCurrentScope !== undefined && !PreferencesService.deepEqual(valueInCurrentScope, inspection?.defaultValue);
     if (wasModified !== this.isModifiedFromDefault) {
       this.gutter.classList.toggle('theia-mod-item-modified', this.isModifiedFromDefault);
     }
@@ -419,7 +419,7 @@ export abstract class PreferenceLeafNodeRenderer<ValueType extends JSONValue, In
       for (const otherScope of [PreferenceScope.User, PreferenceScope.Workspace]) {
         if (otherScope !== currentScopeInView) {
           const valueInOtherScope = Preference.getValueInScope(inspection, otherScope);
-          if (valueInOtherScope !== undefined && !PreferencesManager.deepEqual(valueInOtherScope, inspection.defaultValue)) {
+          if (valueInOtherScope !== undefined && !PreferencesService.deepEqual(valueInOtherScope, inspection.defaultValue)) {
             modifiedScopes.push(otherScope);
           }
         }

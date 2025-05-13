@@ -1,4 +1,4 @@
-/* eslint-disable jsdoc/check-alignment */
+/* eslint-disable ts/method-signature-style */
 import { once } from 'lodash-es';
 import { isIterable } from './iterator';
 import { Emitter, Event } from './event';
@@ -199,9 +199,141 @@ export abstract class Disposable implements IDisposable {
   }
 }
 
-export interface DisposableGroup { add: (disposable: IDisposable) => void }
+/**
+ * Utility for tracking a collection of Disposable objects.
+ *
+ * This utility provides a number of benefits over just using an array of
+ * Disposables:
+ *
+ * - the collection is auto-pruned when an element it contains is disposed by
+ * any code that has a reference to it
+ * - you can register to be notified when all elements in the collection have
+ * been disposed [1]
+ * - you can conveniently dispose all elements by calling dispose()
+ * on the collection
+ *
+ * Unlike an array, however, this utility does not give you direct access to
+ * its elements.
+ *
+ * Being notified when all elements are disposed is simple:
+ * ```
+ * const dc = new DisposableCollection(myDisposables);
+ * dc.onDispose(() => {
+ *    console.log('All elements in the collection have been disposed');
+ * });
+ * ```
+ *
+ * [1] The collection will notify only once. It will continue to function in so
+ * far as accepting new Disposables and pruning them when they are disposed, but
+ * such activity will never result in another notification.
+ */
+export class DisposableCollection implements IDisposable {
+  protected readonly disposables: IDisposable[] = [];
+  protected readonly onDisposeEmitter = new Emitter<void>();
+
+  constructor(...toDispose: IDisposable[]) {
+    toDispose.forEach(d => this.push(d));
+  }
+
+  /**
+     * This event is fired only once
+     * on first dispose of not empty collection.
+     */
+  get onDispose(): Event<void> {
+    return this.onDisposeEmitter.event;
+  }
+
+  protected checkDisposed(): void {
+    if (this.disposed && !this.disposingElements) {
+      this.onDisposeEmitter.fire(undefined);
+      this.onDisposeEmitter.dispose();
+    }
+  }
+
+  get disposed(): boolean {
+    return this.disposables.length === 0;
+  }
+
+  private disposingElements = false;
+  dispose(): void {
+    if (this.disposed || this.disposingElements) {
+      return;
+    }
+    this.disposingElements = true;
+    while (!this.disposed) {
+      try {
+        this.disposables.pop()!.dispose();
+      }
+      catch (e) {
+        console.error(e);
+      }
+    }
+    this.disposingElements = false;
+    this.checkDisposed();
+  }
+
+  push(disposable: IDisposable): IDisposable {
+    const disposables = this.disposables;
+    disposables.push(disposable);
+    const originalDispose = disposable.dispose.bind(disposable);
+    const toRemove = toDisposable(() => {
+      const index = disposables.indexOf(disposable);
+      if (index !== -1) {
+        disposables.splice(index, 1);
+      }
+      this.checkDisposed();
+    });
+    disposable.dispose = () => {
+      toRemove.dispose();
+      disposable.dispose = originalDispose;
+      originalDispose();
+    };
+    return toRemove;
+  }
+
+  pushAll(disposables: IDisposable[]): IDisposable[] {
+    return disposables.map(disposable =>
+      this.push(disposable),
+    );
+  }
+}
+
+export type DisposableGroup = { push: (disposable: IDisposable) => void } | { add: (disposable: IDisposable) => void };
+export namespace DisposableGroup {
+  export function canPush(candidate?: DisposableGroup): candidate is { push(disposable: IDisposable): void } {
+    return Boolean(candidate && (candidate as { push(): void }).push);
+  }
+  export function canAdd(candidate?: DisposableGroup): candidate is { add(disposable: IDisposable): void } {
+    return Boolean(candidate && (candidate as { add(): void }).add);
+  }
+}
 
 export function disposableTimeout(...args: Parameters<typeof setTimeout>): IDisposable {
   const handle = setTimeout(...args);
   return { dispose: () => clearTimeout(handle) };
+}
+
+/**
+ * Wrapper for a {@link IDisposable} that is not available immediately.
+ */
+export class DisposableWrapper implements IDisposable {
+  private disposed = false;
+  private disposable: IDisposable | undefined = undefined;
+
+  set(disposable: IDisposable): void {
+    if (this.disposed) {
+      disposable.dispose();
+    }
+    else {
+      this.disposable = disposable;
+    }
+  }
+
+  dispose(): void {
+    this.disposed = true;
+    if (this.disposable) {
+      this.disposable.dispose();
+      this.disposable = undefined;
+    }
+  }
 }

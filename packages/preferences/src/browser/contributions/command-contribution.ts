@@ -1,5 +1,5 @@
 import { AbstractCommand } from "@gepick/core/common";
-import { IPreferencesManager } from "@gepick/core/browser";
+import { IPreferencesService } from "@gepick/core/browser";
 import { Preference } from "../util/preference-types";
 import { IPreferencesView } from "./view-contribution";
 
@@ -27,7 +27,7 @@ export class ResetPreferencesCommand extends AbstractCommand {
   static override Label = 'Reset Setting';
 
   constructor(
-    @IPreferencesManager protected readonly preferencesManager: IPreferencesManager,
+    @IPreferencesService protected readonly preferencesManager: IPreferencesService,
   ) {
     super();
   }

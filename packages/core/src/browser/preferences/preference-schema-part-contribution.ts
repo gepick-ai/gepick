@@ -1,4 +1,20 @@
-import { Contribution, IContributionProvider, InjectableService, Unmanaged, createContribution } from "@gepick/core/common";
+import { Contribution, IContributionProvider, InjectableService, Unmanaged, createContribution, isObject } from "@gepick/core/common";
+import { FrontendApplicationConfig } from "../application/application-props";
+
+/**
+ * Specialized {@link FrontendApplicationConfig} to configure default
+ * preference values for the {@link PreferenceSchemaProvider}.
+ */
+export interface FrontendApplicationPreferenceConfig extends FrontendApplicationConfig {
+  preferences: {
+    [preferenceName: string]: any;
+  };
+}
+export namespace FrontendApplicationPreferenceConfig {
+  export function is(config: FrontendApplicationConfig): config is FrontendApplicationPreferenceConfig {
+    return isObject(config.preferences);
+  }
+}
 
 export interface IPreferencesSchema { type: string; properties: any;[name: string]: any }
 
