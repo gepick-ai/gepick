@@ -40,6 +40,7 @@ export default antfu(
       'jsdoc/check-alignment': 'off',
       'ts/no-duplicate-enum-values': 'off',
       'no-prototype-builtins': 'off',
+      'ts/no-use-before-define':'off'
     },
   },
 );

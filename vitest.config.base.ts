@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     workspace: [
-      'test/*',
+      'src/*',
       {
         test: {
           dir: "browser",

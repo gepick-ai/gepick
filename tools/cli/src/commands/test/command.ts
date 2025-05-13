@@ -45,10 +45,10 @@ export default <CommandModule>{
           node: 'node',
         };
 
-        const testDirs = glob.sync(`packages/*/test/${env}`, { cwd: curPackage });
+        const testDirs = glob.sync(`packages/*/src/${env}`, { cwd: curPackage });
         const testConfigs = testDirs.map((dir: string) => ({
           test: {
-            name: `${dir.slice(0, dir.indexOf(`/test/${env}`)).replace('packages', '@gepick')}`,
+            name: `${dir.slice(0, dir.indexOf(`/src/${env}`)).replace('packages', '@gepick')}`,
             dir,
             environment: envs[env],
           },
@@ -68,19 +68,19 @@ export default <CommandModule>{
             "packages/*",
             {
               test: {
-                dir: 'test/browser',
+                dir: 'src/browser',
                 environment: 'jsdom',
               },
             },
             {
               test: {
-                dir: "test/common",
+                dir: "src/common",
                 environment: 'node',
               },
             },
             {
               test: {
-                dir: "test/node",
+                dir: "src/node",
                 environment: 'node',
               },
             },
