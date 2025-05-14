@@ -2535,6 +2535,7 @@ __metadata:
     "@gepick/ai-core": "workspace:*"
     "@gepick/cli": "workspace:*"
     "@gepick/core": "workspace:*"
+    "@gepick/variable-resolver": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -2787,6 +2788,16 @@ __metadata:
     nodemon: "npm:^3.1.7"
     ts-node: "npm:^10.9.2"
     tslib: "npm:^2.8.1"
+  languageName: unknown
+  linkType: soft
+
+"@gepick/variable-resolver@workspace:*, @gepick/variable-resolver@workspace:packages/variable-resolver":
+  version: 0.0.0-use.local
+  resolution: "@gepick/variable-resolver@workspace:packages/variable-resolver"
+  dependencies:
+    "@gepick/ai-core": "workspace:*"
+    "@gepick/cli": "workspace:*"
+    "@gepick/core": "workspace:*"
   languageName: unknown
   linkType: soft
 

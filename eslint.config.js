@@ -46,6 +46,7 @@ export default antfu(
       'ts/method-signature-style': 'off',
       'ts/no-unused-expressions': 'off',
       "unused-imports/no-unused-vars": 'off',
+      'no-multi-str': 'off',
     },
   },
 );

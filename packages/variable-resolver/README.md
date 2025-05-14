@@ -1,3 +1,3 @@
-# @gepick/ai-history
+# @gepick/variable-resolver
 
-gepick ai history
+gepick variable-resolver

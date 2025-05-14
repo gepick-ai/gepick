@@ -21,6 +21,9 @@
     {
       "path": "./packages/getting-started"
     },
+    {
+      "path": "./packages/variable-resolver"
+    },
     // ==========ai-packages==========
     {
       "path": "./ai-packages/ai-core"
