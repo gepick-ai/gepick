@@ -1,0 +1,33 @@
+{
+  "name": "@gepick/variable-resolver",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./browser": {
+      "types": "./dist/browser/index.d.ts",
+      "import": "./dist/browser/index.js"
+    },
+    "./node": {
+      "types": "./dist/node/index.d.ts",
+      "import": "./dist/node/index.js"
+    },
+    "./common": {
+      "types": "./dist/common/index.d.ts",
+      "import": "./dist/common/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "gepick compile --watch",
+    "build": "gepick compile",
+    "test": "gepick test",
+    "docs": "npx typedoc"
+  },
+  "dependencies": {
+    "@gepick/ai-core": "workspace:*",
+    "@gepick/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@gepick/cli": "workspace:*"
+  }
+}
