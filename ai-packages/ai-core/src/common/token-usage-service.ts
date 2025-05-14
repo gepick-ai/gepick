@@ -1,3 +1,4 @@
+import { createServiceDecorator } from '@gepick/core/common';
 import { TokenUsageServiceClient } from './protocol';
 
 export const TokenUsageService = Symbol('TokenUsageService');
@@ -38,3 +39,6 @@ export interface TokenUsageService {
 
   setClient(tokenUsageClient: TokenUsageServiceClient): void;
 }
+
+export const ITokenUsageService = createServiceDecorator('TokenUsageService');
+export type ITokenUsageService = TokenUsageService;

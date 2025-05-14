@@ -25,7 +25,8 @@
   },
   "dependencies": {
     "@gepick/ai-core": "workspace:*",
-    "@gepick/core": "workspace:*"
+    "@gepick/core": "workspace:*",
+    "@gepick/variable-resolver": "workspace:*"
   },
   "devDependencies": {
     "@gepick/cli": "workspace:*"

@@ -1,4 +1,4 @@
-import { Event } from '@gepick/core/common';
+import { Event, createServiceDecorator } from '@gepick/core/common';
 import { LanguageModelMetaData } from './language-model';
 import { TokenUsage } from './token-usage-service';
 
@@ -23,3 +23,6 @@ export interface TokenUsageServiceClient {
      */
   readonly onTokenUsageUpdated: Event<TokenUsage>;
 }
+
+export const ITokenUsageServiceClient = createServiceDecorator<ITokenUsageServiceClient>('TokenUsageServiceClient');
+export type ITokenUsageServiceClient = TokenUsageServiceClient;

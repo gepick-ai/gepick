@@ -12,12 +12,15 @@
       "path": "../../packages/core"
     },
     {
+      "path": "../../packages/variable-resolver"
+    },
+    {
       "path": "../ai-core"
     }
   ],
   "include": [
     "./src"
-  ],
+, "../ai-core/src/browser/theia-variable-contribution.ts", "../ai-core/src/browser/token-usage-frontend-service-impl.ts", "../ai-core/src/browser/token-usage-frontend-service.ts"  ],
   "exclude": [
     "src/**/*.test.ts",
     "src/**/*.spec.ts"

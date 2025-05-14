@@ -39,3 +39,4 @@ export * from "./resource";
 export * from "./application-error";
 export * from "./common-module";
 export * from "./uuid";
+export * from "./buffer";

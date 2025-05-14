@@ -1,8 +1,8 @@
 // @ts-nocheck
 
-import { Emitter, IServiceContainer, InjectableService, PostConstruct, ServiceIdUtil, Unmanaged, createServiceDecorator, isObject } from "@gepick/core/common";
+import { Emitter, Event, IServiceContainer, InjectableService, PostConstruct, ServiceIdUtil, Unmanaged, createServiceDecorator, isObject } from "@gepick/core/common";
 import { IPreferencesSchema, IPreferencesSchemaPart } from "./preference-schema-part-contribution";
-import { IPreferencesService } from "./preferences-service";
+import { IPreferencesService, PreferenceChange } from "./preferences-service";
 
 // #region PreferenceProxyFactory
 export class PreferencesProxyFactory extends InjectableService {
@@ -223,5 +223,9 @@ export abstract class AbstractPreferencesProxy<T> extends InjectableService {
 
   getPreferencesSchema() {
     return this.#schema;
+  }
+
+  get onPreferenceChanged(): Event<PreferenceChange> {
+    return this.#proxy.onPreferenceChanged;
   }
 }

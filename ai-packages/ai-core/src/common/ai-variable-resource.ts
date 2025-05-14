@@ -1,24 +1,8 @@
-// *****************************************************************************
-// Copyright (C) 2025 EclipseSource GmbH and others.
-//
-// This program and the accompanying materials are made available under the
-// terms of the Eclipse Public License v. 2.0 which is available at
-// http://www.eclipse.org/legal/epl-2.0.
-//
-// This Source Code may also be made available under the following Secondary
-// Licenses when the conditions for such availability set forth in the Eclipse
-// Public License v. 2.0 are satisfied: GNU General Public License, version 2
-// with the GNU Classpath Exception which is available at
-// https://www.gnu.org/software/classpath/license.html.
-//
-// SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
-// *****************************************************************************
-
 import deepEqual from 'fast-deep-equal';
 import stableJsonStringify from 'fast-json-stable-stringify';
-import { InjectableService, PostConstruct, Resource, URI, generateUuid } from '@gepick/core/common';
+import { InjectableService, PostConstruct, Resource, URI, createServiceDecorator, generateUuid } from '@gepick/core/common';
 import { AIVariableContext, AIVariableResolutionRequest } from './variable-service/variable-service';
-import { ConfigurableInMemoryResources, ConfigurableMutableReferenceResource, IConfigurableInMemoryResources } from './configurable-in-memory-resources';
+import { ConfigurableMutableReferenceResource, IConfigurableInMemoryResources } from './configurable-in-memory-resources';
 
 export const AI_VARIABLE_RESOURCE_SCHEME = 'ai-variable';
 export const NO_CONTEXT_AUTHORITY = 'context-free';
@@ -91,3 +75,5 @@ export class AIVariableResourceResolver extends InjectableService {
     catch { return undefined; }
   }
 }
+export const IAIVariableResourceResolver = createServiceDecorator<IAIVariableResourceResolver>(AIVariableResourceResolver.name);
+export type IAIVariableResourceResolver = AIVariableResourceResolver;
