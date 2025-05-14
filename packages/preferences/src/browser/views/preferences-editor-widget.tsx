@@ -1,4 +1,4 @@
-import { AbstractWidget, CompositeTreeNode, DEFAULT_SCROLL_OPTIONS, ExpandableTreeNode, IPreferenceDiff, IPreferencesService, IPreferencesSchemaProvider, SelectableTreeNode, StatefulWidget, TopDownTreeIterator } from "@gepick/core/browser";
+import { AbstractWidget, CompositeTreeNode, DEFAULT_SCROLL_OPTIONS, ExpandableTreeNode, IPreferencesService, PreferenceChanges, SelectableTreeNode, StatefulWidget, TopDownTreeIterator } from "@gepick/core/browser";
 import { PostConstruct, createServiceDecorator, deepEqual, lodashThrottle, unreachable } from "@gepick/core/common";
 import { Preference } from "../util/preference-types";
 import { IPreferenceTreeModel, PreferenceFilterChangeEvent, PreferenceFilterChangeSource } from "../preferences-tree-model";
@@ -181,8 +181,8 @@ export class PreferencesEditorWidget extends AbstractWidget implements StatefulW
     }
   }
 
-  protected handlePreferenceChanges(e: IPreferenceDiff[]): void {
-    for (const id of e.map(e => e.preferenceName)) {
+  protected handlePreferenceChanges(e: PreferenceChanges): void {
+    for (const id of Object.keys(e)) {
       this.commonlyUsedRenderers.get(id)?.handleValueChange?.();
       this.renderers.get(id)?.handleValueChange?.();
     }

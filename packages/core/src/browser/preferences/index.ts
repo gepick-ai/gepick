@@ -3,4 +3,7 @@ export * from "./preferences-module";
 export * from "./preferences-service";
 export * from "./preferences-proxy";
 export * from "./preference-schema-part-contribution";
+export * from "./preference-schema-provider";
+export * from "./preference-configurations";
+export * from "./preference-configuration-contribution";
 export * from "./test";

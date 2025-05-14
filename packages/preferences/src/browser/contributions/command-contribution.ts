@@ -27,13 +27,13 @@ export class ResetPreferencesCommand extends AbstractCommand {
   static override Label = 'Reset Setting';
 
   constructor(
-    @IPreferencesService protected readonly preferencesManager: IPreferencesService,
+    @IPreferencesService protected readonly preferenceService: IPreferencesService,
   ) {
     super();
   }
 
   override execute({ id }: Preference.EditorCommandArgs): void {
-    this.preferencesManager.set(id, undefined);
+    this.preferenceService.set(id, undefined, undefined);
   }
 
   override isEnabled = Preference.EditorCommandArgs.is;

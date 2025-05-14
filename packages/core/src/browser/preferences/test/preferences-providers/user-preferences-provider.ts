@@ -1,7 +1,11 @@
-// @ts-nocheck
-import { AbstractPreferencesProvider } from "../../preferences-provider-contribution";
+import { PreferenceScope } from "@gepick/core/common";
+import { PreferenceProviderContribution } from "../../preference-provider-contribution";
 
-export class UserPreferencesProvider extends AbstractPreferencesProvider {
+export class UserPreferencesProvider extends PreferenceProviderContribution {
+  override getScope(): PreferenceScope {
+    return PreferenceScope.User;
+  }
+
   override getPreferences(_resourceUri?: string): { [p: string]: any } {
     throw new Error("Method not implemented.");
   }

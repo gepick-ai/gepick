@@ -1,20 +1,4 @@
-// *****************************************************************************
-// Copyright (C) 2020 Ericsson and others.
-//
-// This program and the accompanying materials are made available under the
-// terms of the Eclipse Public License v. 2.0 which is available at
-// http://www.eclipse.org/legal/epl-2.0.
-//
-// This Source Code may also be made available under the following Secondary
-// Licenses when the conditions for such availability set forth in the Eclipse
-// Public License v. 2.0 are satisfied: GNU General Public License, version 2
-// with the GNU Classpath Exception which is available at
-// https://www.gnu.org/software/classpath/license.html.
-//
-// SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
-// *****************************************************************************
-
-import { CompositeTreeNode, IPreferencesConfiguration, IPreferencesService, IPreferencesSchemaProvider, OVERRIDE_PROPERTY_PATTERN } from "@gepick/core/browser";
+import { CompositeTreeNode, IPreferenceConfigurations, IPreferenceSchemaProvider, IPreferencesService } from "@gepick/core/browser";
 import { Emitter, InjectableService, PostConstruct, createServiceDecorator, lodashDebounce } from "@gepick/core/common";
 import { PreferenceDataProperty } from "../preference-schema";
 import { COMMONLY_USED_SECTION_PREFIX, IPreferenceLayoutProvider } from "./preference-layout";
@@ -40,8 +24,8 @@ export class PreferenceTreeGenerator extends InjectableService {
 
   constructor(
     @IPreferencesService protected readonly preferencesManager: IPreferencesService,
-    @IPreferencesSchemaProvider protected readonly preferencesSchemaService: IPreferencesSchemaService,
-    @IPreferencesConfiguration protected readonly preferencesConfiguration: IPreferencesConfiguration,
+    @IPreferenceSchemaProvider protected readonly schemaProvider: IPreferenceSchemaProvider,
+    @IPreferenceConfigurations protected readonly preferencesConfiguration: IPreferenceConfigurations,
     @IPreferenceLayoutProvider protected readonly layoutProvider: IPreferenceLayoutProvider,
     @IPreferenceTreeLabelProvider protected readonly labelProvider: IPreferenceTreeLabelProvider,
   ) {
@@ -58,14 +42,14 @@ export class PreferenceTreeGenerator extends InjectableService {
   }
 
   protected async doInit(): Promise<void> {
-    await this.preferencesSchemaService.ready;
-    this.preferencesSchemaService.onDidPreferenceSchemaChanged(() => this.handleChangedSchema());
+    await this.schemaProvider.ready;
+    this.schemaProvider.onDidPreferenceSchemaChanged(() => this.handleChangedSchema());
     this.handleChangedSchema();
   }
 
   generateTree(): CompositeTreeNode {
     this._idCache.clear();
-    const preferencesSchema = this.preferencesSchemaService.getPreferenceSchema();
+    const preferencesSchema = this.schemaProvider.getCombinedSchema();
     const propertyNames = Object.keys(preferencesSchema.properties);
     const groups = new Map<string, Preference.CompositeTreeNode>();
     const root = this.createRootNode();

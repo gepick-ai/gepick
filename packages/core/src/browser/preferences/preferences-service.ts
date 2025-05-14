@@ -1,4 +1,4 @@
-import { Deferred, Emitter, InjectableService, PostConstruct, PreferenceScope, URI, createServiceDecorator, deepFreeze, toDisposable } from "@gepick/core/common";
+import { Deferred, Emitter, InjectableService, Optional, PostConstruct, PreferenceScope, URI, createServiceDecorator, deepFreeze, toDisposable } from "@gepick/core/common";
 import { JSONExt, JSONValue } from "@lumino/coreutils";
 import { IPreferenceConfigurations } from "./preference-configurations";
 import { IPreferenceSchemaProvider } from "./preference-schema-provider";
@@ -151,7 +151,7 @@ export class PreferencesService extends InjectableService implements IPreference
   constructor(
     @IPreferenceConfigurations protected readonly configurations: IPreferenceConfigurations,
     @IPreferenceSchemaProvider protected readonly preferencesSchemaProvider: IPreferenceSchemaProvider,
-    @IPreferencesProviderProvider protected readonly preferencesProviderProvider: IPreferencesProviderProvider,
+    @Optional() @IPreferencesProviderProvider protected readonly preferencesProviderProvider: IPreferencesProviderProvider,
   ) {
     super();
   }
@@ -292,7 +292,7 @@ export class PreferencesService extends InjectableService implements IPreference
    */
   protected async initializeProviders(): Promise<void> {
     try {
-      const preferencesProviders = this.preferencesProviderProvider.getContributions();
+      const preferencesProviders = this.preferencesProviderProvider?.getContributions() ?? [];
 
       for (const provider of preferencesProviders) {
         this.preferenceProviders.set(provider.getScope(), provider);

@@ -1,9 +1,9 @@
-import { InjectableService, URI, createServiceDecorator } from "@gepick/core/common";
+import { InjectableService, Optional, URI, createServiceDecorator } from "@gepick/core/common";
 import { IPreferenceConfigurationProvider } from "./preference-configuration-contribution";
 
 export class PreferenceConfigurations extends InjectableService {
   constructor(
-    @IPreferenceConfigurationProvider protected readonly provider: IPreferenceConfigurationProvider,
+    @Optional() @IPreferenceConfigurationProvider protected readonly provider: IPreferenceConfigurationProvider,
   ) {
     super();
   }

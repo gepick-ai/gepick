@@ -253,4 +253,6 @@ export abstract class PreferenceProvider extends InjectableService {
 }
 
 @Contribution(IPreferencesProvider)
-export abstract class PreferenceProviderContribution extends PreferenceProvider {}
+export abstract class PreferenceProviderContribution extends PreferenceProvider {
+  abstract getScope(): PreferenceScope;
+}

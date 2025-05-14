@@ -148,7 +148,7 @@ export class PreferenceHeaderRenderer extends PreferenceNodeRenderer {
 
 export abstract class PreferenceLeafNodeRenderer<ValueType extends JSONValue, InteractableType extends HTMLElement> extends PreferenceNodeRenderer implements Required<GeneralPreferenceNodeRenderer> {
   @IPreferenceNode protected declare readonly preferenceNode: IPreferenceNode;
-  @IPreferencesService protected readonly preferencesManager: IPreferencesService;
+  @IPreferencesService protected readonly preferenceService: IPreferencesService;
   @IContextMenuRenderer protected readonly menuRenderer: IContextMenuRenderer;
   @IPreferencesScopeTabBar protected readonly scopeTracker: IPreferencesScopeTabBar;
   @IPreferenceTreeModel protected readonly model: IPreferenceTreeModel;
@@ -175,7 +175,7 @@ export abstract class PreferenceLeafNodeRenderer<ValueType extends JSONValue, In
   }
 
   protected updateInspection(): void {
-    this.inspection = this.preferencesManager.inspectPreference(this.id, this.scopeTracker.currentScope.uri) as any;
+    this.inspection = this.preferenceService.inspect<ValueType>(this.id, this.scopeTracker.currentScope.uri) as any;
   }
 
   protected openLink(event: MouseEvent): void {
@@ -440,9 +440,8 @@ export abstract class PreferenceLeafNodeRenderer<ValueType extends JSONValue, In
   protected setPreferenceWithDebounce = lodashDebounce(this.setPreferenceImmediately.bind(this), 500, { leading: false, trailing: true });
 
   protected setPreferenceImmediately(value: ValueType | undefined): Promise<void> {
-    this.preferencesManager.set(this.id, value);
-
-    return Promise.resolve(void 0);
+    return this.preferenceService.set(this.id, value, this.scopeTracker.currentScope.scope, this.scopeTracker.currentScope.uri)
+      .catch(() => this.handleValueChange());
   }
 
   handleSearchChange(isFiltered = this.model.isFiltered): void {
