@@ -34,4 +34,8 @@ export * from "./ternary-search-tree";
 export * from "./keyboard";
 export * from "./transaction";
 export * from "./preferences";
+export * from "./reference";
+export * from "./resource";
+export * from "./application-error";
 export * from "./common-module";
+export * from "./uuid";

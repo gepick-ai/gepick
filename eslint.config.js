@@ -40,7 +40,12 @@ export default antfu(
       'jsdoc/check-alignment': 'off',
       'ts/no-duplicate-enum-values': 'off',
       'no-prototype-builtins': 'off',
-      'ts/no-use-before-define':'off'
+      'ts/no-use-before-define': 'off',
+      'regexp/no-super-linear-backtracking': 'off',
+      'ts/no-unsafe-function-type': 'off',
+      'ts/method-signature-style': 'off',
+      'ts/no-unused-expressions': 'off',
+      "unused-imports/no-unused-vars": 'off',
     },
   },
 );

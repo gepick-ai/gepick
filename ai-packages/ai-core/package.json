@@ -1,0 +1,38 @@
+{
+  "name": "@gepick/ai-core",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./browser": {
+      "types": "./dist/browser/index.d.ts",
+      "import": "./dist/browser/index.js"
+    },
+    "./node": {
+      "types": "./dist/node/index.d.ts",
+      "import": "./dist/node/index.js"
+    },
+    "./common": {
+      "types": "./dist/common/index.d.ts",
+      "import": "./dist/common/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "gepick compile --watch",
+    "build": "gepick compile",
+    "test": "gepick test",
+    "docs": "npx typedoc"
+  },
+  "dependencies": {
+    "@gepick/core": "workspace:*",
+    "fast-deep-equal": "^3.1.3",
+    "fast-json-stable-stringify": "^2.0.0",
+    "js-yaml": "^4.1.0",
+    "minimatch": "^5.1.0",
+    "tslib": "^2.6.2"
+  },
+  "devDependencies": {
+    "@gepick/cli": "workspace:*",
+    "@types/js-yaml": "^4.0.9"
+  }
+}

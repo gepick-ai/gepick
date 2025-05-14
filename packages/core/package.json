@@ -70,6 +70,7 @@
     "reconnecting-websocket": "^4.4.0",
     "reflect-metadata": "^0.1.13",
     "ts-mixer": "^6.0.4",
+    "uuid": "^9.0.1",
     "vscode-jsonrpc": "^8.2.1",
     "vscode-uri": "^2.1.1",
     "ws": "^3.0.0"
@@ -87,6 +88,7 @@
     "@types/markdown-it": "^12.2.3",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
+    "@types/uuid": "^9.0.8",
     "@types/ws": "^3.0.2"
   }
 }

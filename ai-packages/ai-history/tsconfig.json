@@ -7,8 +7,12 @@
     "outDir": "./dist"
   },
   "references": [
+
     {
-      "path": "../core"
+      "path": "../../packages/core"
+    },
+    {
+      "path": "../ai-core"
     }
   ],
   "include": [

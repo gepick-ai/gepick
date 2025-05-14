@@ -45,10 +45,10 @@ export default <CommandModule>{
           node: 'node',
         };
 
-        const testDirs = glob.sync(`packages/*/src/${env}`, { cwd: curPackage });
+        const testDirs = glob.sync(`{packages,ai-packages}/*/src/${env}`, { cwd: curPackage });
         const testConfigs = testDirs.map((dir: string) => ({
           test: {
-            name: `${dir.slice(0, dir.indexOf(`/src/${env}`)).replace('packages', '@gepick')}`,
+            name: `${dir.slice(0, dir.indexOf(`/src/${env}`)).replace(/^.*packages/, '@gepick')}`,
             dir,
             environment: envs[env],
           },
@@ -66,6 +66,7 @@ export default <CommandModule>{
         vitest = await startVitest('test', [], {
           workspace: [
             "packages/*",
+            "ai-packages/*",
             {
               test: {
                 dir: 'src/browser',

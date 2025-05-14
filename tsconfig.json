@@ -2,6 +2,7 @@
   "root": true,
   "extends": "./tsconfig.base.json",
   "references": [
+    // ==========packages===========
     {
       "path": "./packages/core"
     },
@@ -20,6 +21,14 @@
     {
       "path": "./packages/getting-started"
     },
+    // ==========ai-packages==========
+    {
+      "path": "./ai-packages/ai-core"
+    },
+    {
+      "path": "./ai-packages/ai-history"
+    },
+    // ==========tools==========
     {
       "path": "./tools/cli"
     }
