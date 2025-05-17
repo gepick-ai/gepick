@@ -1,5 +1,5 @@
 import { ColorDefinition } from "@gepick/core/common";
-import { AbstractThemePart } from "../theme-part-contribution";
+import { AbstractThemePart } from "../../theme-part-contribution";
 
 export class GitThemePart extends AbstractThemePart {
   constructor() {

@@ -1,4 +1,4 @@
-import { AbstractThemePart } from "../theme-part-contribution";
+import { AbstractThemePart } from "../../theme-part-contribution";
 
 export class DebugThemePart extends AbstractThemePart {
   constructor() {

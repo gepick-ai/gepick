@@ -19,7 +19,7 @@
 /*-----------------------------------------------------------------------------
 | Import children style files
 |----------------------------------------------------------------------------*/
-@import "./hard-code.css";
+/* @import "./hard-code.css"; */
 @import "./os.css";
 @import "./dockpanel.css";
 @import "./dialog.css";

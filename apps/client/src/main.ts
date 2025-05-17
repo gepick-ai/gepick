@@ -6,10 +6,7 @@ async function main() {
     moduleLoadReady
       .then((container) => {
         container.get<IApplication>(IApplication).start();
-        return container;
-      }).then(async (container) => {
-        await container.get<IPreferencesService>(IPreferencesService).ready;
-      });
+      })
   }
   catch (err) {
     console.error((err as Error).stack);

@@ -47,6 +47,7 @@ export default antfu(
       'ts/no-unused-expressions': 'off',
       "unused-imports/no-unused-vars": 'off',
       'no-multi-str': 'off',
+      'accessor-pairs': 'off',
     },
   },
 );

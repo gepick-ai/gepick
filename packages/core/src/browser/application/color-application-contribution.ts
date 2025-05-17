@@ -24,7 +24,14 @@ export class ColorApplicationContribution extends ApplicationContribution {
       this.colorRegistry.register(...themePart.getColorDefinitions());
     });
 
+    this.themeService.initialized.then(() => this.update());
+    this.themeService.onDidColorThemeChange(() => {
+      this.update();
+      this.updateThemeBackground();
+    });
     this.colorRegistry.onDidChange(() => this.update());
+    // TODO(@jaylenchen): 将设置主题硬编码逻辑动态化
+    this.colorRegistry.setDarkTheme();
 
     this.registerWindow(window);
   }

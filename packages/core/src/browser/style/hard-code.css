@@ -1,7 +1,7 @@
 :root {
     /* 下面是主题硬编码，有空再改 */
     --theia-activityBar-background: #eeeeee;
-    --theia-sideBar-background: #f3f3f3;
+    /* --theia-sideBar-background: #f3f3f3; */
     --theia-editorGroupHeader-tabsBackground: #f3f3f3;
     --theia-foreground: #616161;
     --theia-disabledForeground: rgba(97, 97, 97, 0.5);
@@ -353,7 +353,7 @@
     --theia-activityBar-dropBackground: rgba(255, 255, 255, 0.12);
     --theia-activityBarBadge-background: #007acc;
     --theia-activityBarBadge-foreground: #ffffff;
-    --theia-sideBar-background: #f3f3f3;
+    /* --theia-sideBar-background: #f3f3f3; */
     --theia-sideBarSectionHeader-background: rgba(0, 0, 0, 0);
     --theia-sideBarSectionHeader-border: rgba(97, 97, 97, 0.19);
     --theia-editorGroup-border: #e7e7e7;

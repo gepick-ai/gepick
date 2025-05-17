@@ -1,5 +1,5 @@
 import { Color } from "@gepick/core/common";
-import { AbstractThemePart } from "../theme-part-contribution";
+import { AbstractThemePart } from "../../theme-part-contribution";
 
 export class TerminalThemePart extends AbstractThemePart {
   constructor() {

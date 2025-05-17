@@ -35,4 +35,4 @@ export class ColorRegistry extends InjectableService {
   }
 }
 export const IColorRegistry = createServiceDecorator<IColorRegistry>(ColorRegistry.name);
-export type IColorRegistry = ColorRegistry;
+export type IColorRegistry = ColorRegistry & { setDarkTheme: () => void };

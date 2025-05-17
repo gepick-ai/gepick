@@ -35,10 +35,11 @@ export class CorePreferencesSchemaPart extends AbstractPreferencesSchemaPart {
 export const ICorePreferencesSchemaPart = createServiceDecorator<ICorePreferencesSchemaPart>(CorePreferencesSchemaPart.name);
 export type ICorePreferencesSchemaPart = CorePreferencesSchemaPart;
 
-export class CorePreferencesProxy extends AbstractPreferencesProxy<{
+export class CorePreferences extends AbstractPreferencesProxy<{
   'workbench.sash.hoverDelay': number;
   'workbench.sash.size': number;
   'workbench.colorTheme': string;
+  'workbench.commandPalette.history': number;
 }> {
   constructor(
     @ICorePreferencesSchemaPart protected readonly corePreferencesSchemaPart: ICorePreferencesSchemaPart,
@@ -47,5 +48,5 @@ export class CorePreferencesProxy extends AbstractPreferencesProxy<{
   }
 }
 
-export const ICorePreferencesProxy = createServiceDecorator<ICorePreferencesProxy>(CorePreferencesProxy.name);
-export type ICorePreferencesProxy = CorePreferencesProxy;
+export const ICorePreferences = createServiceDecorator<ICorePreferences>(CorePreferences.name);
+export type ICorePreferences = CorePreferences;

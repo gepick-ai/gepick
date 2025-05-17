@@ -5,3 +5,4 @@ export { default as Ajv } from "ajv";
 export * from "inversify";
 export { default as deepEqual } from "fast-deep-equal";
 export { default as DOMPurify } from "dompurify";
+export { Position } from "vscode-languageserver-protocol";

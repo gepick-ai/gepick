@@ -1,5 +1,5 @@
 import { Color, ColorDefinition } from "@gepick/core/common";
-import { AbstractThemePart } from "../theme-part-contribution";
+import { AbstractThemePart } from "../../theme-part-contribution";
 
 export class NotificationsThemePart extends AbstractThemePart {
   constructor() {
