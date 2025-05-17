@@ -1,9 +1,9 @@
 import { Command, Contribution, IMenuContribution, InjectableService, MAIN_MENU_BAR, MANAGE_MENU, MenuModelRegistry } from '@gepick/core/common';
-import { IShell } from '../shell';
-import { WidgetUtilities } from '../widget';
-import { ICorePreferences, IPreferencesService } from '../preferences';
-import { DecorationStyle } from '../services';
-import { ApplicationContribution } from './application-contribution';
+import { IShell } from '../../shell';
+import { WidgetUtilities } from '../../widget';
+import { ICorePreferences, IPreferencesService } from '../../preferences';
+import { DecorationStyle } from '../../services';
+import { ApplicationContribution } from '../application-contribution';
 
 export namespace CommonMenus {
 

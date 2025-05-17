@@ -1,9 +1,9 @@
-import { DecorationStyle } from "../services";
-import { ColorTheme, CssStyleCollector, IStylingParticipantProvider } from "../theme/styling-contribution";
-import { IColorRegistry } from "../theme/color-registry";
-import { IThemeService } from "../theme/theme-service";
-import { Theme } from "../theme/theme-types";
-import { ApplicationContribution } from ".";
+import { DecorationStyle } from "../../services";
+import { ColorTheme, CssStyleCollector, IStylingParticipantProvider } from "../../theme/styling-contribution";
+import { IColorRegistry } from "../../theme/color-registry";
+import { IThemeService } from "../../theme/theme-service";
+import { Theme } from "../../theme/theme-types";
+import { ApplicationContribution } from "..";
 
 export class StylingApplicationContribution extends ApplicationContribution {
   protected cssElements = new Map<Window, HTMLStyleElement>();
@@ -19,8 +19,7 @@ export class StylingApplicationContribution extends ApplicationContribution {
   override onApplicationStart(): void {
     this.registerWindow(window);
 
-    // TODO: debug theme change
-    // this.themeService.onDidColorThemeChange(e => this.applyStylingToWindows(e.newTheme));
+    this.themeService.onDidColorThemeChange(e => this.applyStylingToWindows(e.newTheme));
   }
 
   registerWindow(win: Window): void {

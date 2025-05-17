@@ -1,6 +1,6 @@
 import { DisposableCollection, Emitter, toDisposable } from "@gepick/core/common";
-import { IColorRegistry, IThemePartProvider, IThemeService } from "../theme";
-import { ApplicationContribution } from "./application-contribution";
+import { IColorRegistry, IThemePartProvider, IThemeService } from "../../theme";
+import { ApplicationContribution } from "../application-contribution";
 
 export class ColorApplicationContribution extends ApplicationContribution {
   protected readonly _onDidChange = new Emitter<void>();
