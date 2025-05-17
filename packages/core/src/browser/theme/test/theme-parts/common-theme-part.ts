@@ -95,7 +95,7 @@ export class CommonThemePart extends AbstractThemePart {
         id: 'activityBar.background',
         defaults: {
           dark: '#333333',
-          light: '#2C2C2C',
+          light: '#ececec',
           hcDark: '#000000',
           hcLight: '#FFFFFF',
         },
@@ -105,7 +105,7 @@ export class CommonThemePart extends AbstractThemePart {
         id: 'activityBar.foreground',
         defaults: {
           dark: Color.white,
-          light: Color.white,
+          light: '#000000',
           hcDark: Color.white,
           hcLight: 'editor.foreground',
         },
@@ -133,7 +133,7 @@ export class CommonThemePart extends AbstractThemePart {
         id: 'activityBar.activeBorder',
         defaults: {
           dark: 'activityBar.foreground',
-          light: 'activityBar.foreground',
+          light: '#000000',
           hcLight: 'contrastBorder',
         },
         description: 'Activity bar border color for the active item. The activity bar is showing on the far left or right and allows to switch between views of the side bar.',

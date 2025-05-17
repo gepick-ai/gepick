@@ -34,6 +34,10 @@ export class MonacoColorRegistry extends ColorRegistry {
     this.monacoThemeService.setTheme("vs-dark");
   }
 
+  setLightTheme() {
+    this.monacoThemeService.setTheme("vs");
+  }
+
   override getCurrentColor(id: string): string | undefined {
     return this.monacoThemeService.getColorTheme().getColor(id)?.toString();
   }

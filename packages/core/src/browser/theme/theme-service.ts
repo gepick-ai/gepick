@@ -1,6 +1,7 @@
 import { Deferred, Emitter, Event, IDisposable, InjectableService, PostConstruct, createServiceDecorator, lodashDebounce, toDisposable } from "@gepick/core/common";
 import { IPreferencesService } from "../preferences";
 import { IPreferenceSchemaProvider } from "../preferences/preference-schema-provider";
+import { FrontendApplicationConfigProvider } from "../application";
 import { Theme, ThemeChangeEvent } from "./theme-types";
 
 const COLOR_THEME_PREFERENCE_KEY = 'workbench.colorTheme';
@@ -159,7 +160,7 @@ export class ThemeService extends InjectableService {
    * The default theme. If that is not applicable, returns with the fallback theme.
    */
   get defaultTheme(): Theme {
-    return this.tryGetTheme(DefaultTheme.defaultForOSTheme('dark'))
+    return this.tryGetTheme(DefaultTheme.defaultForOSTheme(FrontendApplicationConfigProvider.get().defaultTheme))
       ?? this.getTheme(DefaultTheme.defaultForOSTheme('dark'));
   }
 
