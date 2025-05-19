@@ -2,7 +2,7 @@ import * as fuzzy from 'fuzzy';
 import { Event } from '../event';
 import { CancellationToken } from '../cancellation';
 import { KeySequence } from '../keyboard';
-import { createServiceDecorator } from '../dependency-injection';
+import { createServiceDecorator } from '../framework';
 
 export const quickPickServicePath = '/services/quickPick';
 export const QuickPickService = Symbol('QuickPickService');

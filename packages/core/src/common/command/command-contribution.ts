@@ -1,4 +1,4 @@
-import { Contribution, IContributionProvider, InjectableService, createContribution } from "../dependency-injection";
+import { Contribution, IContributionProvider, InjectableService, createContribution } from "../framework";
 import { Command, CommandHandler } from "./command-service";
 import { CommandRegistry } from "./command-registry";
 

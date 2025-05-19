@@ -1,6 +1,6 @@
 import debounce from "p-debounce";
 import { Emitter, WaitUntilEvent } from '../event';
-import { InjectableService, Optional, createServiceDecorator } from '../dependency-injection';
+import { InjectableService, Optional, createServiceDecorator } from '../framework';
 import { DisposableStore, IDisposable, toDisposable } from '../lifecycle';
 import { Command, CommandEvent, CommandHandler, CommandService, WillExecuteCommandEvent } from "./command-service";
 import { ICommandProvider } from "./command-contribution";
@@ -8,7 +8,6 @@ import { ICommandProvider } from "./command-contribution";
 /**
  * The command registry manages commands and handlers.
  */
-
 export class CommandRegistry extends InjectableService implements CommandService {
   protected readonly _commands: { [id: string]: Command } = {};
   protected readonly _handlers: { [id: string]: CommandHandler[] } = {};

@@ -1,2 +1,2 @@
 export * from "./preferences-module";
-export * from "./preferences-contribution-module";
+export * from "./contributions/preferences-contribution-module";

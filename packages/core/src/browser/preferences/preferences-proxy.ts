@@ -31,8 +31,8 @@ export class PreferenceProxyHandler<T extends Record<string, any>> extends Injec
   readonly onPreferenceChanged = this._onPreferenceChanged.event;
 
   constructor(
-    @IPreferencesSchemaPart protected readonly preferenceSchema: IPreferencesSchema,
-    @IPreferencesService protected readonly preferencesManager: IPreferencesService,
+    @IPreferencesSchemaPart protected readonly preferenceSchema: IPreferencesSchemaPart,
+    @IPreferencesService protected readonly preferencesService: IPreferencesService,
     @IPreferencesProxyFactory protected readonly preferencesProxyFactory: IPreferencesProxyFactory,
   ) {
     super();
@@ -73,7 +73,8 @@ export class PreferenceProxyHandler<T extends Record<string, any>> extends Injec
     if (this.preferenceSchema && (this.isFlat || !property.includes('.')) && this.preferenceSchema.properties[preferenceName]) {
       const { overrideIdentifier } = this;
       const toGet = overrideIdentifier ? this.preferenceSchema.overridePreferenceName({ overrideIdentifier, preferenceName }) : preferenceName;
-      return this.preferencesManager.get(toGet as keyof T & string, undefined!);
+
+      return this.preferencesService.get(toGet as keyof T & string, undefined!);
     }
 
     switch (property) {
@@ -82,9 +83,9 @@ export class PreferenceProxyHandler<T extends Record<string, any>> extends Injec
       case 'dispose':
         return this.dispose;
       case 'ready':
-        return Promise.all([this.preferencesManager.ready]).then(() => undefined);
+        return Promise.all([this.preferencesService.ready]).then(() => undefined);
       case 'get':
-        return this.preferencesManager.get.bind(this.preferencesManager);
+        return this.preferencesService.get.bind(this.preferencesService);
       case 'toJSON':
         return this.toJSON;
       case 'ownKeys':
@@ -131,7 +132,7 @@ export class PreferenceProxyHandler<T extends Record<string, any>> extends Injec
     if (preferenceSchema) {
       const fullProperty = prefix ? prefix + property : property;
       if (preferenceSchema.properties[fullProperty]) {
-        this.preferencesManager.set(fullProperty, value);
+        this.preferencesService.set(fullProperty, value);
         return true;
       }
       const newPrefix = `${fullProperty}.`;
@@ -196,7 +197,7 @@ export abstract class AbstractPreferencesProxy<T> extends InjectableService {
   #schema: IPreferencesSchema;
 
   @IPreferencesProxyFactory protected readonly preferencesProxyFactory: IPreferencesProxyFactory;
-  @IPreferencesService protected readonly preferencesManager: IPreferencesService;
+  @IPreferencesService protected readonly preferencesService: IPreferencesService;
 
   constructor(@Unmanaged() readonly preferencesSchemaPart: IPreferencesSchemaPart) {
     super();
@@ -205,7 +206,7 @@ export abstract class AbstractPreferencesProxy<T> extends InjectableService {
   }
 
   get ready() {
-    return Promise.all([this.preferencesManager.ready]);
+    return Promise.all([this.preferencesService.ready]);
   }
 
   @PostConstruct()

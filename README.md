@@ -50,7 +50,7 @@ Gepick仓库包含多个文件夹：
 
 ## 文档
 
-- [Gepick依赖注入基础框架](./docs/core/docs/Dependency-Injection.md)
+- [Gepick依赖注入基础框架](./docs/core/docs/framework.md)
 - [Core](./docs/core/README.md)
 - [Plugin](./docs/plugin/README.md)
 - [Test](./docs/test/README.md)

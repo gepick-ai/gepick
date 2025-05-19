@@ -7,7 +7,7 @@ import { CancellationToken } from "./cancellation";
 import { Readable } from "./stream";
 import { ApplicationError } from './application-error';
 import { MaybePromise } from './types';
-import { IContributionProvider, InjectableService, PostConstruct, createContribution } from './dependency-injection';
+import { IContributionProvider, InjectableService, PostConstruct, createContribution } from './framework';
 import { Reference, SyncReferenceCollection } from './reference';
 
 export interface ResourceVersion {

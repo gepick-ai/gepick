@@ -1,4 +1,4 @@
-import { InjectableService, createServiceDecorator } from "./dependency-injection";
+import { InjectableService, createServiceDecorator } from "./framework";
 import { Emitter, Event } from "./event";
 /**
  * `SelectionProvider` is implemented by services to notify listeners about selection changes.

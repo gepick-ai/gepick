@@ -4,7 +4,7 @@ export * from './linkedList';
 export * from './iterator';
 export * from "./request/messaging-service";
 export * from "./messaging";
-export * from "./dependency-injection";
+export * from "./framework";
 export * from "./extended-promise";
 export * from "./os";
 export * from "./array-utils";

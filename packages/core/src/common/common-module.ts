@@ -1,5 +1,5 @@
 import { CommandRegistry } from "./command";
-import { Module, ServiceModule } from "./dependency-injection";
+import { Module, ServiceModule } from "./framework";
 import { SelectionService } from "./selection-service";
 
 @Module({

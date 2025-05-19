@@ -1,5 +1,5 @@
 import { Mutex, MutexInterface } from "async-mutex";
-import { InjectableService, PostConstruct } from "./dependency-injection";
+import { InjectableService, PostConstruct } from "./framework";
 import { Emitter, Event, WaitUntilEvent } from "./event";
 import { Deferred } from "./promise-util";
 import { MaybePromise } from "./types";

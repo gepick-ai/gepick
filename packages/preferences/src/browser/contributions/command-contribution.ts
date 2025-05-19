@@ -39,3 +39,8 @@ export class ResetPreferencesCommand extends AbstractCommand {
   override isEnabled = Preference.EditorCommandArgs.is;
   override isVisible = Preference.EditorCommandArgs.is;
 }
+
+export const CommandContributions = [
+  OpenPreferencesCommand,
+  ResetPreferencesCommand,
+];

@@ -430,6 +430,8 @@ export class PreferencesService extends InjectableService implements IPreference
 
   protected doResolve<T>(preferenceName: string, defaultValue?: T, resourceUri?: string): PreferenceResolveResult<T> {
     const result: PreferenceResolveResult<T> = {};
+    // 按优先级顺序遍历所有作用域，遍历顺序：Default -> User -> Workspace -> Folder
+    // 每当高优先级的scope有对应的值，那么覆盖低优先级的scope中的值
     for (const scope of PreferenceScope.getScopes()) {
       if (this.preferencesSchemaProvider.isValidInScope(preferenceName, scope)) {
         const provider = this.getProvider(scope);

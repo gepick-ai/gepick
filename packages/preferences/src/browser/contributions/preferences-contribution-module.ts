@@ -1,13 +1,12 @@
 import { Module, ServiceModule } from "@gepick/core/common";
-import { OpenPreferencesCommand, ResetPreferencesCommand } from "./contributions/command-contribution";
-import { PreferencesMenuContribution } from "./contributions/menu-contribution";
-import { PreferencesView } from "./contributions/view-contribution";
+import { CommandContributions } from "./command-contribution";
+import { PreferencesMenuContribution } from "./menu-contribution";
+import { PreferencesView } from "./view-contribution";
 
 @Module({
   services: [
     // #region Command Contribution
-    OpenPreferencesCommand,
-    ResetPreferencesCommand,
+    ...CommandContributions,
     // #endregion
 
     // #region Menu Contribution
